@@ -1,11 +1,111 @@
-<!-- Scout Bookings landing page: entry point and marketing/home for the hut booking app -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scout Bookings</title>
+  <meta name="description" content="Scout Bookings - Simple, affordable booking management for scout huts. From just £10/year with Google Calendar sync and team access.">
+  <title>Scout Bookings - Manage Your Scout Hut</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Scout Bookings</a>
+      <div class="nav-links">
+        <a href="/pages/login.html">Login</a>
+        <a href="/pages/signup.html" class="btn btn-primary btn-small">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Bookings Just Got Simpler</h1>
+        <p class="hero-subtitle">From just £10/year - includes Google Calendar sync and team access</p>
+        <div class="hero-buttons">
+          <a href="/pages/signup.html" class="btn btn-primary btn-large">Start Free Trial</a>
+          <a href="/pages/pricing.html" class="btn btn-secondary btn-large">View Pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>Works with Google Calendar</h3>
+          <p>Syncs with your existing calendar automatically</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Team Access Included</h3>
+          <p>2 users on Basic, up to 5 on Pro</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✓</div>
+          <h3>Never Double-Book</h3>
+          <p>Automatic conflict detection built-in</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing">
+    <div class="container">
+      <h2 class="text-center">Pricing</h2>
+      <div class="pricing-grid">
+        <!-- Basic Plan -->
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <div class="pricing-price">£10<span>/year</span></div>
+          <p class="pricing-note">That's just 83p per month</p>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> 1 scout hut</li>
+            <li><span class="check">✓</span> 2 team members</li>
+            <li><span class="check">✓</span> Unlimited bookings</li>
+            <li><span class="check">✓</span> Google Calendar sync</li>
+            <li><span class="check">✓</span> Export to CSV</li>
+          </ul>
+          <a href="/pages/signup.html" class="btn btn-primary btn-block">Start Free Trial</a>
+        </div>
+
+        <!-- Pro Plan (Highlighted) -->
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">POPULAR</div>
+          <h3>Pro</h3>
+          <div class="pricing-price">£40<span>/year</span></div>
+          <p class="pricing-note">That's just £3.33 per month</p>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Everything in Basic</li>
+            <li><span class="check">✓</span> Unlimited scout huts</li>
+            <li><span class="check">✓</span> Public booking pages</li>
+            <li><span class="check">✓</span> Accept online payments</li>
+            <li><span class="check">✓</span> Email notifications</li>
+            <li><span class="check">✓</span> Up to 5 team members</li>
+          </ul>
+          <a href="/pages/signup.html" class="btn btn-primary btn-block">Start Free Trial</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">© 2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>
