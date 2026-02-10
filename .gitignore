@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.npm
+
+# Environment variables (IMPORTANT - keeps secrets safe)
+.env
+.env.local
+.env.production
+js/config.js
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Build outputs
+dist/
+build/

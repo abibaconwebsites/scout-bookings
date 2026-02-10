@@ -1,0 +1,1 @@
+-- Scout Bookings initial schema: tables for users, huts, and bookings.
