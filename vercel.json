@@ -6,6 +6,11 @@
     { "source": "/dashboard", "destination": "/pages/dashboard.html" },
     { "source": "/login", "destination": "/pages/login.html" },
     { "source": "/signup", "destination": "/pages/signup.html" },
-    { "source": "/pricing", "destination": "/pages/pricing.html" }
+    { "source": "/pricing", "destination": "/pages/pricing.html" },
+    { "source": "/add-booking", "destination": "/pages/add-booking.html" },
+    { "source": "/edit-booking", "destination": "/pages/edit-booking.html" },
+    { "source": "/create-hut", "destination": "/pages/create-hut.html" },
+    { "source": "/edit-hut", "destination": "/pages/edit-hut.html" },
+    { "source": "/settings", "destination": "/pages/settings.html" }
   ]
 }
