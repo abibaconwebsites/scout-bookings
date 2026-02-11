@@ -2,11 +2,10 @@
 node_modules/
 .npm
 
-# Environment variables (IMPORTANT - keeps secrets safe)
+# Environment variables
 .env
 .env.local
 .env.production
-js/config.js
 
 # OS files
 .DS_Store
