@@ -25,7 +25,7 @@ async function signInWithGoogle() {
             provider: 'google',
             options: {
                 // Redirect to dashboard after successful authentication
-                redirectTo: window.location.origin + '/pages/dashboard.html',
+                redirectTo: window.location.origin + '/dashboard',
                 // Request email, profile, and full Google Calendar access for two-way sync
                 scopes: 'email profile https://www.googleapis.com/auth/calendar',
                 queryParams: {
@@ -127,7 +127,7 @@ async function handleMagicLink(event) {
             email: email,
             options: {
                 // Redirect to dashboard after clicking the magic link
-                emailRedirectTo: window.location.origin + '/pages/dashboard.html'
+                emailRedirectTo: window.location.origin + '/dashboard'
             }
         });
 
@@ -322,7 +322,7 @@ async function checkAuth() {
 
         if (error) {
             console.error('Auth check error:', error);
-            window.location.href = '/pages/login.html';
+            window.location.href = '/login';
             return null;
         }
 
@@ -351,7 +351,7 @@ async function checkAuth() {
 
         // If still no session, redirect to login
         if (!session) {
-            window.location.href = '/pages/login.html';
+            window.location.href = '/login';
             return null;
         }
 
@@ -360,7 +360,7 @@ async function checkAuth() {
 
     } catch (err) {
         console.error('Unexpected error checking auth:', err);
-        window.location.href = '/pages/login.html';
+        window.location.href = '/login';
         return null;
     }
 }
@@ -387,14 +387,14 @@ async function checkAuthState() {
         if (session && session.user) {
             // User is logged in - show Dashboard and Logout
             navLinks.innerHTML = `
-                <a href="/pages/dashboard.html" class="nav-link">Dashboard</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
                 <button onclick="handleLogout()" class="nav-link logout-btn">Logout</button>
             `;
         } else {
             // User is not logged in - show Login and Sign Up
             navLinks.innerHTML = `
-                <a href="/pages/login.html" class="nav-link">Login</a>
-                <a href="/pages/signup.html" class="nav-link btn-primary">Sign Up</a>
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/signup" class="nav-link btn-primary">Sign Up</a>
             `;
         }
 
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // Check if we're on the dashboard page (auth callback destination)
-    const isDashboardPage = window.location.pathname.includes('/pages/dashboard.html') 
+    const isDashboardPage = window.location.pathname.includes('/dashboard') 
         || window.location.pathname.includes('/dashboard');
 
     if (isDashboardPage) {
