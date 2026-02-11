@@ -1,3 +1,4 @@
+
 /**
  * Scout Bookings auth: Google OAuth, Magic Links, and session handling (Supabase).
  * No email/password authentication - uses Google OAuth and Magic Links only.
@@ -8,21 +9,29 @@
 // =============================================================================
 
 /**
- * Initiates Google OAuth sign-in flow.
+ * Initiates Google OAuth sign-in flow with Google Calendar API access.
  * Redirects user to Google for authentication, then back to dashboard on success.
  * Uses offline access and consent prompt for reliable token refresh.
+ * 
+ * Requests calendar scope for two-way sync:
+ * - Read events from user's calendars
+ * - Create events in user's calendars
+ * - Update events in user's calendars
+ * - Delete events in user's calendars
  */
 async function signInWithGoogle() {
     try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 // Redirect to dashboard after successful authentication
                 redirectTo: window.location.origin + '/pages/dashboard.html',
+                // Request email, profile, and full Google Calendar access for two-way sync
+                scopes: 'email profile https://www.googleapis.com/auth/calendar',
                 queryParams: {
-                    // Request offline access for refresh tokens
+                    // Request offline access to get refresh token for background sync
                     access_type: 'offline',
-                    // Always show consent screen for consistent UX
+                    // Force consent screen to ensure we get refresh token on re-auth
                     prompt: 'consent'
                 }
             }
@@ -114,7 +123,7 @@ async function handleMagicLink(event) {
 
     try {
         // Send magic link email via Supabase
-        const { data, error } = await supabase.auth.signInWithOtp({
+        const { data, error } = await supabaseClient.auth.signInWithOtp({
             email: email,
             options: {
                 // Redirect to dashboard after clicking the magic link
@@ -167,11 +176,16 @@ async function handleMagicLink(event) {
  * Handles the authentication callback after OAuth or magic link redirect.
  * Creates a user profile record if one doesn't exist (first-time login).
  * Sets up trial subscription for new users.
+ * 
+ * For Google OAuth users who granted calendar permission:
+ * - Extracts provider_token (access token) and provider_refresh_token from session
+ * - Saves tokens to user_calendar_tokens table for Google Calendar sync
+ * - These tokens enable two-way calendar synchronization features
  */
 async function handleAuthCallback() {
     try {
         // Get the current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
         if (sessionError) {
             console.error('Session error:', sessionError);
@@ -183,7 +197,7 @@ async function handleAuthCallback() {
             const user = session.user;
 
             // Check if user profile already exists
-            const { data: existingProfile, error: profileError } = await supabase
+            const { data: existingProfile, error: profileError } = await supabaseClient
                 .from('user_profiles')
                 .select('id')
                 .eq('id', user.id)
@@ -200,7 +214,7 @@ async function handleAuthCallback() {
                 const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
 
                 // Create the user profile with trial subscription
-                const { error: insertError } = await supabase
+                const { error: insertError } = await supabaseClient
                     .from('user_profiles')
                     .insert({
                         id: user.id,
@@ -220,6 +234,43 @@ async function handleAuthCallback() {
                 // Handle other profile errors (not "no rows found")
                 console.error('Error checking user profile:', profileError);
             }
+
+            // =================================================================
+            // GOOGLE CALENDAR TOKEN STORAGE
+            // =================================================================
+            // After Google OAuth, the session contains provider tokens that allow
+            // us to access the user's Google Calendar. These tokens are:
+            // - provider_token: Short-lived access token for API calls
+            // - provider_refresh_token: Long-lived token to get new access tokens
+            // 
+            // We save these to our database so we can sync calendar events even
+            // when the user isn't actively logged in (background sync).
+            // =================================================================
+            
+            try {
+                // Extract Google Calendar tokens from the OAuth session
+                // These are only present if user signed in with Google AND granted calendar permission
+                const providerToken = session.provider_token;
+                const providerRefreshToken = session.provider_refresh_token;
+
+                if (providerToken && providerRefreshToken) {
+                    // User granted calendar permission - save tokens for sync features
+                    // saveCalendarTokens is defined in calendar.js (must be loaded before auth.js)
+                    await saveCalendarTokens(user.id, providerToken, providerRefreshToken);
+                    console.log('✅ Calendar tokens saved successfully');
+                } else {
+                    // Tokens not present - this happens when:
+                    // 1. User signed in with magic link (no Google OAuth)
+                    // 2. User denied calendar permission during Google OAuth
+                    // 3. User previously signed in and tokens are already stored
+                    // This is not an error - calendar sync features just won't be available
+                    console.log('ℹ️ No calendar tokens in session - user did not grant calendar permission or used magic link');
+                }
+            } catch (tokenError) {
+                // Log token storage errors but don't block the user
+                // Calendar sync is a nice-to-have feature, not critical for login
+                console.error('⚠️ Error saving calendar tokens (non-blocking):', tokenError);
+            }
         }
     } catch (err) {
         console.error('Unexpected error in auth callback:', err);
@@ -236,7 +287,7 @@ async function handleAuthCallback() {
  */
 async function handleLogout() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await supabaseClient.auth.signOut();
 
         if (error) {
             console.error('Logout error:', error);
@@ -260,12 +311,14 @@ async function handleLogout() {
 /**
  * Checks if user is authenticated. Redirects to login if not.
  * Use this function to protect pages that require authentication.
+ * Waits for session to be restored from storage before checking.
  * 
  * @returns {Object|null} The user object if logged in, null otherwise
  */
 async function checkAuth() {
     try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // First, try to get the session - Supabase will restore from localStorage
+        let { data: { session }, error } = await supabaseClient.auth.getSession();
 
         if (error) {
             console.error('Auth check error:', error);
@@ -273,7 +326,30 @@ async function checkAuth() {
             return null;
         }
 
-        // If no session, redirect to login
+        // If no session found immediately, wait a moment for auth state to initialize
+        // This handles the case where the page loads before session is restored
+        if (!session) {
+            // Wait for potential auth state change
+            const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+                (event, newSession) => {
+                    if (newSession) {
+                        session = newSession;
+                    }
+                }
+            );
+            
+            // Give it a brief moment to restore session from storage
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Clean up the listener
+            subscription.unsubscribe();
+            
+            // Try getting session again
+            const result = await supabaseClient.auth.getSession();
+            session = result.data.session;
+        }
+
+        // If still no session, redirect to login
         if (!session) {
             window.location.href = '/pages/login.html';
             return null;
@@ -295,7 +371,7 @@ async function checkAuth() {
  */
 async function checkAuthState() {
     try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
 
         if (error) {
             console.error('Auth state check error:', error);
@@ -334,8 +410,24 @@ async function checkAuthState() {
 /**
  * Initialize authentication on page load.
  * Handles auth callbacks on dashboard and updates nav state on all pages.
+ * Sets up auth state change listener to keep session in sync.
  */
 document.addEventListener('DOMContentLoaded', async function() {
+    // Set up auth state change listener to handle session changes
+    // This ensures the session stays in sync across page navigations
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_OUT') {
+            // User signed out, redirect to home if on a protected page
+            const protectedPages = ['/dashboard', '/add-booking', '/edit-hut', '/create-hut'];
+            const isProtectedPage = protectedPages.some(page => 
+                window.location.pathname.includes(page)
+            );
+            if (isProtectedPage) {
+                window.location.href = '/index.html';
+            }
+        }
+    });
+
     // Check if we're on the dashboard page (auth callback destination)
     const isDashboardPage = window.location.pathname.includes('/pages/dashboard.html') 
         || window.location.pathname.includes('/dashboard');

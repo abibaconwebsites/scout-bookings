@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Set up your scout hut - Scout Bookings">
-  <title>Set Up Your Hut - Scout Bookings</title>
+  <meta name="description" content="Edit your scout hut details - Scout Bookings">
+  <title>Edit Your Hut - Scout Bookings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    .create-hut-page {
+    .edit-hut-page {
       padding: var(--space-xl) 0 var(--space-3xl);
     }
 
@@ -72,7 +72,7 @@
 
     .day-row {
       display: grid;
-      grid-template-columns: 120px 1fr auto;
+      grid-template-columns: 120px 1fr auto auto;
       align-items: center;
       padding: var(--space-md);
       border-bottom: 1px solid var(--color-border);
@@ -115,22 +115,29 @@
       align-items: center;
       gap: var(--space-sm);
       flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .time-input {
-      width: 100px;
-      padding: 0.5rem;
-      font-size: 0.875rem;
-      border: 2px solid var(--color-border);
+      width: 90px;
+      padding: 0.375rem;
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       background-color: var(--color-white);
       text-align: center;
+      color: var(--color-text);
     }
 
     .time-input:focus {
       outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(116, 19, 220, 0.15);
+      border-color: var(--color-text);
+    }
+
+    .time-input::-webkit-calendar-picker-indicator {
+      filter: grayscale(100%);
+      opacity: 0.6;
+      cursor: pointer;
     }
 
     .time-separator {
@@ -199,6 +206,137 @@
       grid-column: 1 / -1;
     }
 
+    /* Group Sessions */
+    .group-sessions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .group-session {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      transition: all var(--transition-fast);
+    }
+
+    .group-session.disabled {
+      background-color: var(--color-background);
+    }
+
+    .group-session.disabled .group-schedule {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .group-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .group-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-width: 120px;
+    }
+
+    .group-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .group-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+    }
+
+    .group-schedule {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .group-day-select .form-label,
+    .group-times .form-label {
+      display: none;
+    }
+
+    .group-day-select .form-label,
+    .group-times .form-label {
+      margin-bottom: var(--space-xs);
+    }
+
+    .group-day-select .form-select {
+      width: 140px;
+      height: 38px;
+      padding: 0.375rem 2rem 0.375rem 0.5rem;
+      font-size: 0.8125rem;
+      background-color: var(--color-white);
+      color: var(--color-text);
+      border: 1px solid var(--color-border) !important;
+      border-radius: var(--radius-sm);
+      line-height: 1.4;
+    }
+
+    .group-day-select .form-select:focus {
+      outline: none;
+      border-color: var(--color-text) !important;
+      box-shadow: none !important;
+    }
+
+    .group-time-inputs {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .group-time-inputs .time-input {
+      width: 90px;
+      height: 38px;
+      padding: 0.375rem;
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-white);
+      color: var(--color-text);
+      text-align: center;
+    }
+
+    .group-time-inputs .time-input:focus {
+      outline: none;
+      border-color: var(--color-text);
+    }
+
+    .group-time-inputs .time-input::-webkit-calendar-picker-indicator {
+      filter: grayscale(100%);
+      opacity: 0.6;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .group-schedule {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: var(--space-3xl);
+      color: var(--color-placeholder);
+    }
+
+    .loading-state .loading-spinner {
+      margin: 0 auto var(--space-md);
+    }
+
     @media (max-width: 768px) {
       .day-row {
         grid-template-columns: 1fr;
@@ -254,7 +392,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="container container-md create-hut-page">
+  <main class="container container-md edit-hut-page">
     <!-- Back Link -->
     <a href="dashboard.html" class="back-button">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -265,19 +403,25 @@
 
     <!-- Page Header -->
     <div class="page-header">
-      <h1>Set Up Your Scout Hut</h1>
-      <p>Enter your hut details and set when it's available for bookings</p>
+      <h1>Edit Your Scout Hut</h1>
+      <p>Update your hut details and availability schedule</p>
     </div>
 
-    <!-- Create Hut Form -->
-    <form id="create-hut-form">
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading hut details...</p>
+    </div>
+
+    <!-- Edit Hut Form -->
+    <form id="edit-hut-form" style="display: none;">
       <!-- Basic Details Section -->
       <div class="form-card">
         <div class="form-section">
           <h2 class="form-section-title">
             Basic Details
           </h2>
-          <p class="form-section-description">Give your scout hut a name that members will recognise</p>
+          <p class="form-section-description">Update your scout hut's name</p>
           
           <div class="form-group">
             <label for="hut-name" class="form-label required">Hut Name</label>
@@ -362,7 +506,7 @@
           <h2 class="form-section-title">
             Availability Schedule
           </h2>
-          <p class="form-section-description">Set the days and hours when your hut is available for bookings. You can always adjust this later.</p>
+          <p class="form-section-description">Set the days and hours when your hut is available for bookings.</p>
           
           <!-- Quick Set Buttons -->
           <div class="quick-set-buttons">
@@ -377,13 +521,13 @@
             <!-- Monday -->
             <div class="day-row" data-day="monday">
               <div class="day-toggle">
-                <input type="checkbox" id="monday-enabled" checked>
+                <input type="checkbox" id="monday-enabled">
                 <label for="monday-enabled" class="day-name">Monday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Monday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Monday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Monday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Monday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('monday')">Copy to all</button>
             </div>
@@ -391,13 +535,13 @@
             <!-- Tuesday -->
             <div class="day-row" data-day="tuesday">
               <div class="day-toggle">
-                <input type="checkbox" id="tuesday-enabled" checked>
+                <input type="checkbox" id="tuesday-enabled">
                 <label for="tuesday-enabled" class="day-name">Tuesday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Tuesday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Tuesday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Tuesday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Tuesday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('tuesday')">Copy to all</button>
             </div>
@@ -405,13 +549,13 @@
             <!-- Wednesday -->
             <div class="day-row" data-day="wednesday">
               <div class="day-toggle">
-                <input type="checkbox" id="wednesday-enabled" checked>
+                <input type="checkbox" id="wednesday-enabled">
                 <label for="wednesday-enabled" class="day-name">Wednesday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Wednesday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Wednesday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Wednesday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Wednesday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('wednesday')">Copy to all</button>
             </div>
@@ -419,13 +563,13 @@
             <!-- Thursday -->
             <div class="day-row" data-day="thursday">
               <div class="day-toggle">
-                <input type="checkbox" id="thursday-enabled" checked>
+                <input type="checkbox" id="thursday-enabled">
                 <label for="thursday-enabled" class="day-name">Thursday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Thursday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Thursday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Thursday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Thursday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('thursday')">Copy to all</button>
             </div>
@@ -433,13 +577,13 @@
             <!-- Friday -->
             <div class="day-row" data-day="friday">
               <div class="day-toggle">
-                <input type="checkbox" id="friday-enabled" checked>
+                <input type="checkbox" id="friday-enabled">
                 <label for="friday-enabled" class="day-name">Friday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Friday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Friday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Friday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Friday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('friday')">Copy to all</button>
             </div>
@@ -447,13 +591,13 @@
             <!-- Saturday -->
             <div class="day-row" data-day="saturday">
               <div class="day-toggle">
-                <input type="checkbox" id="saturday-enabled" checked>
+                <input type="checkbox" id="saturday-enabled">
                 <label for="saturday-enabled" class="day-name">Saturday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Saturday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Saturday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Saturday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Saturday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('saturday')">Copy to all</button>
             </div>
@@ -461,15 +605,151 @@
             <!-- Sunday -->
             <div class="day-row" data-day="sunday">
               <div class="day-toggle">
-                <input type="checkbox" id="sunday-enabled" checked>
+                <input type="checkbox" id="sunday-enabled">
                 <label for="sunday-enabled" class="day-name">Sunday</label>
               </div>
               <div class="day-times">
-                <input type="time" class="time-input start-time" value="09:00" aria-label="Sunday start time">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Sunday start time">
                 <span class="time-separator">to</span>
-                <input type="time" class="time-input end-time" value="21:00" aria-label="Sunday end time">
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Sunday end time">
               </div>
               <button type="button" class="copy-times-btn" onclick="copyTimesToAll('sunday')">Copy to all</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Group Sessions -->
+      <div class="form-card">
+        <div class="form-section">
+          <h2 class="form-section-title">
+            Weekly Group Sessions
+          </h2>
+          <p class="form-section-description">Set regular weekly times for your scout groups. These will be blocked out on the calendar but won't appear as individual bookings.</p>
+          
+          <div class="group-sessions">
+            <!-- Squirrels -->
+            <div class="group-session" data-group="squirrels">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="squirrels-enabled">
+                  <label for="squirrels-enabled" class="group-name">Squirrels</label>
+                </div>
+                <div class="group-schedule" id="squirrels-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="squirrels-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="squirrels-start" value="16:00" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="squirrels-end" value="17:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Beavers -->
+            <div class="group-session" data-group="beavers">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="beavers-enabled">
+                  <label for="beavers-enabled" class="group-name">Beavers</label>
+                </div>
+                <div class="group-schedule" id="beavers-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="beavers-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="beavers-start" value="17:30" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="beavers-end" value="18:30" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cubs -->
+            <div class="group-session" data-group="cubs">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="cubs-enabled">
+                  <label for="cubs-enabled" class="group-name">Cubs</label>
+                </div>
+                <div class="group-schedule" id="cubs-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="cubs-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="cubs-start" value="18:30" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="cubs-end" value="20:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scouts -->
+            <div class="group-session" data-group="scouts">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="scouts-enabled">
+                  <label for="scouts-enabled" class="group-name">Scouts</label>
+                </div>
+                <div class="group-schedule" id="scouts-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="scouts-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="scouts-start" value="19:00" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="scouts-end" value="21:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -477,7 +757,7 @@
         <!-- Form Actions -->
         <div class="form-actions">
           <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
-          <button type="submit" class="btn btn-primary" id="submit-btn">Create Scout Hut</button>
+          <button type="submit" class="btn btn-primary" id="submit-btn">Save Changes</button>
         </div>
       </div>
     </form>
@@ -500,8 +780,9 @@
     // =============================================================================
     // PAGE INITIALIZATION
     // =============================================================================
-    
+
     let currentUser = null;
+    let currentHut = null;
 
     document.addEventListener('DOMContentLoaded', async function() {
       // Check if user is authenticated
@@ -511,21 +792,103 @@
         return; // checkAuth will redirect to login
       }
 
-      // Check if user already has a hut
-      const existingHut = await getUserHut(currentUser.id);
-      if (existingHut) {
-        // Redirect to dashboard if they already have a hut
-        showNotification('You already have a scout hut set up.', 'info');
-        window.location.href = 'dashboard.html';
+      // Load user's hut
+      currentHut = await getUserHut(currentUser.id);
+      
+      if (!currentHut) {
+        // Redirect to create page if they don't have a hut
+        showNotification('Please set up your scout hut first.', 'info');
+        window.location.href = 'create-hut.html';
         return;
       }
+
+      // Populate form with existing data
+      populateForm(currentHut);
 
       // Set up day toggle listeners
       setupDayToggles();
 
+      // Set up group session toggles
+      setupGroupToggles();
+
       // Set up form submission
-      document.getElementById('create-hut-form').addEventListener('submit', handleFormSubmit);
+      document.getElementById('edit-hut-form').addEventListener('submit', handleFormSubmit);
+
+      // Hide loading, show form
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('edit-hut-form').style.display = 'block';
     });
+
+    // =============================================================================
+    // POPULATE FORM WITH EXISTING DATA
+    // =============================================================================
+
+    /**
+     * Populates the form fields with existing hut data
+     * @param {Object} hut - The hut object from the database
+     */
+    function populateForm(hut) {
+      // Basic details
+      document.getElementById('hut-name').value = hut.name || '';
+      
+      // Address
+      document.getElementById('address-line1').value = hut.address_line1 || '';
+      document.getElementById('address-line2').value = hut.address_line2 || '';
+      document.getElementById('city').value = hut.city || '';
+      document.getElementById('postcode').value = hut.postcode || '';
+
+      // Availability
+      if (hut.availability) {
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        
+        days.forEach(day => {
+          const dayConfig = hut.availability[day];
+          const checkbox = document.getElementById(`${day}-enabled`);
+          const row = document.querySelector(`[data-day="${day}"]`);
+          
+          if (dayConfig && checkbox && row) {
+            checkbox.checked = dayConfig.enabled;
+            row.querySelector('.start-time').value = dayConfig.start_time || '09:00';
+            row.querySelector('.end-time').value = dayConfig.end_time || '21:00';
+            
+            if (!dayConfig.enabled) {
+              row.classList.add('disabled');
+            }
+          }
+        });
+      }
+
+      // Weekly group sessions
+      if (hut.weekly_sessions) {
+        const groups = ['squirrels', 'beavers', 'cubs', 'scouts'];
+        
+        groups.forEach(group => {
+          const groupConfig = hut.weekly_sessions[group];
+          const checkbox = document.getElementById(`${group}-enabled`);
+          const session = document.querySelector(`[data-group="${group}"]`);
+          
+          if (groupConfig && checkbox && session) {
+            checkbox.checked = groupConfig.enabled;
+            document.getElementById(`${group}-day`).value = groupConfig.day || '';
+            document.getElementById(`${group}-start`).value = groupConfig.start_time || '';
+            document.getElementById(`${group}-end`).value = groupConfig.end_time || '';
+            
+            if (!groupConfig.enabled) {
+              session.classList.add('disabled');
+            }
+          } else if (session) {
+            session.classList.add('disabled');
+          }
+        });
+      } else {
+        // Default all to disabled
+        const groups = ['squirrels', 'beavers', 'cubs', 'scouts'];
+        groups.forEach(group => {
+          const session = document.querySelector(`[data-group="${group}"]`);
+          if (session) session.classList.add('disabled');
+        });
+      }
+    }
 
     // =============================================================================
     // DAY TOGGLE FUNCTIONALITY
@@ -550,6 +913,29 @@
             }
           });
         }
+      });
+    }
+
+    /**
+     * Sets up event listeners for group session enable/disable checkboxes
+     */
+    function setupGroupToggles() {
+      const groups = ['squirrels', 'beavers', 'cubs', 'scouts'];
+      
+      groups.forEach(group => {
+        const checkbox = document.getElementById(`${group}-enabled`);
+        const session = document.querySelector(`[data-group="${group}"]`);
+        
+        if (checkbox && session) {
+          checkbox.addEventListener('change', function() {
+            if (this.checked) {
+              session.classList.remove('disabled');
+            } else {
+              session.classList.add('disabled');
+            }
+          });
+        }
+
       });
     }
 
@@ -682,6 +1068,69 @@
     }
 
     /**
+     * Collects weekly group sessions data
+     * @returns {Object} Weekly sessions object with group keys
+     */
+    function collectWeeklySessions() {
+      const groups = ['squirrels', 'beavers', 'cubs', 'scouts'];
+      const sessions = {};
+
+      groups.forEach(group => {
+        const checkbox = document.getElementById(`${group}-enabled`);
+        
+        if (checkbox) {
+          sessions[group] = {
+            enabled: checkbox.checked,
+            day: document.getElementById(`${group}-day`).value,
+            start_time: document.getElementById(`${group}-start`).value,
+            end_time: document.getElementById(`${group}-end`).value
+          };
+        }
+      });
+
+      return sessions;
+    }
+
+    /**
+     * Validates the weekly sessions
+     * @param {Object} sessions - The sessions object to validate
+     * @returns {Object} { valid: boolean, message: string }
+     */
+    function validateWeeklySessions(sessions) {
+      const groupNames = {
+        squirrels: 'Squirrels',
+        beavers: 'Beavers',
+        cubs: 'Cubs',
+        scouts: 'Scouts'
+      };
+
+      for (const [group, config] of Object.entries(sessions)) {
+        if (config.enabled) {
+          if (!config.day) {
+            return { 
+              valid: false, 
+              message: `${groupNames[group]}: Please select a day.` 
+            };
+          }
+          if (!config.start_time || !config.end_time) {
+            return { 
+              valid: false, 
+              message: `${groupNames[group]}: Please set start and end times.` 
+            };
+          }
+          if (config.start_time >= config.end_time) {
+            return { 
+              valid: false, 
+              message: `${groupNames[group]}: End time must be after start time.` 
+            };
+          }
+        }
+      }
+
+      return { valid: true, message: '' };
+    }
+
+    /**
      * Validates the availability schedule
      * @param {Object} availability - The availability object to validate
      * @returns {Object} { valid: boolean, message: string }
@@ -747,29 +1196,39 @@
         return;
       }
 
+      // Collect and validate weekly sessions
+      const weeklySessions = collectWeeklySessions();
+      const sessionsValidation = validateWeeklySessions(weeklySessions);
+      
+      if (!sessionsValidation.valid) {
+        showNotification(sessionsValidation.message, 'error');
+        return;
+      }
+
       // Disable submit button
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Creating...';
+      submitBtn.textContent = 'Saving...';
 
       try {
-        // Create the hut
-        const hutData = {
+        // Update the hut
+        const updates = {
           name,
           address_line1: addressLine1,
           address_line2: addressLine2 || null,
           city,
           postcode,
-          availability
+          availability,
+          weekly_sessions: weeklySessions
         };
 
-        const result = await createHut(currentUser.id, hutData);
+        const result = await updateHut(currentHut.id, currentUser.id, updates);
 
         if (result.error) {
-          throw new Error(result.error.message || 'Failed to create scout hut');
+          throw new Error(result.error.message || 'Failed to update scout hut');
         }
 
         // Success!
-        showNotification('Scout hut created successfully!', 'success');
+        showNotification('Scout hut updated successfully!', 'success');
         
         // Redirect to dashboard after a short delay
         setTimeout(() => {
@@ -777,8 +1236,8 @@
         }, 1500);
 
       } catch (err) {
-        console.error('Error creating hut:', err);
-        showNotification(err.message || 'Failed to create scout hut. Please try again.', 'error');
+        console.error('Error updating hut:', err);
+        showNotification(err.message || 'Failed to update scout hut. Please try again.', 'error');
         
         // Re-enable submit button
         submitBtn.disabled = false;

@@ -1,1 +1,1787 @@
-<!-- Settings page: user and app preferences -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Scout Bookings Settings - Manage your account and preferences">
+  <title>Settings - Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Settings Layout */
+    .settings-layout {
+      display: flex;
+      min-height: calc(100vh - 73px);
+    }
+
+    /* Sidebar */
+    #settings-sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      background-color: var(--color-white);
+      border-right: 1px solid var(--color-border);
+      padding: 1.5rem 0.75rem;
+      position: sticky;
+      top: 73px;
+      height: calc(100vh - 73px);
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .sidebar-nav-item {
+      display: block;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--color-text);
+      font-weight: 500;
+      transition: all var(--transition-fast);
+      border: none;
+      background: none;
+      text-align: left;
+      width: 100%;
+      font-size: 0.875rem;
+    }
+
+    .sidebar-nav-item:hover {
+      background-color: var(--color-background);
+    }
+
+    .sidebar-nav-item.active {
+      background-color: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    /* Main Content */
+    #settings-content {
+      flex: 1;
+      padding: 2rem;
+      min-height: calc(100vh - 73px);
+      background-color: var(--color-background);
+    }
+
+    .settings-panel {
+      display: none;
+      max-width: 800px;
+    }
+
+    .settings-panel.active {
+      display: block;
+    }
+
+    .panel-header {
+      margin-bottom: 2rem;
+    }
+
+    .panel-header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-header p {
+      color: var(--color-placeholder);
+      margin: 0;
+    }
+
+    /* Settings Cards */
+    .settings-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .settings-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .settings-card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .settings-card-subtitle {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+      margin-top: 0.25rem;
+    }
+
+    /* Connection Status */
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-indicator.connected {
+      background-color: var(--color-success);
+    }
+
+    .status-indicator.disconnected {
+      background-color: var(--color-placeholder);
+    }
+
+    .status-text {
+      flex: 1;
+    }
+
+    .status-text-main {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .status-text-sub {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+    }
+
+    /* Help Text */
+    .help-text {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+      margin-top: 0.5rem;
+    }
+
+    /* Toggle Switch */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .toggle-row:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      flex: 1;
+    }
+
+    .toggle-label-main {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .toggle-label-sub {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+      margin-top: 0.25rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--color-border);
+      transition: all var(--transition-fast);
+      border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--color-white);
+      transition: all var(--transition-fast);
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--color-primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-section-label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+    }
+
+    /* Radio Group */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .radio-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .radio-option-label {
+      font-size: 0.9375rem;
+      color: var(--color-text);
+    }
+
+    /* Info Boxes */
+    .info-box {
+      padding: 1rem;
+      background-color: var(--color-info-bg);
+      border: 1px solid var(--color-info-border);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      color: #1d4ed8;
+      margin-top: 0.75rem;
+    }
+
+    .info-box.hidden {
+      display: none;
+    }
+
+    /* Sync Actions */
+    .sync-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .sync-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .sync-spinner.hidden {
+      display: none;
+    }
+
+    /* Last Sync Info */
+    #last-sync-info {
+      padding: 1rem;
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      margin-top: 1rem;
+    }
+
+    .last-sync-time {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .last-sync-results {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+      margin-top: 0.25rem;
+    }
+
+    /* Account Info */
+    .account-field {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .account-field:last-child {
+      border-bottom: none;
+    }
+
+    .account-field-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .account-field-value {
+      font-size: 1rem;
+      color: var(--color-text);
+    }
+
+    /* Subscription Card */
+    .plan-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background-color: rgba(116, 19, 220, 0.1);
+      color: var(--color-primary);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .plan-features {
+      margin: 1rem 0;
+    }
+
+    .plan-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.9375rem;
+    }
+
+    .plan-feature-check {
+      color: var(--color-success);
+      font-weight: 700;
+    }
+
+    .trial-status {
+      padding: 1rem;
+      background-color: var(--color-warning-bg);
+      border: 1px solid var(--color-warning-border);
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+    }
+
+    .trial-status-text {
+      font-weight: 500;
+      color: #b45309;
+    }
+
+    /* Team Members */
+    .team-member {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.5rem;
+    }
+
+    .team-member-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      color: var(--color-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .team-member-info {
+      flex: 1;
+    }
+
+    .team-member-name {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .team-member-email {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+    }
+
+    .team-member-role {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+    }
+
+    .feature-locked {
+      padding: 1rem;
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      text-align: center;
+      color: var(--color-placeholder);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .settings-layout {
+        flex-direction: column;
+      }
+
+      #settings-sidebar {
+        width: 100%;
+        max-width: none;
+        min-width: auto;
+        position: relative;
+        top: 0;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+        padding: 1rem;
+        overflow-x: auto;
+      }
+
+      .sidebar-nav {
+        flex-direction: row;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .sidebar-nav-item {
+        white-space: nowrap;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .sidebar-nav-item.active {
+        font-weight: 700;
+      }
+
+      .sidebar-title {
+        display: none;
+      }
+
+      #settings-content {
+        padding: 1rem;
+        min-height: auto;
+      }
+
+      .panel-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .settings-card {
+        padding: 1rem;
+      }
+
+      .toggle-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .sync-actions {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    /* Logout Button Styling */
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--color-text);
+      font-weight: 500;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .logout-btn:hover {
+      color: var(--color-primary);
+      background-color: rgba(116, 19, 220, 0.05);
+    }
+
+    /* Availability Schedule Styles */
+    .availability-schedule {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .day-row {
+      display: grid;
+      grid-template-columns: 120px 1fr auto;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      gap: 1rem;
+    }
+
+    .day-row:last-child {
+      border-bottom: none;
+    }
+
+    .day-row.disabled {
+      background-color: var(--color-background);
+    }
+
+    .day-row.disabled .day-times {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .day-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .day-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .day-name {
+      font-weight: 600;
+      min-width: 80px;
+      cursor: pointer;
+    }
+
+    .day-times {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .time-input {
+      width: 90px;
+      padding: 0.375rem;
+      font-size: 0.8125rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-white);
+      text-align: center;
+      color: var(--color-text);
+    }
+
+    .time-input:focus {
+      outline: none;
+      border-color: var(--color-text);
+    }
+
+    .time-separator {
+      color: var(--color-placeholder);
+      font-weight: 500;
+    }
+
+    .copy-times-btn {
+      font-size: 0.75rem;
+      padding: 0.375rem 0.75rem;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .copy-times-btn:hover {
+      background-color: var(--color-border);
+    }
+
+    /* Quick Set Buttons */
+    .quick-set-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .quick-set-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-set-btn:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    /* Group Sessions */
+    .group-sessions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .group-session {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      transition: all var(--transition-fast);
+    }
+
+    .group-session.disabled {
+      background-color: var(--color-background);
+    }
+
+    .group-session.disabled .group-schedule {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .group-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .group-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 120px;
+    }
+
+    .group-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .group-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+    }
+
+    .group-schedule {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .group-day-select .form-select {
+      width: 140px;
+      height: 38px;
+      padding: 0.375rem 2rem 0.375rem 0.5rem;
+      font-size: 0.8125rem;
+      background-color: var(--color-white);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+    }
+
+    .group-day-select .form-select:focus {
+      outline: none;
+      border-color: var(--color-text);
+    }
+
+    .group-time-inputs {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .group-time-inputs .time-input {
+      width: 90px;
+      height: 38px;
+    }
+
+    /* No Hut Message */
+    .no-hut-message {
+      text-align: center;
+      padding: 2rem;
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+    }
+
+    .no-hut-message p {
+      color: var(--color-placeholder);
+      margin-bottom: 1rem;
+    }
+
+    /* Save Button Container */
+    .save-button-container {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+      .day-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+
+      .day-toggle {
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .day-times {
+        justify-content: flex-start;
+      }
+
+      .copy-times-btn {
+        margin-left: auto;
+      }
+
+      .group-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .group-schedule {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .group-day-select .form-select {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="dashboard.html" class="logo" aria-label="Scout Bookings Dashboard">Scout Bookings</a>
+      <div class="nav-actions">
+        <a href="settings.html" class="nav-icon-btn" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </a>
+        <button onclick="handleLogout()" class="nav-icon-btn" aria-label="Logout">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Settings Layout -->
+  <div class="settings-layout">
+    <!-- Left Sidebar -->
+    <aside id="settings-sidebar">
+      <div class="sidebar-title">Settings</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-nav-item active" id="nav-calendar" data-panel="panel-calendar">Calendar Sync</button>
+        <button class="sidebar-nav-item" id="nav-availability" data-panel="panel-availability">Hut Availability</button>
+        <button class="sidebar-nav-item" id="nav-sessions" data-panel="panel-sessions">Weekly Sessions</button>
+        <button class="sidebar-nav-item" id="nav-account" data-panel="panel-account">Account</button>
+        <button class="sidebar-nav-item" id="nav-subscription" data-panel="panel-subscription">Subscription</button>
+        <button class="sidebar-nav-item" id="nav-team" data-panel="panel-team">Team</button>
+        <button class="sidebar-nav-item" id="nav-notifications" data-panel="panel-notifications">Notifications</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main id="settings-content">
+      <!-- Calendar Sync Panel -->
+      <section class="settings-panel active" id="panel-calendar">
+        <div class="panel-header">
+          <h1>Google Calendar Sync</h1>
+          <p>Connect and sync your bookings with Google Calendar</p>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <h2 class="settings-card-title">Connection Status</h2>
+            </div>
+          </div>
+          
+          <div class="connection-status" id="connection-status">
+            <div class="status-indicator disconnected" id="status-indicator"></div>
+            <div class="status-text">
+              <div class="status-text-main" id="status-text-main">Not connected</div>
+              <div class="status-text-sub" id="status-text-sub">Connect your Google account to enable sync</div>
+            </div>
+          </div>
+
+          <!-- Not Connected State -->
+          <div id="not-connected-state">
+            <button class="btn btn-primary" id="connect-calendar-btn">Connect Google Calendar</button>
+            <p class="help-text">Connect your Google account to enable calendar synchronization</p>
+          </div>
+
+          <!-- Connected State -->
+          <div id="connected-state" style="display: none;">
+            <button class="btn btn-secondary" id="disconnect-calendar-btn">Disconnect</button>
+          </div>
+        </div>
+
+        <!-- Sync Configuration (shown when connected) -->
+        <div class="settings-card" id="sync-config-card" style="display: none;">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Sync Settings</h2>
+          </div>
+
+          <!-- Sync Toggle -->
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-label-main">Enable Calendar Sync</div>
+              <div class="toggle-label-sub">Automatically sync bookings with your Google Calendar</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="sync-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <!-- Sync Configuration Options -->
+          <div id="sync-options" style="display: none;">
+            <!-- Calendar Selection -->
+            <div class="form-section">
+              <label class="form-section-label" for="calendar-select">Select calendar:</label>
+              <select class="form-select" id="calendar-select">
+                <option value="">Loading calendars...</option>
+              </select>
+              <p class="help-text">Choose which Google Calendar to sync with</p>
+            </div>
+
+            <!-- Sync Direction -->
+            <div class="form-section">
+              <label class="form-section-label">Sync direction:</label>
+              <div class="radio-group">
+                <label class="radio-option">
+                  <input type="radio" name="sync-direction" value="both" checked>
+                  <span class="radio-option-label">Two-way sync (recommended)</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="sync-direction" value="from_google">
+                  <span class="radio-option-label">Import from Google only</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="sync-direction" value="to_google">
+                  <span class="radio-option-label">Export to Google only</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Direction Info Boxes -->
+            <div class="info-box" id="info-import">
+              Events from your Google Calendar will block booking times
+            </div>
+            <div class="info-box" id="info-export">
+              Scout Bookings will be added to your Google Calendar
+            </div>
+
+            <!-- Manual Sync -->
+            <div class="sync-actions">
+              <button class="btn btn-secondary" id="sync-now-btn">Sync Now</button>
+              <div class="sync-spinner hidden" id="sync-spinner"></div>
+            </div>
+
+            <!-- Last Sync Info -->
+            <div id="last-sync-info">
+              <div class="last-sync-time" id="last-sync-time">Never synced</div>
+              <div class="last-sync-results" id="last-sync-results"></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Hut Availability Panel -->
+      <section class="settings-panel" id="panel-availability">
+        <div class="panel-header">
+          <h1>Hut Availability</h1>
+          <p>Set the days and hours when your hut is available for bookings</p>
+        </div>
+
+        <!-- No Hut State -->
+        <div class="settings-card" id="availability-no-hut" style="display: none;">
+          <div class="no-hut-message">
+            <p>You need to create a scout hut before setting availability.</p>
+            <a href="create-hut.html" class="btn btn-primary">Create Your Hut</a>
+          </div>
+        </div>
+
+        <!-- Availability Settings -->
+        <div class="settings-card" id="availability-settings" style="display: none;">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Weekly Schedule</h2>
+          </div>
+          <p class="settings-card-subtitle" style="margin-bottom: 1rem;">Set when your hut is available for external bookings each week.</p>
+
+          <!-- Quick Set Buttons -->
+          <div class="quick-set-buttons">
+            <button type="button" class="quick-set-btn" onclick="setWeekdaysOnly()">Weekdays Only</button>
+            <button type="button" class="quick-set-btn" onclick="setWeekendsOnly()">Weekends Only</button>
+            <button type="button" class="quick-set-btn" onclick="setAllDays()">All Days</button>
+            <button type="button" class="quick-set-btn" onclick="clearAllDays()">Clear All</button>
+          </div>
+
+          <!-- Availability Schedule -->
+          <div class="availability-schedule" id="availability-schedule">
+            <!-- Monday -->
+            <div class="day-row" data-day="monday">
+              <div class="day-toggle">
+                <input type="checkbox" id="monday-enabled">
+                <label for="monday-enabled" class="day-name">Monday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Monday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Monday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('monday')">Copy to all</button>
+            </div>
+
+            <!-- Tuesday -->
+            <div class="day-row" data-day="tuesday">
+              <div class="day-toggle">
+                <input type="checkbox" id="tuesday-enabled">
+                <label for="tuesday-enabled" class="day-name">Tuesday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Tuesday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Tuesday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('tuesday')">Copy to all</button>
+            </div>
+
+            <!-- Wednesday -->
+            <div class="day-row" data-day="wednesday">
+              <div class="day-toggle">
+                <input type="checkbox" id="wednesday-enabled">
+                <label for="wednesday-enabled" class="day-name">Wednesday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Wednesday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Wednesday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('wednesday')">Copy to all</button>
+            </div>
+
+            <!-- Thursday -->
+            <div class="day-row" data-day="thursday">
+              <div class="day-toggle">
+                <input type="checkbox" id="thursday-enabled">
+                <label for="thursday-enabled" class="day-name">Thursday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Thursday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Thursday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('thursday')">Copy to all</button>
+            </div>
+
+            <!-- Friday -->
+            <div class="day-row" data-day="friday">
+              <div class="day-toggle">
+                <input type="checkbox" id="friday-enabled">
+                <label for="friday-enabled" class="day-name">Friday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Friday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Friday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('friday')">Copy to all</button>
+            </div>
+
+            <!-- Saturday -->
+            <div class="day-row" data-day="saturday">
+              <div class="day-toggle">
+                <input type="checkbox" id="saturday-enabled">
+                <label for="saturday-enabled" class="day-name">Saturday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Saturday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Saturday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('saturday')">Copy to all</button>
+            </div>
+
+            <!-- Sunday -->
+            <div class="day-row" data-day="sunday">
+              <div class="day-toggle">
+                <input type="checkbox" id="sunday-enabled">
+                <label for="sunday-enabled" class="day-name">Sunday</label>
+              </div>
+              <div class="day-times">
+                <input type="time" class="time-input start-time" value="09:00" min="00:00" max="23:59" aria-label="Sunday start time">
+                <span class="time-separator">to</span>
+                <input type="time" class="time-input end-time" value="21:00" min="00:00" max="23:59" aria-label="Sunday end time">
+              </div>
+              <button type="button" class="copy-times-btn" onclick="copyTimesToAll('sunday')">Copy to all</button>
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <div class="save-button-container">
+            <button type="button" class="btn btn-primary" id="save-availability-btn" onclick="saveAvailability()">Save Availability</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Weekly Sessions Panel -->
+      <section class="settings-panel" id="panel-sessions">
+        <div class="panel-header">
+          <h1>Weekly Group Sessions</h1>
+          <p>Set regular weekly times for your scout groups</p>
+        </div>
+
+        <!-- No Hut State -->
+        <div class="settings-card" id="sessions-no-hut" style="display: none;">
+          <div class="no-hut-message">
+            <p>You need to create a scout hut before setting weekly sessions.</p>
+            <a href="create-hut.html" class="btn btn-primary">Create Your Hut</a>
+          </div>
+        </div>
+
+        <!-- Sessions Settings -->
+        <div class="settings-card" id="sessions-settings" style="display: none;">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Scout Group Sessions</h2>
+          </div>
+          <p class="settings-card-subtitle" style="margin-bottom: 1rem;">These times will be blocked out on the calendar but won't appear as individual bookings.</p>
+
+          <div class="group-sessions">
+            <!-- Squirrels -->
+            <div class="group-session" data-group="squirrels">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="squirrels-enabled">
+                  <label for="squirrels-enabled" class="group-name">Squirrels</label>
+                </div>
+                <div class="group-schedule" id="squirrels-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="squirrels-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="squirrels-start" value="16:00" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="squirrels-end" value="17:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Beavers -->
+            <div class="group-session" data-group="beavers">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="beavers-enabled">
+                  <label for="beavers-enabled" class="group-name">Beavers</label>
+                </div>
+                <div class="group-schedule" id="beavers-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="beavers-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="beavers-start" value="17:30" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="beavers-end" value="18:30" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cubs -->
+            <div class="group-session" data-group="cubs">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="cubs-enabled">
+                  <label for="cubs-enabled" class="group-name">Cubs</label>
+                </div>
+                <div class="group-schedule" id="cubs-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="cubs-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="cubs-start" value="18:30" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="cubs-end" value="20:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scouts -->
+            <div class="group-session" data-group="scouts">
+              <div class="group-row">
+                <div class="group-toggle">
+                  <input type="checkbox" id="scouts-enabled">
+                  <label for="scouts-enabled" class="group-name">Scouts</label>
+                </div>
+                <div class="group-schedule" id="scouts-schedule">
+                  <div class="group-day-select">
+                    <select class="form-select group-day" id="scouts-day">
+                      <option value="">Select day...</option>
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+                  <div class="group-times">
+                    <div class="group-time-inputs">
+                      <input type="time" class="time-input" id="scouts-start" value="19:00" min="00:00" max="23:59">
+                      <span class="time-separator">to</span>
+                      <input type="time" class="time-input" id="scouts-end" value="21:00" min="00:00" max="23:59">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <div class="save-button-container">
+            <button type="button" class="btn btn-primary" id="save-sessions-btn" onclick="saveWeeklySessions()">Save Sessions</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account Panel -->
+      <section class="settings-panel" id="panel-account">
+        <div class="panel-header">
+          <h1>Account Information</h1>
+          <p>View and manage your account details</p>
+        </div>
+
+        <div class="settings-card">
+          <div class="account-field">
+            <div class="account-field-label">Email Address</div>
+            <div class="account-field-value" id="user-email">Loading...</div>
+          </div>
+          <div class="account-field">
+            <div class="account-field-label">Full Name</div>
+            <div class="account-field-value" id="user-name">Loading...</div>
+          </div>
+          <div class="account-field">
+            <div class="account-field-label">Phone Number</div>
+            <div class="account-field-value" id="user-phone">Not set</div>
+          </div>
+          <div class="account-field">
+            <div class="account-field-label">Account Created</div>
+            <div class="account-field-value" id="account-created">Loading...</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <button class="btn btn-secondary" disabled>Update Profile</button>
+          <p class="help-text">Profile editing coming soon</p>
+        </div>
+      </section>
+
+      <!-- Subscription Panel -->
+      <section class="settings-panel" id="panel-subscription">
+        <div class="panel-header">
+          <h1>Subscription</h1>
+          <p>Manage your subscription and billing</p>
+        </div>
+
+        <!-- Trial Status -->
+        <div class="trial-status" id="trial-status" style="display: none;">
+          <div class="trial-status-text" id="trial-status-text">Your trial ends in X days</div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <h2 class="settings-card-title">Current Plan</h2>
+            </div>
+            <span class="plan-badge" id="user-plan">Free</span>
+          </div>
+
+          <div class="plan-features">
+            <div class="plan-feature">
+              <span class="plan-feature-check">Y</span>
+              <span>Unlimited bookings</span>
+            </div>
+            <div class="plan-feature">
+              <span class="plan-feature-check">Y</span>
+              <span>Calendar view</span>
+            </div>
+            <div class="plan-feature">
+              <span class="plan-feature-check">Y</span>
+              <span>Weekly sessions</span>
+            </div>
+            <div class="plan-feature" id="feature-calendar-sync">
+              <span class="plan-feature-check">Y</span>
+              <span>Google Calendar sync</span>
+            </div>
+            <div class="plan-feature" id="feature-team">
+              <span class="plan-feature-check">Y</span>
+              <span>Team members</span>
+            </div>
+          </div>
+
+          <div class="account-field">
+            <div class="account-field-label">Renewal Date</div>
+            <div class="account-field-value" id="renewal-date">N/A</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <button class="btn btn-primary" id="manage-subscription-btn">Manage Subscription</button>
+          <p class="help-text">Opens Stripe billing portal</p>
+        </div>
+      </section>
+
+      <!-- Team Panel -->
+      <section class="settings-panel" id="panel-team">
+        <div class="panel-header">
+          <h1>Team Members</h1>
+          <p>Manage who has access to your Scout Bookings</p>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Your Team</h2>
+          </div>
+
+          <div id="team-members-list">
+            <!-- Team members will be loaded here -->
+          </div>
+
+          <div class="feature-locked" id="team-feature-locked">
+            Team features available on Pro plan
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <button class="btn btn-secondary" disabled>Invite Team Member</button>
+          <p class="help-text">Team invitations coming soon</p>
+        </div>
+      </section>
+
+      <!-- Notifications Panel -->
+      <section class="settings-panel" id="panel-notifications">
+        <div class="panel-header">
+          <h1>Notification Preferences</h1>
+          <p>Control how and when you receive notifications</p>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Email Notifications</h2>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-label-main">Booking confirmations</div>
+              <div class="toggle-label-sub">Receive email when a booking is created</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notify-booking-created" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-label-main">Booking reminders</div>
+              <div class="toggle-label-sub">Get reminded about upcoming bookings</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notify-booking-reminder" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-label-main">Cancellation alerts</div>
+              <div class="toggle-label-sub">Be notified when a booking is cancelled</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notify-booking-cancelled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">SMS Notifications</h2>
+          </div>
+
+          <div class="feature-locked">
+            SMS notifications coming soon
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Notification Frequency</h2>
+          </div>
+
+          <div class="form-section">
+            <label class="form-section-label">Reminder timing:</label>
+            <select class="form-select" id="reminder-timing">
+              <option value="1">1 day before</option>
+              <option value="2" selected>2 days before</option>
+              <option value="7">1 week before</option>
+            </select>
+          </div>
+
+          <div class="feature-locked" style="margin-top: 1rem;">
+            Advanced notification settings available on Pro plan
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/calendar.js"></script>
+  <script src="../js/settings.js"></script>
+  <script>
+    // Settings page initialization
+    // Note: Main initialization is handled by settings.js via its own DOMContentLoaded
+    // This inline script only provides fallback functions if needed
+    document.addEventListener('DOMContentLoaded', async function() {
+      // settings.js handles auth check and full initialization
+      // Only run fallback UI setup if settings.js didn't initialize
+      // (check after a small delay to allow settings.js to run first)
+      setTimeout(() => {
+        // If settings.js already set up event listeners, don't duplicate
+        if (window.SettingsModule) {
+          console.log('[Settings HTML] settings.js module loaded, skipping inline init');
+          return;
+        }
+        
+        // Fallback initialization only if settings.js failed to load
+        console.log('[Settings HTML] Running fallback initialization');
+        checkAuth().then(user => {
+          if (!user) {
+            window.location.href = 'login.html';
+            return;
+          }
+          initSidebarNav();
+          loadAccountInfo(user);
+          loadSubscriptionInfo(user);
+          loadTeamInfo(user);
+          initCalendarSyncUI(user);
+        });
+      }, 100);
+    });
+
+    // Sidebar Navigation
+    function initSidebarNav() {
+      const navItems = document.querySelectorAll('.sidebar-nav-item');
+      const panels = document.querySelectorAll('.settings-panel');
+      const menuToggle = document.getElementById('settings-menu-toggle');
+      const sidebarNav = document.getElementById('sidebar-nav');
+      const currentSectionLabel = document.getElementById('current-section-label');
+
+      // Mobile menu toggle
+      if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+          const isOpen = sidebarNav.classList.toggle('open');
+          menuToggle.classList.toggle('active', isOpen);
+          menuToggle.setAttribute('aria-expanded', isOpen);
+        });
+      }
+
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          // Update active nav item
+          navItems.forEach(nav => nav.classList.remove('active'));
+          item.classList.add('active');
+
+          // Show corresponding panel
+          const panelId = item.dataset.panel;
+          panels.forEach(panel => {
+            panel.classList.remove('active');
+            if (panel.id === panelId) {
+              panel.classList.add('active');
+            }
+          });
+
+          // Update mobile menu label and close menu
+          if (currentSectionLabel) {
+            currentSectionLabel.textContent = item.textContent;
+          }
+          if (sidebarNav && window.innerWidth <= 768) {
+            sidebarNav.classList.remove('open');
+            if (menuToggle) {
+              menuToggle.classList.remove('active');
+              menuToggle.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+      });
+
+      // Check URL hash for direct panel navigation
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        const targetNav = document.querySelector(`[data-panel="panel-${hash}"]`);
+        if (targetNav) {
+          targetNav.click();
+        }
+      }
+    }
+
+    // Load Account Information
+    function loadAccountInfo(user) {
+      const emailEl = document.getElementById('user-email');
+      const nameEl = document.getElementById('user-name');
+      const phoneEl = document.getElementById('user-phone');
+      const createdEl = document.getElementById('account-created');
+
+      if (emailEl) emailEl.textContent = user.email || 'Not set';
+      if (nameEl) {
+        const name = user.user_metadata?.full_name || user.user_metadata?.name || 'Not set';
+        nameEl.textContent = name;
+      }
+      if (phoneEl) {
+        const phone = user.user_metadata?.phone || user.phone || 'Not set';
+        phoneEl.textContent = phone;
+      }
+      if (createdEl) {
+        const created = new Date(user.created_at);
+        createdEl.textContent = created.toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+      }
+    }
+
+    // Load Subscription Information
+    async function loadSubscriptionInfo(user) {
+      try {
+        const { data: profile, error } = await supabaseClient
+          .from('user_profiles')
+          .select('subscription_status, trial_ends_at')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error loading subscription:', error);
+          return;
+        }
+
+        const planBadge = document.getElementById('user-plan');
+        const trialStatus = document.getElementById('trial-status');
+        const trialStatusText = document.getElementById('trial-status-text');
+
+        if (profile) {
+          // Set plan badge
+          if (planBadge) {
+            const status = profile.subscription_status || 'trial';
+            planBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+          }
+
+          // Show trial status if applicable
+          if (profile.subscription_status === 'trial' && profile.trial_ends_at) {
+            const trialEnd = new Date(profile.trial_ends_at);
+            const now = new Date();
+            const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
+
+            if (trialStatus && trialStatusText && daysLeft > 0) {
+              trialStatus.style.display = 'block';
+              trialStatusText.textContent = `Your trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error loading subscription info:', err);
+      }
+    }
+
+    // Load Team Information
+    async function loadTeamInfo(user) {
+      const teamList = document.getElementById('team-members-list');
+      const featureLocked = document.getElementById('team-feature-locked');
+
+      // Show current user as team owner
+      if (teamList) {
+        const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'You';
+        const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+        teamList.innerHTML = `
+          <div class="team-member">
+            <div class="team-member-avatar">${initials}</div>
+            <div class="team-member-info">
+              <div class="team-member-name">${escapeHtml(userName)}</div>
+              <div class="team-member-email">${escapeHtml(user.email)}</div>
+            </div>
+            <div class="team-member-role">Owner</div>
+          </div>
+        `;
+      }
+    }
+
+    // Initialize Calendar Sync UI (fallback if settings.js doesn't provide it)
+    function initCalendarSyncUI(user) {
+      const connectBtn = document.getElementById('connect-calendar-btn');
+      const disconnectBtn = document.getElementById('disconnect-calendar-btn');
+      const syncToggle = document.getElementById('sync-toggle');
+      const syncNowBtn = document.getElementById('sync-now-btn');
+
+      // Connect button
+      if (connectBtn) {
+        connectBtn.addEventListener('click', async () => {
+          if (typeof initiateGoogleCalendarAuth === 'function') {
+            await initiateGoogleCalendarAuth();
+          } else {
+            showNotification('Calendar sync not configured', 'error');
+          }
+        });
+      }
+
+      // Disconnect button
+      if (disconnectBtn) {
+        disconnectBtn.addEventListener('click', async () => {
+          if (confirm('Are you sure you want to disconnect Google Calendar?')) {
+            if (typeof disconnectGoogleCalendar === 'function') {
+              await disconnectGoogleCalendar();
+              updateConnectionUI(false);
+            }
+          }
+        });
+      }
+
+      // Sync toggle
+      if (syncToggle) {
+        syncToggle.addEventListener('change', () => {
+          const syncOptions = document.getElementById('sync-options');
+          if (syncOptions) {
+            syncOptions.style.display = syncToggle.checked ? 'block' : 'none';
+          }
+        });
+      }
+
+      // Sync direction radio buttons
+      const syncDirectionRadios = document.querySelectorAll('input[name="sync-direction"]');
+      syncDirectionRadios.forEach(radio => {
+        radio.addEventListener('change', updateDirectionInfoBoxes);
+      });
+
+      // Sync now button
+      if (syncNowBtn) {
+        syncNowBtn.addEventListener('click', async () => {
+          const spinner = document.getElementById('sync-spinner');
+          if (spinner) spinner.classList.remove('hidden');
+          syncNowBtn.disabled = true;
+
+          try {
+            if (typeof syncCalendarNow === 'function') {
+              await syncCalendarNow();
+            }
+            updateLastSyncInfo();
+          } catch (err) {
+            console.error('Sync error:', err);
+            showNotification('Sync failed', 'error');
+          } finally {
+            if (spinner) spinner.classList.add('hidden');
+            syncNowBtn.disabled = false;
+          }
+        });
+      }
+
+      // Check current connection status
+      checkCalendarConnection(user);
+    }
+
+    // Check calendar connection status
+    async function checkCalendarConnection(user) {
+      try {
+        if (typeof getCalendarConnectionStatus === 'function') {
+          const status = await getCalendarConnectionStatus(user.id);
+          updateConnectionUI(status.connected, status.email);
+        }
+      } catch (err) {
+        console.error('Error checking calendar connection:', err);
+      }
+    }
+
+    // Update connection UI
+    function updateConnectionUI(connected, email = '') {
+      const indicator = document.getElementById('status-indicator');
+      const mainText = document.getElementById('status-text-main');
+      const subText = document.getElementById('status-text-sub');
+      const notConnectedState = document.getElementById('not-connected-state');
+      const connectedState = document.getElementById('connected-state');
+      const syncConfigCard = document.getElementById('sync-config-card');
+
+      if (connected) {
+        if (indicator) {
+          indicator.classList.remove('disconnected');
+          indicator.classList.add('connected');
+        }
+        if (mainText) mainText.textContent = `Connected as ${email}`;
+        if (subText) subText.textContent = 'Your Google Calendar is linked';
+        if (notConnectedState) notConnectedState.style.display = 'none';
+        if (connectedState) connectedState.style.display = 'block';
+        if (syncConfigCard) syncConfigCard.style.display = 'block';
+      } else {
+        if (indicator) {
+          indicator.classList.remove('connected');
+          indicator.classList.add('disconnected');
+        }
+        if (mainText) mainText.textContent = 'Not connected';
+        if (subText) subText.textContent = 'Connect your Google account to enable sync';
+        if (notConnectedState) notConnectedState.style.display = 'block';
+        if (connectedState) connectedState.style.display = 'none';
+        if (syncConfigCard) syncConfigCard.style.display = 'none';
+      }
+    }
+
+    // Update direction info boxes based on selection
+    function updateDirectionInfoBoxes() {
+      const direction = document.querySelector('input[name="sync-direction"]:checked')?.value;
+      const importBox = document.getElementById('info-import');
+      const exportBox = document.getElementById('info-export');
+
+      if (importBox) {
+        importBox.classList.toggle('hidden', direction === 'to_google');
+      }
+      if (exportBox) {
+        exportBox.classList.toggle('hidden', direction === 'from_google');
+      }
+    }
+
+    // Update last sync info
+    function updateLastSyncInfo() {
+      const timeEl = document.getElementById('last-sync-time');
+      const resultsEl = document.getElementById('last-sync-results');
+
+      if (timeEl) {
+        timeEl.textContent = `Last synced: ${new Date().toLocaleString('en-GB')}`;
+      }
+      if (resultsEl) {
+        resultsEl.textContent = 'Sync completed successfully';
+      }
+    }
+
+    // Manage subscription button
+    document.getElementById('manage-subscription-btn')?.addEventListener('click', async () => {
+      // This would typically open Stripe billing portal
+      showNotification('Billing portal coming soon', 'info');
+    });
+
+    // Initialize direction info boxes on load
+    updateDirectionInfoBoxes();
+  </script>
+</body>
+</html>

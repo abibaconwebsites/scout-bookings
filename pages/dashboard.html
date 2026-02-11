@@ -1,1 +1,2223 @@
-<!-- Dashboard page: main hub showing huts and bookings overview -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Scout Bookings Dashboard - Manage your scout hut bookings">
+  <title>Dashboard - Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .dashboard-header {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-lg) 0;
+      margin-bottom: var(--space-xl);
+    }
+
+    .dashboard-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .welcome-text h1 {
+      font-size: 1.5rem;
+      margin-bottom: var(--space-xs);
+    }
+
+    .welcome-text p {
+      color: var(--color-placeholder);
+      margin: 0;
+    }
+
+    .dashboard-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* Top row with two cards side by side, matching heights */
+    .dashboard-top-row {
+      display: flex;
+      gap: var(--space-lg);
+      align-items: stretch;
+      height: 70vh;
+    }
+
+    .dashboard-top-row > .dashboard-card {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .dashboard-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-lg);
+    }
+
+    .dashboard-card.full-width {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-md);
+      }
+
+      .dashboard-top-row {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .dashboard-top-row > .dashboard-card {
+        height: 60vh;
+        flex: none;
+      }
+    }
+
+    .dashboard-card h2 {
+      font-size: 1.125rem;
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .dashboard-card .icon {
+      font-size: 1.25rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-xl) var(--space-md);
+      color: var(--color-placeholder);
+    }
+
+    .empty-state p {
+      margin-bottom: var(--space-md);
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .hut-info {
+      padding: var(--space-md) 0;
+    }
+
+    .hut-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-md);
+    }
+
+    .hut-detail {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-md);
+    }
+
+    .hut-detail-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .hut-address {
+      font-size: 0.875rem;
+      color: var(--color-text);
+    }
+
+    .hut-availability {
+      font-size: 0.875rem;
+    }
+
+    .availability-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-xs) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .availability-row:last-child {
+      border-bottom: none;
+    }
+
+    .availability-day {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .availability-times {
+      color: var(--color-primary);
+      font-weight: 500;
+    }
+
+    .no-availability {
+      color: var(--color-placeholder);
+    }
+
+    /* Bookings Card */
+    .dashboard-card.bookings-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-card.bookings-card h2 {
+      flex-shrink: 0;
+    }
+
+    /* Bookings List */
+    .bookings-list {
+      display: none;
+      flex-direction: column;
+      gap: var(--space-md);
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: var(--space-sm);
+      min-height: 0;
+    }
+
+    .bookings-list.visible {
+      display: flex;
+    }
+
+    .booking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .booking-item-content {
+      flex: 1;
+    }
+
+    .booking-item-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #000000;
+      margin-bottom: var(--space-sm);
+    }
+
+    .booking-item-details {
+      display: flex;
+      gap: var(--space-lg);
+    }
+
+    @media (max-width: 480px) {
+      .booking-item-details {
+        flex-direction: column;
+        gap: var(--space-sm);
+      }
+    }
+
+    .booking-item-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .booking-item-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+    }
+
+    .booking-item-value {
+      font-size: 0.875rem;
+      color: var(--color-text);
+    }
+
+    .booking-item-actions {
+      flex-shrink: 0;
+      margin-left: var(--space-md);
+    }
+
+    .booking-item-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: var(--space-sm);
+    }
+
+    .booking-item .btn-view {
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .booking-item .btn-view:hover {
+      background-color: var(--color-primary-dark, #5a0db8);
+    }
+
+    .booking-item.cancelled {
+      border-left-color: var(--color-placeholder);
+      opacity: 0.7;
+    }
+
+    .booking-item.cancelled .booking-item-actions {
+      display: none;
+    }
+
+    /* Booking Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      width: 90%;
+      max-width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.9);
+      transition: transform var(--transition-fast);
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.125rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--color-placeholder);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--color-text);
+    }
+
+    .modal-body {
+      padding: var(--space-lg);
+    }
+
+    .modal-detail {
+      margin-bottom: var(--space-md);
+    }
+
+    .modal-detail:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-detail-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-xs);
+    }
+
+    .modal-detail-value {
+      font-size: 0.9375rem;
+      color: var(--color-text);
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .modal-footer .btn {
+      flex: 1;
+    }
+
+    .modal-footer .btn {
+      flex: 1;
+      width: auto;
+    }
+
+    .modal-footer .btn-danger {
+      background-color: #ef4444;
+      background: #ef4444;
+      color: white;
+    }
+
+    .modal-footer .btn-danger:hover {
+      background-color: #dc2626;
+      background: #dc2626;
+    }
+
+    .modal-footer .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    /* Calendar Styles */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+    }
+
+    .calendar-header h2 {
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .calendar-nav-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      transition: all var(--transition-fast);
+    }
+
+    .calendar-nav-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .calendar-nav-btn:hover {
+      background-color: var(--color-border);
+    }
+
+    .calendar-month-year {
+      font-weight: 600;
+      font-size: 0.875rem;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .calendar-grid {
+      margin-bottom: var(--space-sm);
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 2px;
+    }
+
+    .calendar-weekday {
+      text-align: center;
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      padding: var(--space-xs);
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .calendar-day {
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 6px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      position: relative;
+      cursor: default;
+      transition: all var(--transition-fast);
+      overflow: hidden;
+      background-color: #f8f8f8;
+    }
+
+    .calendar-day-number {
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .calendar-day-events {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+    }
+
+    .calendar-day.has-sessions,
+    .calendar-day.has-bookings {
+      padding-bottom: 2px;
+    }
+
+    .calendar-day.other-month {
+      color: var(--color-border);
+    }
+
+    .calendar-day.today {
+      border: 2px solid var(--color-primary);
+    }
+
+    .calendar-day.available,
+    .calendar-day.booked {
+      cursor: pointer;
+    }
+
+    .calendar-day.available {
+      background-color: #f8f8f8;
+      color: var(--color-text);
+    }
+
+    .calendar-day.available:hover {
+      background-color: #f0f0f0;
+    }
+
+    .calendar-day.booked {
+      background-color: #f8f8f8;
+      color: var(--color-text);
+    }
+
+    .calendar-day.booked:hover {
+      background-color: #f0f0f0;
+    }
+
+    .calendar-day.unavailable {
+      background-color: #f8f8f8;
+      color: var(--color-placeholder);
+    }
+
+    /* Booking event bars - Scout bookings (purple, editable) */
+    .booking-event {
+      background-color: #7413dc;
+      color: #ffffff !important;
+      font-size: 0.6875rem;
+      padding: 3px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .booking-event:hover {
+      background-color: #5a0db8;
+    }
+
+    .booking-event-time,
+    .booking-event-name {
+      color: #ffffff !important;
+    }
+
+    .booking-event-time {
+      font-weight: 600;
+      margin-left: 3px;
+    }
+
+    .booking-event-name {
+    }
+
+    /* Google synced event bars - Google events (blue, not editable) */
+    .google-event {
+      background-color: #4285F4;
+      color: #ffffff !important;
+      font-size: 0.6875rem;
+      padding: 3px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: default;
+      transition: all var(--transition-fast);
+      opacity: 0.9;
+    }
+
+    .google-event:hover {
+      background-color: #3367d6;
+    }
+
+    .google-event-time,
+    .google-event-name {
+      color: #ffffff !important;
+    }
+
+    .google-event-time {
+      font-weight: 600;
+      margin-left: 3px;
+    }
+
+    .google-event-name {
+      /* Regular style - same as other events */
+    }
+
+    /* Calendar Legend */
+    .calendar-legend {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+      padding: var(--space-sm) 0;
+      margin-bottom: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    .calendar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 0.75rem;
+      color: var(--color-text);
+    }
+
+    .calendar-legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    .calendar-legend-color.booking {
+      background-color: #7413dc;
+    }
+
+    .calendar-legend-color.google {
+      background-color: #4285F4;
+    }
+
+    .calendar-legend-color.session {
+      background-color: #003982;
+    }
+
+    .more-events {
+      font-size: 0.5625rem;
+      color: var(--color-primary);
+      padding: 1px 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .more-events:hover {
+      text-decoration: underline;
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background-color: var(--color-background);
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .view-toggle-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background-color: transparent;
+      color: var(--color-placeholder);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .view-toggle-btn:hover {
+      color: var(--color-text);
+      background-color: var(--color-border);
+    }
+
+    .view-toggle-btn.active {
+      background-color: var(--color-white);
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .view-toggle-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* List View Styles */
+    .availability-list-view {
+      display: none;
+    }
+
+    .availability-list-view.active {
+      display: block;
+    }
+
+    .calendar-grid.hidden {
+      display: none;
+    }
+
+    .list-view-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .list-view-day {
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .list-view-day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md);
+      background-color: var(--color-background);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .list-view-day.unavailable .list-view-day-header {
+      opacity: 0.6;
+    }
+
+    .list-view-day-date {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .list-view-day-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-text);
+    }
+
+    .list-view-day-full-date {
+      font-size: 0.8125rem;
+      color: var(--color-placeholder);
+    }
+
+    .list-view-day-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .list-view-event-count {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--color-primary);
+      background-color: rgba(108, 16, 210, 0.1);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .list-view-unavailable-badge {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--color-placeholder);
+      background-color: var(--color-border);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .list-view-day-events {
+      padding: var(--space-sm) var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .list-view-event {
+      display: flex;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+
+    .list-view-event:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .list-view-event.session {
+      background-color: rgba(0, 57, 130, 0.08);
+      cursor: default;
+    }
+
+    .list-view-event.booking {
+      background-color: rgba(108, 16, 210, 0.08);
+    }
+
+    .list-view-event-time {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-text);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-view-event-name {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      flex: 1;
+      min-width: 0;
+      text-align: left;
+    }
+
+    .list-view-event-type-wrapper {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .list-view-event-type {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .list-view-event-type.session {
+      background-color: #003982;
+      color: white;
+    }
+
+    .list-view-event-type.booking {
+      background-color: #7413dc;
+      color: white;
+    }
+
+    .list-view-event-type.synced-event {
+      background-color: #4285F4;
+      color: white;
+    }
+
+    .list-view-event.synced-event {
+      opacity: 0.9;
+    }
+
+    .list-view-event.synced-event .list-view-event-name {
+      /* Regular style - same as other events */
+    }
+
+    .list-view-empty {
+      padding: var(--space-md);
+      text-align: center;
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+    }
+
+    .list-view-add-booking {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      padding: var(--space-sm) var(--space-md);
+      color: var(--color-primary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+      border-radius: var(--radius-sm);
+    }
+
+    .list-view-add-booking:hover {
+      background-color: rgba(108, 16, 210, 0.08);
+    }
+
+    /* Weekly session bars */
+    .session-event {
+      background-color: #003982;
+      color: white;
+      font-size: 0.6875rem;
+      padding: 3px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: default;
+      position: relative;
+    }
+
+    .session-event-time {
+      font-weight: 600;
+      margin-left: 3px;
+    }
+
+    .session-event-name {
+    }
+
+    /* Event tooltip */
+    .event-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--color-text);
+      color: var(--color-white);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 0.6875rem;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-fast);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .event-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--color-text);
+    }
+
+    .session-event:hover .event-tooltip,
+    .booking-event:hover .event-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .session-tooltip-name {
+      font-weight: 600;
+      display: block;
+    }
+
+    .session-tooltip-time {
+      opacity: 0.85;
+    }
+
+    .legend-dot.squirrels {
+      background-color: #e74c3c;
+    }
+
+    .legend-dot.beavers {
+      background-color: #3498db;
+    }
+
+    .legend-dot.cubs {
+      background-color: #f39c12;
+    }
+
+    .legend-dot.scouts {
+      background-color: #27ae60;
+    }
+
+    .legend-dot.unavailable {
+      background-color: var(--color-background);
+      border: 1px solid var(--color-border);
+    }
+
+    @media (max-width: 768px) {
+      .calendar-header {
+        flex-direction: column;
+        gap: var(--space-md);
+      }
+
+      .calendar-legend {
+        flex-wrap: wrap;
+        gap: var(--space-md);
+      }
+
+      .calendar-day {
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="dashboard.html" class="logo" aria-label="Scout Bookings Dashboard">Scout Bookings</a>
+      <div class="nav-actions">
+        <a href="settings.html" class="nav-icon-btn" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </a>
+        <button onclick="handleLogout()" class="nav-icon-btn" aria-label="Logout">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard Header -->
+  <header class="dashboard-header">
+    <div class="container">
+      <div class="dashboard-header-content">
+        <div class="welcome-text">
+          <h1>Welcome back, <span id="user-name">there</span>!</h1>
+          <p>Here's what's happening with your bookings</p>
+        </div>
+        <div class="quick-actions">
+          <a href="add-booking.html" class="btn btn-primary">+ Add Booking</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Top Row: Hut Details and Bookings -->
+      <div class="dashboard-top-row">
+        <!-- My Hut Card -->
+        <div class="dashboard-card">
+          <h2>My Scout Hut</h2>
+          <div id="hut-details" class="empty-state">
+            <p>You haven't set up your scout hut yet.</p>
+            <a href="create-hut.html" class="btn btn-primary btn-small">+ Set Up Your Hut</a>
+          </div>
+          <div id="hut-info" class="hut-info" style="display: none;">
+            <div class="hut-name" id="hut-name"></div>
+            <div class="hut-detail">
+              <span class="hut-detail-label">Location</span>
+              <span class="hut-address" id="hut-address"></span>
+            </div>
+            <div class="hut-detail">
+              <span class="hut-detail-label">Availability</span>
+              <span class="hut-availability" id="hut-availability"></span>
+            </div>
+            <a href="edit-hut.html" class="btn btn-secondary btn-small mt-md">Edit Hut Details</a>
+          </div>
+        </div>
+
+        <!-- Upcoming Bookings Card -->
+        <div class="dashboard-card bookings-card">
+          <h2>This Month's Bookings</h2>
+          <div id="bookings-empty" class="empty-state">
+            <p>No bookings this month.</p>
+            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add Booking</a>
+          </div>
+          <div id="bookings-list" class="bookings-list"></div>
+        </div>
+      </div>
+
+      <!-- Calendar Card -->
+      <div class="dashboard-card calendar-card full-width">
+      <div class="calendar-header">
+        <h2>Availability Calendar</h2>
+        <div style="display: flex; align-items: center; gap: var(--space-md);">
+          <!-- View Toggle -->
+          <div class="view-toggle">
+            <button class="view-toggle-btn active" id="calendar-view-btn" aria-label="Calendar view" title="Calendar view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </button>
+            <button class="view-toggle-btn" id="list-view-btn" aria-label="List view" title="List view">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <!-- Calendar Navigation -->
+          <div class="calendar-nav">
+            <button class="calendar-nav-btn" id="prev-month" aria-label="Previous month">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="calendar-month-year" id="calendar-month-year">February 2026</span>
+            <button class="calendar-nav-btn" id="next-month" aria-label="Next month">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Calendar Legend - explains the two event types -->
+      <div class="calendar-legend" id="calendar-legend">
+        <div class="calendar-legend-item">
+          <span class="calendar-legend-color booking"></span>
+          <span>Scout Booking</span>
+        </div>
+        <div class="calendar-legend-item">
+          <span class="calendar-legend-color google"></span>
+          <span>Google Calendar</span>
+        </div>
+        <div class="calendar-legend-item">
+          <span class="calendar-legend-color session"></span>
+          <span>Weekly Session</span>
+        </div>
+      </div>
+      <!-- Calendar Grid View -->
+      <div class="calendar-grid" id="calendar-grid-view">
+        <div class="calendar-weekdays">
+          <div class="calendar-weekday">Mon</div>
+          <div class="calendar-weekday">Tue</div>
+          <div class="calendar-weekday">Wed</div>
+          <div class="calendar-weekday">Thu</div>
+          <div class="calendar-weekday">Fri</div>
+          <div class="calendar-weekday">Sat</div>
+          <div class="calendar-weekday">Sun</div>
+        </div>
+        <div class="calendar-days" id="calendar-days"></div>
+      </div>
+      <!-- List View -->
+      <div class="availability-list-view" id="availability-list-view">
+        <div class="list-view-container" id="list-view-container"></div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <!-- Booking Details Modal -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Booking Details</h3>
+        <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-detail">
+          <div class="modal-detail-label">Event</div>
+          <div class="modal-detail-value" id="modal-event-name"></div>
+        </div>
+        <div class="modal-detail">
+          <div class="modal-detail-label">Date</div>
+          <div class="modal-detail-value" id="modal-date"></div>
+        </div>
+        <div class="modal-detail">
+          <div class="modal-detail-label">Time</div>
+          <div class="modal-detail-value" id="modal-time"></div>
+        </div>
+        <div class="modal-detail" id="modal-contact-section">
+          <div class="modal-detail-label">Contact</div>
+          <div class="modal-detail-value" id="modal-contact"></div>
+        </div>
+        <div class="modal-detail" id="modal-email-section">
+          <div class="modal-detail-label">Email</div>
+          <div class="modal-detail-value" id="modal-email"></div>
+        </div>
+        <div class="modal-detail" id="modal-phone-section">
+          <div class="modal-detail-label">Phone</div>
+          <div class="modal-detail-value" id="modal-phone"></div>
+        </div>
+        <div class="modal-detail" id="modal-notes-section">
+          <div class="modal-detail-label">Notes</div>
+          <div class="modal-detail-value" id="modal-notes"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="modal-amend-btn" onclick="amendBookingFromModal()">Amend</button>
+        <button class="btn btn-danger" id="modal-cancel-btn" onclick="cancelBookingFromModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">&copy; 2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <!-- calendar.js must load before auth.js - auth.js calls saveCalendarTokens() during OAuth callback -->
+  <script src="../js/calendar.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/huts.js"></script>
+  <script src="../js/bookings.js"></script>
+  <script>
+    // Dashboard initialization
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Check if user is authenticated
+      const user = await checkAuth();
+      
+      if (user) {
+        // Update welcome message with user's name
+        const userName = user.user_metadata?.full_name 
+          || user.user_metadata?.name 
+          || user.email?.split('@')[0] 
+          || 'there';
+        
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl) {
+          userNameEl.textContent = userName;
+        }
+
+        // Check trial status
+        await checkTrialStatus(user.id);
+
+        // Load user's hut and bookings
+        const hut = await loadUserHut(user.id);
+        if (hut) {
+          await loadBookings(hut.id);
+          initCalendar(hut);
+        }
+      }
+    });
+
+    // =============================================================================
+    // CALENDAR
+    // =============================================================================
+    
+    let currentCalendarDate = new Date();
+    let currentHutData = null;
+    
+    // Two types of events displayed on the calendar:
+    // 1. calendarBookings - Scout bookings from the bookings table (purple, editable)
+    // 2. syncedGoogleEvents - Events synced from Google Calendar (blue, not editable)
+    let calendarBookings = [];
+    let syncedGoogleEvents = [];
+
+    let currentView = 'calendar'; // 'calendar' or 'list'
+
+    function initCalendar(hut) {
+      currentHutData = hut;
+      
+      // Set up navigation buttons
+      document.getElementById('prev-month').addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCurrentView();
+      });
+      
+      document.getElementById('next-month').addEventListener('click', () => {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCurrentView();
+      });
+      
+      // Set up view toggle buttons
+      document.getElementById('calendar-view-btn').addEventListener('click', () => {
+        switchView('calendar');
+      });
+      
+      document.getElementById('list-view-btn').addEventListener('click', () => {
+        switchView('list');
+      });
+      
+      // Initial render
+      renderCurrentView();
+    }
+
+    function switchView(view) {
+      currentView = view;
+      
+      // Update toggle button states
+      const calendarBtn = document.getElementById('calendar-view-btn');
+      const listBtn = document.getElementById('list-view-btn');
+      
+      if (view === 'calendar') {
+        calendarBtn.classList.add('active');
+        listBtn.classList.remove('active');
+      } else {
+        calendarBtn.classList.remove('active');
+        listBtn.classList.add('active');
+      }
+      
+      // Show/hide views
+      const calendarGrid = document.getElementById('calendar-grid-view');
+      const listView = document.getElementById('availability-list-view');
+      
+      if (view === 'calendar') {
+        calendarGrid.classList.remove('hidden');
+        listView.classList.remove('active');
+      } else {
+        calendarGrid.classList.add('hidden');
+        listView.classList.add('active');
+      }
+      
+      // Render the current view
+      renderCurrentView();
+    }
+
+    async function renderCurrentView() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      
+      // Update month/year display
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      document.getElementById('calendar-month-year').textContent = `${monthNames[month]} ${year}`;
+      
+      // Fetch both Scout bookings and synced Google events for this month
+      await loadCalendarEvents(currentHutData?.id, month, year);
+      
+      if (currentView === 'calendar') {
+        renderCalendar();
+      } else {
+        renderListView();
+      }
+    }
+
+    function renderListView() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      const container = document.getElementById('list-view-container');
+      container.innerHTML = '';
+      
+      // Get first and last day of month
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const totalDays = lastDay.getDate();
+      
+      // Get today for comparison
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Generate list for each day
+      for (let day = 1; day <= totalDays; day++) {
+        const date = new Date(year, month, day);
+        const dayName = getDayName(date);
+        const isAvailable = isDayAvailable(dayName);
+        const dayBookings = getBookingsForDay(date);
+        const daySyncedEvents = getSyncedEventsForDay(date);
+        const weeklySessions = getWeeklySessionsForDay(dayName);
+        
+        // Combine all events (three types: session, booking, synced-event)
+        const allEvents = [];
+        
+        // Add weekly sessions
+        weeklySessions.forEach(session => {
+          allEvents.push({
+            type: 'session',
+            start_time: session.start_time,
+            end_time: session.end_time,
+            name: session.name,
+            group: session.group
+          });
+        });
+        
+        // Add Scout bookings (purple, editable)
+        dayBookings.forEach(booking => {
+          const startDate = new Date(booking.start_time);
+          const endDate = new Date(booking.end_time);
+          allEvents.push({
+            type: 'booking',
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            name: booking.event_name || 'Booking',
+            booking: booking
+          });
+        });
+        
+        // Add synced Google Calendar events (blue, not editable)
+        daySyncedEvents.forEach(syncedEvent => {
+          const startDate = new Date(syncedEvent.start_time);
+          const endDate = new Date(syncedEvent.end_time);
+          allEvents.push({
+            type: 'synced-event',
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            name: syncedEvent.title || 'Google Event',
+            syncedEvent: syncedEvent
+          });
+        });
+        
+        // Sort by start time
+        allEvents.sort((a, b) => a.start_time.localeCompare(b.start_time));
+        
+        // Create day element
+        const dayEl = document.createElement('div');
+        dayEl.className = `list-view-day${!isAvailable ? ' unavailable' : ''}`;
+        
+        // Format date display
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const fullDayName = dayNames[date.getDay()];
+        const fullDate = `${day} ${monthNames[month]} ${year}`;
+        
+        // Check if today
+        const isToday = date.getTime() === today.getTime();
+        
+        // Day header
+        const headerEl = document.createElement('div');
+        headerEl.className = 'list-view-day-header';
+        headerEl.innerHTML = `
+          <div class="list-view-day-date">
+            <span class="list-view-day-name">${fullDayName}${isToday ? ' (Today)' : ''}</span>
+            <span class="list-view-day-full-date">${fullDate}</span>
+          </div>
+          <div class="list-view-day-status">
+            ${allEvents.length > 0 ? `<span class="list-view-event-count">${allEvents.length} event${allEvents.length > 1 ? 's' : ''}</span>` : ''}
+            ${!isAvailable ? '<span class="list-view-unavailable-badge">Unavailable</span>' : ''}
+          </div>
+        `;
+        
+        dayEl.appendChild(headerEl);
+        
+        // Events container
+        if (allEvents.length > 0 || isAvailable) {
+          const eventsEl = document.createElement('div');
+          eventsEl.className = 'list-view-day-events';
+          
+          if (allEvents.length > 0) {
+            allEvents.forEach(event => {
+              const eventEl = document.createElement('div');
+              eventEl.className = `list-view-event ${event.type}`;
+              
+              // Different label based on event type
+              let typeLabel = 'Session';
+              if (event.type === 'booking') {
+                typeLabel = 'Booking';
+              } else if (event.type === 'synced-event') {
+                typeLabel = 'Google';
+              }
+              
+              eventEl.innerHTML = `
+                <span class="list-view-event-time">${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}</span>
+                <span class="list-view-event-name">${escapeHtml(event.name)}${event.type === 'synced-event' ? ' (Google)' : ''}</span>
+                <span class="list-view-event-type-wrapper"><span class="list-view-event-type ${event.type}">${typeLabel}</span></span>
+              `;
+              
+              // Click to open booking modal (only for Scout bookings, not Google events)
+              if (event.type === 'booking') {
+                eventEl.style.cursor = 'pointer';
+                eventEl.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  openBookingModal(event.booking);
+                });
+              } else if (event.type === 'synced-event') {
+                // Google events are not clickable - show tooltip on hover
+                eventEl.title = 'This time is blocked by your Google Calendar';
+                eventEl.style.cursor = 'default';
+              }
+              
+              eventsEl.appendChild(eventEl);
+            });
+          }
+          
+          // Add booking button for available days
+          if (isAvailable) {
+            const addBtn = document.createElement('div');
+            addBtn.className = 'list-view-add-booking';
+            addBtn.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add booking
+            `;
+            addBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              goToAddBooking(date);
+            });
+            eventsEl.appendChild(addBtn);
+          }
+          
+          dayEl.appendChild(eventsEl);
+        }
+        
+        container.appendChild(dayEl);
+      }
+    }
+
+    function renderCalendar() {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+      
+      // Generate calendar days
+      const calendarDays = document.getElementById('calendar-days');
+      calendarDays.innerHTML = '';
+      
+      // Get first day of month and total days
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const totalDays = lastDay.getDate();
+      
+      // Get day of week for first day (0 = Sunday, convert to Monday = 0)
+      let startDay = firstDay.getDay() - 1;
+      if (startDay < 0) startDay = 6;
+      
+      // Get today for comparison
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Days from previous month
+      const prevMonth = new Date(year, month, 0);
+      const prevMonthDays = prevMonth.getDate();
+      
+      for (let i = startDay - 1; i >= 0; i--) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day other-month';
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = prevMonthDays - i;
+        dayEl.appendChild(dayNumber);
+        calendarDays.appendChild(dayEl);
+      }
+      
+      // Days of current month
+      for (let day = 1; day <= totalDays; day++) {
+        const date = new Date(year, month, day);
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        
+        // Add day number
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = day;
+        dayEl.appendChild(dayNumber);
+        
+        // Check if today
+        if (date.getTime() === today.getTime()) {
+          dayEl.classList.add('today');
+        }
+        
+        // Check availability, bookings, synced events, and weekly sessions
+        const dayName = getDayName(date);
+        const isAvailable = isDayAvailable(dayName);
+        const dayBookings = getBookingsForDay(date);
+        const daySyncedEvents = getSyncedEventsForDay(date);
+        const hasBookings = dayBookings.length > 0 || daySyncedEvents.length > 0;
+        const weeklySessions = getWeeklySessionsForDay(dayName);
+        const hasWeeklySessions = weeklySessions.length > 0;
+        
+        // Create events container
+        const eventsContainer = document.createElement('div');
+        eventsContainer.className = 'calendar-day-events';
+        
+        // Combine and sort all events by start time
+        // Three event types:
+        // 1. session - Weekly scout sessions (navy blue)
+        // 2. booking - Scout bookings (purple, editable)
+        // 3. synced-event - Google Calendar events (blue, not editable)
+        const allEvents = [];
+        
+        // Add weekly sessions
+        weeklySessions.forEach(session => {
+          allEvents.push({
+            type: 'session',
+            start_time: session.start_time,
+            end_time: session.end_time,
+            name: session.name,
+            emoji: session.emoji,
+            group: session.group
+          });
+        });
+        
+        // Add Scout bookings (purple, clickable, editable)
+        dayBookings.forEach(booking => {
+          const startDate = new Date(booking.start_time);
+          const endDate = new Date(booking.end_time);
+          allEvents.push({
+            type: 'booking',
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            name: booking.event_name || 'Booking',
+            booking: booking
+          });
+        });
+        
+        // Add synced Google Calendar events (blue, not clickable, not editable)
+        daySyncedEvents.forEach(syncedEvent => {
+          const startDate = new Date(syncedEvent.start_time);
+          const endDate = new Date(syncedEvent.end_time);
+          allEvents.push({
+            type: 'synced-event',
+            start_time: startDate.toTimeString().slice(0, 5),
+            end_time: endDate.toTimeString().slice(0, 5),
+            name: syncedEvent.title || 'Google Event',
+            syncedEvent: syncedEvent
+          });
+        });
+        
+        // Sort by start time
+        allEvents.sort((a, b) => a.start_time.localeCompare(b.start_time));
+        
+        // Render events (max 3 visible, then show "+X more")
+        const maxVisible = 3;
+        const visibleEvents = allEvents.slice(0, maxVisible);
+        const hiddenCount = allEvents.length - maxVisible;
+        
+        visibleEvents.forEach(event => {
+          if (event.type === 'session') {
+            // Weekly session - navy blue
+            const sessionEl = document.createElement('div');
+            sessionEl.className = 'session-event';
+            sessionEl.innerHTML = `<span class="session-event-name">${event.name}</span><span class="session-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
+            
+            // Add tooltip
+            const tooltip = document.createElement('span');
+            tooltip.className = 'event-tooltip';
+            tooltip.textContent = `${event.name}: ${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}`;
+            sessionEl.appendChild(tooltip);
+            
+            eventsContainer.appendChild(sessionEl);
+          } else if (event.type === 'booking') {
+            // Scout booking - purple, clickable, editable
+            const bookingEl = document.createElement('div');
+            bookingEl.className = 'booking-event';
+            bookingEl.innerHTML = `<span class="booking-event-name">${escapeHtml(event.name)}</span><span class="booking-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
+            
+            // Tooltip: Show contact info, edit/delete options available
+            const tooltip = document.createElement('span');
+            tooltip.className = 'event-tooltip';
+            const contactInfo = event.booking.contact_name ? ` - ${event.booking.contact_name}` : '';
+            tooltip.textContent = `${event.name}${contactInfo}: ${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}`;
+            bookingEl.appendChild(tooltip);
+            
+            // Click to open modal for editing
+            bookingEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              openBookingModal(event.booking);
+            });
+            
+            eventsContainer.appendChild(bookingEl);
+          } else if (event.type === 'synced-event') {
+            // Synced Google Calendar event - blue, not clickable, not editable
+            const googleEl = document.createElement('div');
+            googleEl.className = 'google-event';
+            googleEl.innerHTML = `<span class="google-event-name">${escapeHtml(event.name)} (Google)</span><span class="google-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
+            
+            // Tooltip: Explain this is a Google Calendar event
+            const tooltip = document.createElement('span');
+            tooltip.className = 'event-tooltip';
+            tooltip.textContent = `This time is blocked by your Google Calendar`;
+            googleEl.appendChild(tooltip);
+            
+            // No click handler - Google events are not editable in Scout
+            
+            eventsContainer.appendChild(googleEl);
+          }
+        });
+        
+        // Show "+X more" if there are hidden events
+        if (hiddenCount > 0) {
+          const moreEl = document.createElement('div');
+          moreEl.className = 'more-events';
+          moreEl.textContent = `+${hiddenCount} more`;
+          moreEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            showDayBookings(date);
+          });
+          eventsContainer.appendChild(moreEl);
+        }
+        
+        dayEl.appendChild(eventsContainer);
+        
+        // Set day styling based on availability
+        if (hasBookings || hasWeeklySessions) {
+          dayEl.classList.add('has-bookings');
+        }
+        
+        if (isAvailable) {
+          dayEl.classList.add('available');
+          // Click on empty space to add booking
+          dayEl.addEventListener('click', (e) => {
+            if (e.target === dayEl || e.target === dayNumber || e.target === eventsContainer) {
+              goToAddBooking(date);
+            }
+          });
+        } else {
+          dayEl.classList.add('unavailable');
+        }
+        
+        calendarDays.appendChild(dayEl);
+      }
+      
+      // Days from next month to fill the grid
+      const totalCells = startDay + totalDays;
+      const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      
+      for (let i = 1; i <= remainingCells; i++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day other-month';
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'calendar-day-number';
+        dayNumber.textContent = i;
+        dayEl.appendChild(dayNumber);
+        calendarDays.appendChild(dayEl);
+      }
+    }
+
+    /**
+     * Loads calendar events for a given month.
+     * Fetches both Scout bookings and synced Google Calendar events.
+     * 
+     * Two event types are loaded:
+     * 1. Scout Bookings - from the bookings table, confirmed status only
+     *    - Displayed in purple (#7413dc)
+     *    - Clickable and editable
+     * 2. Synced Google Events - from synced_events table, google_to_scout type
+     *    - Displayed in Google blue (#4285F4)
+     *    - Not clickable/editable (managed in Google Calendar)
+     * 
+     * @param {string} hutId - The hut ID to load events for
+     * @param {number} month - Month (0-11)
+     * @param {number} year - Full year (e.g., 2026)
+     * @returns {Promise<Array>} Combined array of all events for rendering
+     */
+    async function loadCalendarEvents(hutId, month, year) {
+      if (!hutId) {
+        calendarBookings = [];
+        syncedGoogleEvents = [];
+        return [];
+      }
+      
+      // 1. Calculate date range for the month
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0, 23, 59, 59);
+      const firstDayISO = firstDay.toISOString();
+      const lastDayISO = lastDay.toISOString();
+      
+      console.log('[Calendar] Loading events for', year, month + 1, 'hutId:', hutId);
+      
+      try {
+        // 2. Load Scout Bookings from bookings table
+        // Only load confirmed bookings within the date range
+        const { data: bookingsData, error: bookingsError } = await supabaseClient
+          .from('bookings')
+          .select('*')
+          .eq('hut_id', hutId)
+          .eq('status', 'confirmed')
+          .gte('start_time', firstDayISO)
+          .lte('start_time', lastDayISO);
+        
+        if (bookingsError) {
+          console.error('[Calendar] Error loading bookings:', bookingsError);
+          calendarBookings = [];
+        } else {
+          calendarBookings = bookingsData || [];
+          console.log('[Calendar] Loaded', calendarBookings.length, 'Scout bookings');
+        }
+        
+        // 3. Load Synced Google Events from synced_events table
+        // Only load google_to_scout type events (events imported from Google)
+        const { data: syncedData, error: syncedError } = await supabaseClient
+          .from('synced_events')
+          .select('*')
+          .eq('hut_id', hutId)
+          .eq('event_type', 'google_to_scout')
+          .gte('start_time', firstDayISO)
+          .lte('start_time', lastDayISO);
+        
+        if (syncedError) {
+          console.error('[Calendar] Error loading synced events:', syncedError);
+          syncedGoogleEvents = [];
+        } else {
+          syncedGoogleEvents = syncedData || [];
+          console.log('[Calendar] Loaded', syncedGoogleEvents.length, 'synced Google events');
+        }
+        
+        // 4. Combine into unified array for external use
+        // This array can be used by other functions that need all events
+        const allEvents = [
+          // Scout bookings - purple, editable
+          ...calendarBookings.map(b => ({
+            id: b.id,
+            type: 'booking',
+            title: b.event_name,
+            start: b.start_time,
+            end: b.end_time,
+            color: '#7413dc',
+            editable: true,
+            contact: b.contact_name,
+            booking: b
+          })),
+          // Synced Google events - blue, not editable
+          ...syncedGoogleEvents.map(e => ({
+            id: e.id,
+            type: 'synced-event',
+            title: e.title + ' (Google)',
+            start: e.start_time,
+            end: e.end_time,
+            color: '#4285F4',
+            editable: false,
+            syncedEvent: e
+          }))
+        ];
+        
+        console.log('[Calendar] Total events:', allEvents.length);
+        return allEvents;
+        
+      } catch (err) {
+        console.error('[Calendar] Error loading calendar events:', err);
+        calendarBookings = [];
+        syncedGoogleEvents = [];
+        return [];
+      }
+    }
+
+    function getDayName(date) {
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      return days[date.getDay()];
+    }
+
+    function isDayAvailable(dayName) {
+      if (!currentHutData || !currentHutData.availability) return false;
+      const dayConfig = currentHutData.availability[dayName];
+      return dayConfig && dayConfig.enabled;
+    }
+
+    /**
+     * Checks if a day has any events (bookings or synced Google events).
+     */
+    function dayHasBookings(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Check Scout bookings
+      const hasBookings = calendarBookings.some(booking => {
+        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        return bookingDate === dateStr;
+      });
+      
+      // Check synced Google events
+      const hasSyncedEvents = syncedGoogleEvents.some(event => {
+        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        return eventDate === dateStr;
+      });
+      
+      return hasBookings || hasSyncedEvents;
+    }
+
+    /**
+     * Gets Scout bookings for a specific day.
+     * Returns only bookings from the bookings table (editable).
+     */
+    function getBookingsForDay(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      return calendarBookings.filter(booking => {
+        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        return bookingDate === dateStr;
+      }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    }
+
+    /**
+     * Gets synced Google Calendar events for a specific day.
+     * Returns events from synced_events table with type 'google_to_scout'.
+     * These events are not editable in Scout - they're managed in Google Calendar.
+     */
+    function getSyncedEventsForDay(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      return syncedGoogleEvents.filter(event => {
+        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        return eventDate === dateStr;
+      }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    }
+
+    // Fixed color for all groups
+    const sessionColor = '#003982'; // Navy blue
+
+    function getWeeklySessionsForDay(dayName) {
+      if (!currentHutData || !currentHutData.weekly_sessions) return [];
+      
+      const sessions = [];
+      const groupNames = {
+        squirrels: { name: 'Squirrels' },
+        beavers: { name: 'Beavers' },
+        cubs: { name: 'Cubs' },
+        scouts: { name: 'Scouts' }
+      };
+      
+      for (const [group, config] of Object.entries(currentHutData.weekly_sessions)) {
+        if (config.enabled && config.day === dayName) {
+          sessions.push({
+            group,
+            ...groupNames[group],
+            start_time: config.start_time,
+            end_time: config.end_time,
+            color: sessionColor
+          });
+        }
+      }
+      
+      return sessions;
+    }
+
+    function dayHasWeeklySessions(dayName) {
+      return getWeeklySessionsForDay(dayName).length > 0;
+    }
+
+    function goToAddBooking(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      window.location.href = `add-booking.html?date=${dateStr}`;
+    }
+
+    // Modal functions
+    let currentModalBookingId = null;
+
+    /**
+     * Shows bookings for a specific day when clicking "+X more".
+     * Only Scout bookings can be opened in a modal (editable).
+     * Synced Google events are displayed but not editable.
+     */
+    function showDayBookings(date) {
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Get Scout bookings for this day (editable)
+      const dayBookings = calendarBookings.filter(booking => {
+        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        return bookingDate === dateStr;
+      });
+      
+      // Get synced Google events for this day (not editable)
+      const daySyncedEvents = syncedGoogleEvents.filter(event => {
+        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        return eventDate === dateStr;
+      });
+
+      // If there are Scout bookings, show the first one
+      // (Google events cannot be opened in a modal - they're managed in Google Calendar)
+      if (dayBookings.length === 1) {
+        // Single booking - show details directly
+        openBookingModal(dayBookings[0]);
+      } else if (dayBookings.length > 1) {
+        // Multiple bookings - show first one (could be enhanced to show a list)
+        openBookingModal(dayBookings[0]);
+      } else if (daySyncedEvents.length > 0) {
+        // Only synced events - show an alert explaining they're from Google
+        alert('This day has events from your Google Calendar. These events can only be edited in Google Calendar.');
+      }
+    }
+
+    function openBookingModal(booking) {
+      currentModalBookingId = booking.id;
+      
+      // Format date
+      const startDate = new Date(booking.start_time);
+      const endDate = new Date(booking.end_time);
+      const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      const timeOptions = { hour: '2-digit', minute: '2-digit' };
+      const formattedDate = startDate.toLocaleDateString('en-GB', dateOptions);
+      const formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
+      
+      // Populate modal
+      document.getElementById('modal-event-name').textContent = booking.event_name || 'Untitled Booking';
+      document.getElementById('modal-date').textContent = formattedDate;
+      document.getElementById('modal-time').textContent = formattedTime;
+      
+      // Contact info
+      const contactSection = document.getElementById('modal-contact-section');
+      const contactValue = document.getElementById('modal-contact');
+      if (booking.contact_name) {
+        contactSection.style.display = 'block';
+        contactValue.textContent = booking.contact_name;
+      } else {
+        contactSection.style.display = 'none';
+      }
+      
+      // Email
+      const emailSection = document.getElementById('modal-email-section');
+      const emailValue = document.getElementById('modal-email');
+      if (booking.contact_email) {
+        emailSection.style.display = 'block';
+        emailValue.textContent = booking.contact_email;
+      } else {
+        emailSection.style.display = 'none';
+      }
+      
+      // Phone
+      const phoneSection = document.getElementById('modal-phone-section');
+      const phoneValue = document.getElementById('modal-phone');
+      if (booking.contact_phone) {
+        phoneSection.style.display = 'block';
+        phoneValue.textContent = booking.contact_phone;
+      } else {
+        phoneSection.style.display = 'none';
+      }
+      
+      // Notes
+      const notesSection = document.getElementById('modal-notes-section');
+      const notesValue = document.getElementById('modal-notes');
+      if (booking.notes) {
+        notesSection.style.display = 'block';
+        notesValue.textContent = booking.notes;
+      } else {
+        notesSection.style.display = 'none';
+      }
+      
+      // Show modal
+      document.getElementById('booking-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeBookingModal() {
+      document.getElementById('booking-modal').classList.remove('active');
+      document.body.style.overflow = '';
+      currentModalBookingId = null;
+    }
+
+    function amendBookingFromModal() {
+      if (!currentModalBookingId) return;
+      // Navigate to edit booking page with booking ID
+      window.location.href = `add-booking.html?edit=${currentModalBookingId}`;
+    }
+
+    async function cancelBookingFromModal() {
+      if (!currentModalBookingId) return;
+      
+      if (!confirm('Are you sure you want to cancel this booking?')) {
+        return;
+      }
+      
+      try {
+        const result = await deleteBooking(currentModalBookingId);
+        
+        if (result.success) {
+          closeBookingModal();
+          
+          // Show appropriate notification based on sync status
+          let message = 'Booking cancelled successfully';
+          if (result.syncStatus === 'synced') {
+            message += ' (Removed from Google Calendar)';
+          } else if (result.syncStatus === 'sync_failed' || result.syncStatus === 'sync_error') {
+            message += ' (Calendar sync pending)';
+          } else if (result.syncStatus === 'no_tokens') {
+            message += ' (Calendar sync requires reconnection)';
+          }
+          showNotification(message, 'success');
+          
+          // Reload dashboard data - wrapped in try/catch so errors don't show to user
+          try {
+            if (currentHutData) {
+              await loadBookings(currentHutData.id);
+              await loadCalendarBookings(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+              renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+            }
+          } catch (reloadErr) {
+            console.error('Error reloading data:', reloadErr);
+          }
+        } else {
+          const errorMsg = result.error?.message || 'Failed to cancel booking';
+          showNotification(errorMsg, 'error');
+        }
+      } catch (err) {
+        console.error('Error cancelling booking:', err);
+        showNotification('An error occurred while cancelling the booking', 'error');
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('booking-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeBookingModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeBookingModal();
+      }
+    });
+
+    // Load and display user's hut information
+    async function loadUserHut(userId) {
+      try {
+        const hut = await getUserHut(userId);
+        
+        const emptyState = document.getElementById('hut-details');
+        const hutInfo = document.getElementById('hut-info');
+
+        if (hut) {
+          // Hide empty state, show hut info
+          if (emptyState) emptyState.style.display = 'none';
+          if (hutInfo) {
+            hutInfo.style.display = 'block';
+            
+            // Populate hut details
+            const hutName = document.getElementById('hut-name');
+            const hutAddress = document.getElementById('hut-address');
+            const hutAvailability = document.getElementById('hut-availability');
+
+            if (hutName) hutName.textContent = escapeHtml(hut.name);
+            if (hutAddress) {
+              const addressParts = [
+                hut.address_line1,
+                hut.address_line2,
+                hut.city,
+                hut.postcode
+              ].filter(Boolean);
+              hutAddress.textContent = addressParts.join(', ');
+            }
+            if (hutAvailability) {
+              const availabilityData = formatAvailabilityDisplay(hut.availability);
+              if (availabilityData.length === 0) {
+                hutAvailability.innerHTML = '<span class="no-availability">No availability set</span>';
+              } else {
+                hutAvailability.innerHTML = availabilityData.map(item => 
+                  `<div class="availability-row"><span class="availability-day">${escapeHtml(item.day)}</span><span class="availability-times">${escapeHtml(item.times)}</span></div>`
+                ).join('');
+              }
+            }
+          }
+          return hut;
+        } else {
+          // Show empty state
+          if (emptyState) emptyState.style.display = 'block';
+          if (hutInfo) hutInfo.style.display = 'none';
+          return null;
+        }
+      } catch (err) {
+        console.error('Error loading user hut:', err);
+        return null;
+      }
+    }
+
+    // Store upcoming bookings for modal access
+    let upcomingBookingsData = [];
+
+    // Load and display bookings
+    async function loadBookings(hutId) {
+      try {
+        // Get upcoming bookings
+        const upcomingBookings = await getUpcomingBookings(hutId, 10);
+        upcomingBookingsData = upcomingBookings; // Store for modal access
+
+        // Display bookings list
+        const bookingsEmpty = document.getElementById('bookings-empty');
+        const bookingsList = document.getElementById('bookings-list');
+
+        if (upcomingBookings.length === 0) {
+          if (bookingsEmpty) bookingsEmpty.style.display = 'block';
+          if (bookingsList) bookingsList.classList.remove('visible');
+        } else {
+          if (bookingsEmpty) bookingsEmpty.style.display = 'none';
+          if (bookingsList) {
+            bookingsList.classList.add('visible');
+            
+            bookingsList.innerHTML = upcomingBookings.map(booking => {
+              const start = new Date(booking.start_time);
+              const end = new Date(booking.end_time);
+              const dateOptions = { weekday: 'short', day: 'numeric', month: 'short' };
+              const dateStr = start.toLocaleDateString('en-GB', dateOptions);
+              const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+              const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
+              const endTime = end.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
+              
+              return `
+              <div class="booking-item ${booking.status === 'cancelled' ? 'cancelled' : ''}" data-booking-id="${booking.id}">
+                <div class="booking-item-content">
+                  <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
+                  <div class="booking-item-details">
+                    <div class="booking-item-group">
+                      <div class="booking-item-label">Date</div>
+                      <div class="booking-item-value">${dateStr}</div>
+                    </div>
+                    <div class="booking-item-group">
+                      <div class="booking-item-label">Time</div>
+                      <div class="booking-item-value">${startTime} - ${endTime}</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="booking-item-actions">
+                  <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>
+                </div>
+              </div>
+            `;
+            }).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading bookings:', err);
+      }
+    }
+
+    // View a booking in the modal
+    function viewBooking(bookingId) {
+      // First check upcoming bookings data
+      let booking = upcomingBookingsData.find(b => b.id === bookingId);
+      // If not found, check calendar bookings
+      if (!booking) {
+        booking = calendarBookings.find(b => b.id === bookingId);
+      }
+      if (booking) {
+        openBookingModal(booking);
+      }
+    }
+
+
+    // Check and display trial status
+    async function checkTrialStatus(userId) {
+      try {
+        const { data: profile, error } = await supabaseClient
+          .from('user_profiles')
+          .select('subscription_status, trial_ends_at')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+
+      } catch (err) {
+        console.error('Error checking trial status:', err);
+      }
+    }
+  </script>
+</body>
+</html>

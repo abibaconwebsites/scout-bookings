@@ -1,1 +1,1734 @@
-<!-- Add booking page: form to create a new hut booking -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Add a booking - Scout Bookings">
+  <title>Add Booking - Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .page-hero {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-xl) 0;
+    }
+
+    .page-hero .back-button {
+      margin-bottom: var(--space-md);
+    }
+
+    .page-hero h1 {
+      font-size: 1.75rem;
+      margin-bottom: var(--space-xs);
+    }
+
+    .page-hero p {
+      color: var(--color-placeholder);
+      margin: 0;
+    }
+
+    .add-booking-page {
+      padding: var(--space-xl) 0 var(--space-3xl);
+    }
+
+    .form-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .form-section-title .icon {
+      font-size: 1.25rem;
+    }
+
+    .form-section-description {
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      margin-bottom: var(--space-lg);
+    }
+
+    .datetime-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .contact-grid .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: space-between;
+      align-items: center;
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+      margin-top: var(--space-xl);
+    }
+
+    .form-actions-right {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    @media (max-width: 768px) {
+      .page-hero {
+        padding: var(--space-lg) 0;
+      }
+
+      .page-hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .page-hero p {
+        font-size: 0.875rem;
+      }
+
+      .add-booking-page {
+        padding: var(--space-lg) 0 var(--space-2xl);
+      }
+
+      .form-card {
+        padding: var(--space-md);
+        border-radius: var(--radius-md);
+      }
+
+      .form-section-title {
+        font-size: 1rem;
+      }
+
+      .datetime-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column;
+        gap: var(--space-md);
+      }
+
+      .form-actions-right {
+        width: 100%;
+        flex-direction: column;
+      }
+
+      .form-actions .btn {
+        width: 100%;
+      }
+    }
+
+    /* Blocked Time Slots */
+    .blocked-slots-section {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .blocked-slots-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .blocked-slots-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .blocked-slot {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      border-left: 3px solid var(--color-border);
+    }
+
+    .blocked-slot.booking {
+      border-left-color: var(--color-primary);
+    }
+
+    .blocked-slot.session {
+      border-left-color: var(--color-primary);
+    }
+
+    .blocked-slot-time {
+      font-weight: 600;
+      color: var(--color-text);
+      min-width: 100px;
+    }
+
+    .blocked-slot-name {
+      color: var(--color-placeholder);
+    }
+
+    .blocked-slot-badge {
+      font-size: 0.625rem;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .blocked-slot-badge.booking {
+      background-color: rgba(116, 19, 220, 0.15);
+      color: var(--color-primary);
+    }
+
+    .blocked-slot-badge.session {
+      background-color: rgba(0, 0, 0, 0.1);
+      color: var(--color-text);
+    }
+
+    .no-blocked-slots {
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    /* Conflict Warning */
+    .conflict-warning {
+      background-color: var(--color-error-bg);
+      border: 1px solid var(--color-error);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+      display: none;
+    }
+
+    .conflict-warning.visible {
+      display: block;
+    }
+
+    .conflict-warning-title {
+      font-weight: 600;
+      color: var(--color-error);
+      margin-bottom: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .conflict-warning-list {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      margin: 0;
+      padding-left: var(--space-lg);
+    }
+
+    .conflict-warning-list li {
+      margin-bottom: var(--space-xs);
+    }
+
+    .conflict-warning-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Recurring Event Styles */
+    .recurrence-section {
+      margin-top: var(--space-lg);
+    }
+
+    .recurrence-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .recurrence-toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .recurrence-toggle-label {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .recurrence-options {
+      display: none;
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+    }
+
+    .recurrence-options.visible {
+      display: block;
+    }
+
+    .recurrence-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .recurrence-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .recurrence-label {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      min-width: 80px;
+    }
+
+    .recurrence-select {
+      padding: var(--space-xs) var(--space-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      background-color: var(--color-white);
+      cursor: pointer;
+    }
+
+    .recurrence-input {
+      width: 60px;
+      padding: var(--space-xs) var(--space-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    .recurrence-input:focus,
+    .recurrence-select:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(116, 19, 220, 0.1);
+    }
+
+    /* Weekly Days Selection */
+    .weekday-selector {
+      display: flex;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+      margin-top: var(--space-sm);
+    }
+
+    .weekday-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background-color: var(--color-white);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .weekday-btn:hover {
+      border-color: var(--color-primary);
+    }
+
+    .weekday-btn.selected {
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    /* Monthly Options */
+    .monthly-options {
+      display: none;
+      margin-top: var(--space-sm);
+    }
+
+    .monthly-options.visible {
+      display: block;
+    }
+
+    .monthly-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-xs);
+      cursor: pointer;
+    }
+
+    .monthly-option input[type="radio"] {
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .monthly-option-label {
+      font-size: 0.875rem;
+      color: var(--color-text);
+    }
+
+    /* End Options */
+    .end-options {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .end-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-sm);
+      cursor: pointer;
+    }
+
+    .end-option:last-child {
+      margin-bottom: 0;
+    }
+
+    .end-option input[type="radio"] {
+      accent-color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    .end-option-label {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .end-date-input,
+    .end-count-input {
+      padding: var(--space-xs) var(--space-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+    }
+
+    .end-count-input {
+      width: 60px;
+      text-align: center;
+    }
+
+    .end-date-input:disabled,
+    .end-count-input:disabled {
+      background-color: var(--color-background);
+      color: var(--color-placeholder);
+      cursor: not-allowed;
+    }
+
+    /* Recurrence Summary */
+    .recurrence-summary {
+      margin-top: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background-color: rgba(116, 19, 220, 0.08);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      color: var(--color-primary);
+      display: none;
+    }
+
+    .recurrence-summary.visible {
+      display: block;
+    }
+
+    .recurrence-summary-icon {
+      margin-right: var(--space-xs);
+    }
+
+    /* Preview of recurring dates */
+    .recurrence-preview {
+      margin-top: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .recurrence-preview.visible {
+      display: block;
+    }
+
+    .recurrence-preview-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-placeholder);
+      text-transform: uppercase;
+      margin-bottom: var(--space-xs);
+    }
+
+    .recurrence-preview-dates {
+      font-size: 0.875rem;
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+
+    .recurrence-preview-more {
+      font-size: 0.75rem;
+      color: var(--color-placeholder);
+      margin-top: var(--space-xs);
+    }
+
+    @media (max-width: 768px) {
+      .recurrence-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .recurrence-label {
+        min-width: auto;
+        margin-bottom: var(--space-xs);
+      }
+
+      .weekday-selector {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="nav-container">
+      <a href="dashboard.html" class="logo" aria-label="Scout Bookings Dashboard">Scout Bookings</a>
+      <div class="nav-actions">
+        <a href="settings.html" class="nav-icon-btn" aria-label="Settings">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          </svg>
+        </a>
+        <button onclick="handleLogout()" class="nav-icon-btn" aria-label="Logout">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Hero -->
+  <section class="page-hero">
+    <div class="container container-md">
+      <a href="dashboard.html" class="back-button">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Dashboard
+      </a>
+      <h1>Add a Booking</h1>
+      <p>Enter details for an existing or new booking</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="container container-md add-booking-page">
+    <!-- Add Booking Form -->
+    <form id="add-booking-form">
+      <div class="form-card">
+        <!-- Event Details Section -->
+        <div class="form-section">
+          <h2 class="form-section-title">
+            Event Details
+          </h2>
+          
+          <div class="form-group">
+            <label for="event-name" class="form-label required">Event Name</label>
+            <input 
+              type="text" 
+              id="event-name" 
+              name="event_name" 
+              class="form-input" 
+              placeholder="e.g. Cubs Weekly Meeting, Birthday Party"
+              required
+              maxlength="200"
+            >
+          </div>
+
+          <div class="datetime-grid">
+            <div class="form-group">
+              <label for="booking-date" class="form-label required">Date</label>
+              <input 
+                type="date" 
+                id="booking-date" 
+                name="booking_date" 
+                class="form-input"
+                required
+              >
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label required">Time</label>
+              <div class="time-grid">
+                <input 
+                  type="time" 
+                  id="start-time" 
+                  name="start_time" 
+                  class="form-input"
+                  value="09:00"
+                  required
+                >
+                <input 
+                  type="time" 
+                  id="end-time" 
+                  name="end_time" 
+                  class="form-input"
+                  value="17:00"
+                  required
+                >
+              </div>
+              <span class="form-hint">Start and end time</span>
+            </div>
+          </div>
+
+          <!-- Recurring Event Section -->
+          <div class="recurrence-section" id="recurrence-section">
+            <label class="recurrence-toggle">
+              <input type="checkbox" id="is-recurring" name="is_recurring">
+              <span class="recurrence-toggle-label">Make this a recurring event</span>
+            </label>
+
+            <div class="recurrence-options" id="recurrence-options">
+              <!-- Frequency Selection -->
+              <div class="recurrence-row">
+                <span class="recurrence-label">Repeats:</span>
+                <select id="recurrence-frequency" class="recurrence-select">
+                  <option value="daily">Daily</option>
+                  <option value="weekly" selected>Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="custom">Custom...</option>
+                </select>
+              </div>
+
+              <!-- Custom Interval (shown when Custom is selected or for fine-tuning) -->
+              <div class="recurrence-row" id="custom-interval-row">
+                <span class="recurrence-label">Every:</span>
+                <input type="number" id="recurrence-interval" class="recurrence-input" value="1" min="1" max="99">
+                <span id="interval-unit-label">week(s)</span>
+              </div>
+
+              <!-- Weekly Day Selection -->
+              <div id="weekly-options">
+                <div class="recurrence-row">
+                  <span class="recurrence-label">On:</span>
+                </div>
+                <div class="weekday-selector" id="weekday-selector">
+                  <button type="button" class="weekday-btn" data-day="0">S</button>
+                  <button type="button" class="weekday-btn" data-day="1">M</button>
+                  <button type="button" class="weekday-btn" data-day="2">T</button>
+                  <button type="button" class="weekday-btn" data-day="3">W</button>
+                  <button type="button" class="weekday-btn" data-day="4">T</button>
+                  <button type="button" class="weekday-btn" data-day="5">F</button>
+                  <button type="button" class="weekday-btn" data-day="6">S</button>
+                </div>
+              </div>
+
+              <!-- Monthly Options -->
+              <div class="monthly-options" id="monthly-options">
+                <label class="monthly-option">
+                  <input type="radio" name="monthly_type" value="day_of_month" checked>
+                  <span class="monthly-option-label" id="monthly-day-label">On day 15</span>
+                </label>
+                <label class="monthly-option">
+                  <input type="radio" name="monthly_type" value="day_of_week">
+                  <span class="monthly-option-label" id="monthly-weekday-label">On the third Saturday</span>
+                </label>
+              </div>
+
+              <!-- End Options -->
+              <div class="end-options">
+                <div class="recurrence-row">
+                  <span class="recurrence-label">Ends:</span>
+                </div>
+                
+                <label class="end-option">
+                  <input type="radio" name="recurrence_end" value="never" checked>
+                  <span class="end-option-label">Never</span>
+                </label>
+                
+                <label class="end-option">
+                  <input type="radio" name="recurrence_end" value="on_date">
+                  <span class="end-option-label">
+                    On
+                    <input type="date" id="recurrence-end-date" class="end-date-input" disabled>
+                  </span>
+                </label>
+                
+                <label class="end-option">
+                  <input type="radio" name="recurrence_end" value="after_count">
+                  <span class="end-option-label">
+                    After
+                    <input type="number" id="recurrence-end-count" class="end-count-input" value="10" min="1" max="365" disabled>
+                    occurrences
+                  </span>
+                </label>
+              </div>
+
+              <!-- Recurrence Summary -->
+              <div class="recurrence-summary" id="recurrence-summary">
+                <span class="recurrence-summary-icon">🔄</span>
+                <span id="recurrence-summary-text">Repeats weekly on Saturday</span>
+              </div>
+
+              <!-- Preview of Dates -->
+              <div class="recurrence-preview" id="recurrence-preview">
+                <div class="recurrence-preview-title">Upcoming dates</div>
+                <div class="recurrence-preview-dates" id="recurrence-preview-dates"></div>
+                <div class="recurrence-preview-more" id="recurrence-preview-more"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conflict Warning -->
+          <div class="conflict-warning" id="conflict-warning">
+            <div class="conflict-warning-title">
+              <span>Time Conflict Detected</span>
+            </div>
+            <ul class="conflict-warning-list" id="conflict-list"></ul>
+          </div>
+
+          <!-- Blocked Time Slots for Selected Date -->
+          <div class="blocked-slots-section" id="blocked-slots-section">
+            <div class="blocked-slots-title">
+              <span>Already Booked on <span id="blocked-date-display">this date</span></span>
+            </div>
+            <div class="blocked-slots-list" id="blocked-slots-list">
+              <span class="no-blocked-slots">Select a date to see existing bookings</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Details Section -->
+        <div class="form-section">
+          <h2 class="form-section-title">
+            Contact Details
+          </h2>
+          <p class="form-section-description">Who is the booking for?</p>
+          
+          <div class="contact-grid">
+            <div class="form-group">
+              <label for="contact-name" class="form-label required">Contact Name</label>
+              <input 
+                type="text" 
+                id="contact-name" 
+                name="contact_name" 
+                class="form-input" 
+                placeholder="Full name"
+                maxlength="100"
+                required
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="contact-phone" class="form-label">Phone</label>
+              <input 
+                type="tel" 
+                id="contact-phone" 
+                name="contact_phone" 
+                class="form-input" 
+                placeholder="Phone number"
+                maxlength="20"
+              >
+            </div>
+
+            <div class="form-group full-width">
+              <label for="contact-email" class="form-label required">Email</label>
+              <input 
+                type="email" 
+                id="contact-email" 
+                name="contact_email" 
+                class="form-input" 
+                placeholder="email@example.com"
+                maxlength="100"
+                required
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+          <h2 class="form-section-title">
+            Notes
+          </h2>
+          
+          <div class="form-group">
+            <label for="notes" class="form-label">Additional Notes</label>
+            <textarea 
+              id="notes" 
+              name="notes" 
+              class="form-textarea" 
+              placeholder="Any additional information about this booking..."
+              rows="3"
+              maxlength="1000"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" id="save-add-another-btn">Save & Add Another</button>
+          <div class="form-actions-right">
+            <a href="dashboard.html" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Save Booking</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">&copy; 2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/huts.js"></script>
+  <!-- calendar.js must load before bookings.js - bookings.js uses calendar sync functions -->
+  <script src="../js/calendar.js"></script>
+  <script src="../js/bookings.js"></script>
+  <script>
+    let currentUser = null;
+    let currentHut = null;
+    let editingBookingId = null;
+
+    // Recurrence state
+    const recurrenceState = {
+      isRecurring: false,
+      frequency: 'weekly',
+      interval: 1,
+      weekdays: [], // 0-6 (Sunday-Saturday)
+      monthlyType: 'day_of_month', // 'day_of_month' or 'day_of_week'
+      endType: 'never', // 'never', 'on_date', 'after_count'
+      endDate: null,
+      endCount: 10
+    };
+
+    const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const DAY_NAMES_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Check if user is authenticated
+      currentUser = await checkAuth();
+      
+      if (!currentUser) {
+        return;
+      }
+
+      // Load user's hut
+      currentHut = await getUserHut(currentUser.id);
+      
+      if (!currentHut) {
+        showNotification('Please set up your scout hut first.', 'info');
+        window.location.href = 'create-hut.html';
+        return;
+      }
+
+      // Check for edit mode or date in URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('edit');
+      
+      if (editId) {
+        // Edit mode - load existing booking
+        editingBookingId = editId;
+        await loadBookingForEdit(editId);
+      } else {
+        // Add mode - use date param or today
+        const dateParam = urlParams.get('date');
+        const bookingDate = dateParam || new Date().toISOString().split('T')[0];
+        document.getElementById('booking-date').value = bookingDate;
+        await loadBlockedSlots(bookingDate);
+      }
+
+      // Set up date change listener to update blocked slots
+      document.getElementById('booking-date').addEventListener('change', async function() {
+        await loadBlockedSlots(this.value);
+        checkForConflicts();
+      });
+
+      // Set up time change listeners to check for conflicts
+      document.getElementById('start-time').addEventListener('change', checkForConflicts);
+      document.getElementById('end-time').addEventListener('change', checkForConflicts);
+
+      // Set up form submission
+      document.getElementById('add-booking-form').addEventListener('submit', handleFormSubmit);
+      
+      // Set up "Save & Add Another" button
+      document.getElementById('save-add-another-btn').addEventListener('click', handleSaveAndAddAnother);
+
+      // Set up recurrence controls
+      initializeRecurrenceControls();
+    });
+
+    // =============================================================================
+    // RECURRENCE CONTROLS
+    // =============================================================================
+
+    function initializeRecurrenceControls() {
+      const isRecurringCheckbox = document.getElementById('is-recurring');
+      const recurrenceOptions = document.getElementById('recurrence-options');
+      const frequencySelect = document.getElementById('recurrence-frequency');
+      const intervalInput = document.getElementById('recurrence-interval');
+      const weekdayBtns = document.querySelectorAll('.weekday-btn');
+      const monthlyRadios = document.querySelectorAll('input[name="monthly_type"]');
+      const endRadios = document.querySelectorAll('input[name="recurrence_end"]');
+      const endDateInput = document.getElementById('recurrence-end-date');
+      const endCountInput = document.getElementById('recurrence-end-count');
+
+      // Set default end date to 3 months from now
+      const defaultEndDate = new Date();
+      defaultEndDate.setMonth(defaultEndDate.getMonth() + 3);
+      endDateInput.value = defaultEndDate.toISOString().split('T')[0];
+
+      // Toggle recurrence options visibility
+      isRecurringCheckbox.addEventListener('change', function() {
+        recurrenceState.isRecurring = this.checked;
+        recurrenceOptions.classList.toggle('visible', this.checked);
+        if (this.checked) {
+          // Initialize weekday based on selected date
+          updateWeekdayFromDate();
+          updateEndDateMinimum();
+          updateRecurrenceUI();
+        }
+      });
+
+      // Frequency change
+      frequencySelect.addEventListener('change', function() {
+        recurrenceState.frequency = this.value;
+        if (this.value !== 'custom') {
+          recurrenceState.interval = 1;
+          intervalInput.value = 1;
+        }
+        updateRecurrenceUI();
+      });
+
+      // Interval change
+      intervalInput.addEventListener('change', function() {
+        recurrenceState.interval = parseInt(this.value) || 1;
+        updateRecurrenceUI();
+      });
+
+      // Weekday buttons
+      weekdayBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const day = parseInt(this.dataset.day);
+          const index = recurrenceState.weekdays.indexOf(day);
+          
+          if (index > -1) {
+            // Don't allow deselecting if it's the only day selected
+            if (recurrenceState.weekdays.length > 1) {
+              recurrenceState.weekdays.splice(index, 1);
+              this.classList.remove('selected');
+            }
+          } else {
+            recurrenceState.weekdays.push(day);
+            recurrenceState.weekdays.sort((a, b) => a - b);
+            this.classList.add('selected');
+          }
+          updateRecurrenceUI();
+        });
+      });
+
+      // Monthly type change
+      monthlyRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.checked) {
+            recurrenceState.monthlyType = this.value;
+            updateRecurrenceUI();
+          }
+        });
+      });
+
+      // End type change
+      endRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.checked) {
+            recurrenceState.endType = this.value;
+            endDateInput.disabled = this.value !== 'on_date';
+            endCountInput.disabled = this.value !== 'after_count';
+            updateRecurrenceUI();
+          }
+        });
+      });
+
+      // End date change
+      endDateInput.addEventListener('change', function() {
+        const bookingDate = document.getElementById('booking-date').value;
+        // Ensure end date is not before booking date
+        if (bookingDate && this.value < bookingDate) {
+          this.value = bookingDate;
+          showNotification('End date cannot be before the booking date.', 'error');
+        }
+        recurrenceState.endDate = this.value;
+        updateRecurrenceUI();
+      });
+
+      // End count change
+      endCountInput.addEventListener('change', function() {
+        recurrenceState.endCount = parseInt(this.value) || 10;
+        updateRecurrenceUI();
+      });
+
+      // Update when booking date changes
+      document.getElementById('booking-date').addEventListener('change', function() {
+        // Update end date minimum to match booking date
+        updateEndDateMinimum();
+        
+        if (recurrenceState.isRecurring) {
+          updateWeekdayFromDate();
+          updateMonthlyLabels();
+          updateRecurrenceUI();
+        }
+      });
+    }
+
+    function updateEndDateMinimum() {
+      const bookingDate = document.getElementById('booking-date').value;
+      const endDateInput = document.getElementById('recurrence-end-date');
+      
+      if (bookingDate) {
+        // Set minimum to booking date
+        endDateInput.min = bookingDate;
+        
+        // If current end date is before booking date, update it
+        if (endDateInput.value && endDateInput.value < bookingDate) {
+          // Set to 3 months after booking date
+          const newEndDate = new Date(bookingDate);
+          newEndDate.setMonth(newEndDate.getMonth() + 3);
+          endDateInput.value = newEndDate.toISOString().split('T')[0];
+          recurrenceState.endDate = endDateInput.value;
+        }
+      }
+    }
+
+    function updateWeekdayFromDate() {
+      const dateInput = document.getElementById('booking-date');
+      if (!dateInput.value) return;
+
+      const date = new Date(dateInput.value);
+      const dayOfWeek = date.getDay();
+
+      // If no weekdays selected or only one, set to the booking date's day
+      if (recurrenceState.weekdays.length === 0) {
+        recurrenceState.weekdays = [dayOfWeek];
+      }
+
+      // Update weekday button selection
+      document.querySelectorAll('.weekday-btn').forEach(btn => {
+        const day = parseInt(btn.dataset.day);
+        btn.classList.toggle('selected', recurrenceState.weekdays.includes(day));
+      });
+
+      // Update monthly labels
+      updateMonthlyLabels();
+    }
+
+    function updateMonthlyLabels() {
+      const dateInput = document.getElementById('booking-date');
+      if (!dateInput.value) return;
+
+      const date = new Date(dateInput.value);
+      const dayOfMonth = date.getDate();
+      const dayOfWeek = date.getDay();
+      const weekOfMonth = Math.ceil(dayOfMonth / 7) - 1;
+
+      document.getElementById('monthly-day-label').textContent = `On day ${dayOfMonth}`;
+      document.getElementById('monthly-weekday-label').textContent = 
+        `On the ${ORDINALS[weekOfMonth] || 'last'} ${DAY_NAMES[dayOfWeek]}`;
+    }
+
+    function updateRecurrenceUI() {
+      const frequency = recurrenceState.frequency;
+      const customIntervalRow = document.getElementById('custom-interval-row');
+      const weeklyOptions = document.getElementById('weekly-options');
+      const monthlyOptions = document.getElementById('monthly-options');
+      const intervalUnitLabel = document.getElementById('interval-unit-label');
+
+      // Show/hide custom interval row
+      customIntervalRow.style.display = frequency === 'custom' || recurrenceState.interval > 1 ? 'flex' : 'none';
+
+      // Update interval unit label
+      const units = {
+        daily: 'day(s)',
+        weekly: 'week(s)',
+        monthly: 'month(s)',
+        yearly: 'year(s)',
+        custom: 'week(s)'
+      };
+      intervalUnitLabel.textContent = units[frequency] || 'week(s)';
+
+      // Show/hide weekly options
+      weeklyOptions.style.display = (frequency === 'weekly' || frequency === 'custom') ? 'block' : 'none';
+
+      // Show/hide monthly options
+      monthlyOptions.classList.toggle('visible', frequency === 'monthly');
+
+      // Update summary and preview
+      updateRecurrenceSummary();
+      updateRecurrencePreview();
+    }
+
+    function updateRecurrenceSummary() {
+      const summary = document.getElementById('recurrence-summary');
+      const summaryText = document.getElementById('recurrence-summary-text');
+      
+      if (!recurrenceState.isRecurring) {
+        summary.classList.remove('visible');
+        return;
+      }
+
+      const text = generateRecurrenceSummaryText();
+      summaryText.textContent = text;
+      summary.classList.add('visible');
+    }
+
+    function generateRecurrenceSummaryText() {
+      const { frequency, interval, weekdays, monthlyType, endType, endDate, endCount } = recurrenceState;
+      const dateInput = document.getElementById('booking-date');
+      let text = 'Repeats ';
+
+      // Frequency part
+      if (interval === 1) {
+        switch (frequency) {
+          case 'daily':
+            text += 'daily';
+            break;
+          case 'weekly':
+          case 'custom':
+            if (weekdays.length === 7) {
+              text += 'every day';
+            } else if (weekdays.length === 5 && !weekdays.includes(0) && !weekdays.includes(6)) {
+              text += 'every weekday';
+            } else {
+              text += 'weekly on ' + weekdays.map(d => DAY_NAMES[d]).join(', ');
+            }
+            break;
+          case 'monthly':
+            if (dateInput.value) {
+              const date = new Date(dateInput.value);
+              if (monthlyType === 'day_of_month') {
+                text += `monthly on day ${date.getDate()}`;
+              } else {
+                const weekOfMonth = Math.ceil(date.getDate() / 7) - 1;
+                text += `monthly on the ${ORDINALS[weekOfMonth] || 'last'} ${DAY_NAMES[date.getDay()]}`;
+              }
+            } else {
+              text += 'monthly';
+            }
+            break;
+          case 'yearly':
+            if (dateInput.value) {
+              const date = new Date(dateInput.value);
+              text += `annually on ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
+            } else {
+              text += 'annually';
+            }
+            break;
+        }
+      } else {
+        switch (frequency) {
+          case 'daily':
+            text += `every ${interval} days`;
+            break;
+          case 'weekly':
+          case 'custom':
+            text += `every ${interval} weeks on ` + weekdays.map(d => DAY_NAMES[d]).join(', ');
+            break;
+          case 'monthly':
+            text += `every ${interval} months`;
+            break;
+          case 'yearly':
+            text += `every ${interval} years`;
+            break;
+        }
+      }
+
+      // End part
+      switch (endType) {
+        case 'on_date':
+          if (endDate) {
+            const endDateObj = new Date(endDate);
+            text += `, until ${endDateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+          }
+          break;
+        case 'after_count':
+          text += `, ${endCount} times`;
+          break;
+      }
+
+      return text;
+    }
+
+    function updateRecurrencePreview() {
+      const preview = document.getElementById('recurrence-preview');
+      const previewDates = document.getElementById('recurrence-preview-dates');
+      const previewMore = document.getElementById('recurrence-preview-more');
+
+      if (!recurrenceState.isRecurring) {
+        preview.classList.remove('visible');
+        return;
+      }
+
+      const dates = calculateRecurringDates(5);
+      
+      if (dates.length === 0) {
+        preview.classList.remove('visible');
+        return;
+      }
+
+      const dateStrings = dates.slice(0, 5).map(d => 
+        d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+      );
+
+      previewDates.textContent = dateStrings.join(' • ');
+      
+      const totalDates = calculateRecurringDates(100);
+      if (totalDates.length > 5) {
+        previewMore.textContent = `+ ${totalDates.length - 5} more occurrences`;
+        previewMore.style.display = 'block';
+      } else {
+        previewMore.style.display = 'none';
+      }
+
+      preview.classList.add('visible');
+    }
+
+    function calculateRecurringDates(maxCount = 100) {
+      const dateInput = document.getElementById('booking-date');
+      if (!dateInput.value) return [];
+
+      const { frequency, interval, weekdays, monthlyType, endType, endDate, endCount } = recurrenceState;
+      const startDate = new Date(dateInput.value);
+      const dates = [];
+      
+      // Determine end condition
+      let maxDate = null;
+      let maxOccurrences = maxCount;
+      
+      if (endType === 'on_date' && endDate) {
+        maxDate = new Date(endDate);
+      } else if (endType === 'after_count') {
+        maxOccurrences = Math.min(endCount, maxCount);
+      }
+
+      // Cap at 2 years for 'never' option
+      if (endType === 'never') {
+        maxDate = new Date(startDate);
+        maxDate.setFullYear(maxDate.getFullYear() + 2);
+      }
+
+      let currentDate = new Date(startDate);
+      
+      while (dates.length < maxOccurrences) {
+        if (maxDate && currentDate > maxDate) break;
+
+        let shouldInclude = false;
+
+        switch (frequency) {
+          case 'daily':
+            shouldInclude = true;
+            break;
+          case 'weekly':
+          case 'custom':
+            shouldInclude = weekdays.includes(currentDate.getDay());
+            break;
+          case 'monthly':
+            if (monthlyType === 'day_of_month') {
+              shouldInclude = currentDate.getDate() === startDate.getDate();
+            } else {
+              // Same weekday and same week of month
+              const startWeekOfMonth = Math.ceil(startDate.getDate() / 7);
+              const currentWeekOfMonth = Math.ceil(currentDate.getDate() / 7);
+              shouldInclude = currentDate.getDay() === startDate.getDay() && 
+                             currentWeekOfMonth === startWeekOfMonth;
+            }
+            break;
+          case 'yearly':
+            shouldInclude = currentDate.getMonth() === startDate.getMonth() && 
+                           currentDate.getDate() === startDate.getDate();
+            break;
+        }
+
+        if (shouldInclude) {
+          dates.push(new Date(currentDate));
+        }
+
+        // Move to next potential date
+        switch (frequency) {
+          case 'daily':
+            currentDate.setDate(currentDate.getDate() + interval);
+            break;
+          case 'weekly':
+          case 'custom':
+            currentDate.setDate(currentDate.getDate() + 1);
+            // Skip weeks based on interval
+            if (currentDate.getDay() === 0 && interval > 1) {
+              // At start of new week, check if we should skip
+              const weeksSinceStart = Math.floor((currentDate - startDate) / (7 * 24 * 60 * 60 * 1000));
+              if (weeksSinceStart % interval !== 0) {
+                currentDate.setDate(currentDate.getDate() + 7 * (interval - (weeksSinceStart % interval)));
+              }
+            }
+            break;
+          case 'monthly':
+            currentDate.setMonth(currentDate.getMonth() + interval);
+            // Handle month overflow (e.g., Jan 31 -> Feb 28)
+            if (monthlyType === 'day_of_month' && currentDate.getDate() !== startDate.getDate()) {
+              currentDate.setDate(0); // Go to last day of previous month
+            }
+            break;
+          case 'yearly':
+            currentDate.setFullYear(currentDate.getFullYear() + interval);
+            break;
+        }
+
+        // Safety check to prevent infinite loops
+        if (dates.length === 0 && currentDate - startDate > 365 * 24 * 60 * 60 * 1000) {
+          break;
+        }
+      }
+
+      return dates;
+    }
+
+    function getRecurrenceData() {
+      if (!recurrenceState.isRecurring) {
+        return null;
+      }
+
+      return {
+        frequency: recurrenceState.frequency,
+        interval: recurrenceState.interval,
+        weekdays: recurrenceState.weekdays,
+        monthly_type: recurrenceState.monthlyType,
+        end_type: recurrenceState.endType,
+        end_date: recurrenceState.endType === 'on_date' ? recurrenceState.endDate : null,
+        end_count: recurrenceState.endType === 'after_count' ? recurrenceState.endCount : null,
+        calculated_dates: calculateRecurringDates(365).map(d => d.toISOString().split('T')[0])
+      };
+    }
+
+    async function loadBookingForEdit(bookingId) {
+      try {
+        const { data: booking, error } = await supabaseClient
+          .from('bookings')
+          .select('*')
+          .eq('id', bookingId)
+          .single();
+
+        if (error || !booking) {
+          showNotification('Booking not found.', 'error');
+          window.location.href = 'dashboard.html';
+          return;
+        }
+
+        // Update page title and button text
+        document.querySelector('.page-hero h1').textContent = 'Edit Booking';
+        document.querySelector('.page-hero p').textContent = 'Update the booking details below.';
+        document.getElementById('submit-btn').textContent = 'Update Booking';
+        document.getElementById('save-add-another-btn').style.display = 'none';
+        
+        // Hide recurrence section when editing
+        document.getElementById('recurrence-section').style.display = 'none';
+
+        // Populate form with existing data
+        document.getElementById('event-name').value = booking.event_name || '';
+        document.getElementById('contact-name').value = booking.contact_name || '';
+        document.getElementById('contact-email').value = booking.contact_email || '';
+        document.getElementById('contact-phone').value = booking.contact_phone || '';
+        document.getElementById('notes').value = booking.notes || '';
+
+        // Parse date and times
+        const startDate = new Date(booking.start_time);
+        const endDate = new Date(booking.end_time);
+        
+        const dateStr = startDate.toISOString().split('T')[0];
+        const startTimeStr = startDate.toTimeString().slice(0, 5);
+        const endTimeStr = endDate.toTimeString().slice(0, 5);
+
+        document.getElementById('booking-date').value = dateStr;
+        document.getElementById('start-time').value = startTimeStr;
+        document.getElementById('end-time').value = endTimeStr;
+
+        // Load blocked slots for this date
+        await loadBlockedSlots(dateStr);
+
+      } catch (err) {
+        console.error('Error loading booking:', err);
+        showNotification('Failed to load booking.', 'error');
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    // =============================================================================
+    // BLOCKED SLOTS & CONFLICT CHECKING
+    // =============================================================================
+
+    async function loadBlockedSlots(date) {
+      if (!currentHut || !date) return;
+
+      const blockedSlotsList = document.getElementById('blocked-slots-list');
+      const blockedDateDisplay = document.getElementById('blocked-date-display');
+      
+      // Update date display
+      const dateObj = new Date(date);
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      blockedDateDisplay.textContent = dateObj.toLocaleDateString('en-GB', options);
+
+      try {
+        const blockedSlots = await getBlockedTimeSlotsForDate(currentHut.id, currentHut, date);
+        
+        if (blockedSlots.length === 0) {
+          blockedSlotsList.innerHTML = '<span class="no-blocked-slots">No existing bookings or sessions on this date</span>';
+        } else {
+          blockedSlotsList.innerHTML = blockedSlots.map(slot => {
+            const badgeClass = slot.type === 'booking' ? 'booking' : 'session';
+            const badgeText = slot.type === 'booking' ? 'Booking' : 'Session';
+            const slotStyle = slot.color ? `style="--slot-color: ${slot.color}"` : '';
+            
+            return `
+              <div class="blocked-slot ${slot.type}" ${slotStyle}>
+                <span class="blocked-slot-time">${slot.start_time} - ${slot.end_time}</span>
+                <span class="blocked-slot-name">${escapeHtml(slot.name)}</span>
+                <span class="blocked-slot-badge ${badgeClass}">${badgeText}</span>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Error loading blocked slots:', err);
+        blockedSlotsList.innerHTML = '<span class="no-blocked-slots">Error loading blocked times</span>';
+      }
+    }
+
+    async function checkForConflicts() {
+      if (!currentHut) return;
+
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+      
+      if (!date || !startTime || !endTime) return;
+
+      const conflictWarning = document.getElementById('conflict-warning');
+      const conflictList = document.getElementById('conflict-list');
+
+      try {
+        const result = await checkBookingConflicts(currentHut.id, currentHut, date, startTime, endTime);
+        
+        if (result.hasConflict) {
+          conflictList.innerHTML = result.conflicts.map(conflict => 
+            `<li><strong>${escapeHtml(conflict.name)}</strong> (${conflict.time})</li>`
+          ).join('');
+          conflictWarning.classList.add('visible');
+        } else {
+          conflictWarning.classList.remove('visible');
+        }
+      } catch (err) {
+        console.error('Error checking conflicts:', err);
+        conflictWarning.classList.remove('visible');
+      }
+    }
+
+    // =============================================================================
+    // FORM DATA COLLECTION
+    // =============================================================================
+
+    function collectFormData() {
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+
+      const startDateTime = new Date(`${date}T${startTime}`).toISOString();
+      const endDateTime = new Date(`${date}T${endTime}`).toISOString();
+
+      const data = {
+        hut_id: currentHut.id,
+        event_name: document.getElementById('event-name').value.trim(),
+        contact_name: document.getElementById('contact-name').value.trim() || null,
+        contact_email: document.getElementById('contact-email').value.trim() || null,
+        contact_phone: document.getElementById('contact-phone').value.trim() || null,
+        start_time: startDateTime,
+        end_time: endDateTime,
+        notes: document.getElementById('notes').value.trim() || null
+      };
+
+      // Add recurrence data if recurring
+      const recurrenceData = getRecurrenceData();
+      if (recurrenceData) {
+        data.is_recurring = true;
+        data.recurrence_rule = recurrenceData;
+      }
+
+      return data;
+    }
+
+    function validateForm() {
+      const eventName = document.getElementById('event-name').value.trim();
+      const contactName = document.getElementById('contact-name').value.trim();
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+
+      if (!eventName) {
+        return { valid: false, message: 'Please enter an event name.' };
+      }
+
+      if (!contactName) {
+        return { valid: false, message: 'Please enter a contact name.' };
+      }
+
+      const contactEmail = document.getElementById('contact-email').value.trim();
+      if (!contactEmail) {
+        return { valid: false, message: 'Please enter a contact email.' };
+      }
+
+      if (!date) {
+        return { valid: false, message: 'Please select a date.' };
+      }
+
+      if (!startTime || !endTime) {
+        return { valid: false, message: 'Please enter start and end times.' };
+      }
+
+      if (startTime >= endTime) {
+        return { valid: false, message: 'End time must be after start time.' };
+      }
+
+      return { valid: true, message: '' };
+    }
+
+    async function resetForm() {
+      document.getElementById('event-name').value = '';
+      document.getElementById('contact-name').value = '';
+      document.getElementById('contact-email').value = '';
+      document.getElementById('contact-phone').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('event-name').focus();
+      
+      // Reset recurrence options
+      document.getElementById('is-recurring').checked = false;
+      document.getElementById('recurrence-options').classList.remove('visible');
+      recurrenceState.isRecurring = false;
+      recurrenceState.frequency = 'weekly';
+      recurrenceState.interval = 1;
+      recurrenceState.weekdays = [];
+      recurrenceState.monthlyType = 'day_of_month';
+      recurrenceState.endType = 'never';
+      recurrenceState.endCount = 10;
+      document.getElementById('recurrence-frequency').value = 'weekly';
+      document.getElementById('recurrence-interval').value = 1;
+      document.querySelectorAll('.weekday-btn').forEach(btn => btn.classList.remove('selected'));
+      document.querySelector('input[name="recurrence_end"][value="never"]').checked = true;
+      document.getElementById('recurrence-end-date').disabled = true;
+      document.getElementById('recurrence-end-count').disabled = true;
+      
+      // Reload blocked slots to show the new booking
+      const date = document.getElementById('booking-date').value;
+      await loadBlockedSlots(date);
+      
+      // Clear any conflict warning
+      document.getElementById('conflict-warning').classList.remove('visible');
+    }
+
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      await saveBooking(true);
+    }
+
+    async function handleSaveAndAddAnother() {
+      await saveBooking(false);
+    }
+
+    async function saveBooking(redirectAfter) {
+      const validation = validateForm();
+      if (!validation.valid) {
+        showNotification(validation.message, 'error');
+        return;
+      }
+
+      // Check for conflicts before saving (exclude current booking if editing)
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+      
+      const conflictResult = await checkBookingConflicts(currentHut.id, currentHut, date, startTime, endTime, editingBookingId);
+      if (conflictResult.hasConflict) {
+        const conflictNames = conflictResult.conflicts.map(c => c.name).join(', ');
+        showNotification(`This time conflicts with: ${conflictNames}. Please choose a different time.`, 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      const saveAddBtn = document.getElementById('save-add-another-btn');
+      const originalSubmitText = submitBtn.textContent;
+      const originalSaveAddText = saveAddBtn.textContent;
+
+      submitBtn.disabled = true;
+      saveAddBtn.disabled = true;
+      submitBtn.textContent = editingBookingId ? 'Updating...' : 'Saving...';
+      if (!editingBookingId) saveAddBtn.textContent = 'Saving...';
+
+      try {
+        const bookingData = collectFormData();
+        let result;
+
+        if (editingBookingId) {
+          // Update existing booking (don't change recurrence for edits)
+          // Use updateBooking function to get Google Calendar sync
+          const { is_recurring, recurrence_rule, hut_id, ...updateData } = bookingData;
+          result = await updateBooking(editingBookingId, updateData);
+        } else if (bookingData.is_recurring && bookingData.recurrence_rule) {
+          // Create recurring bookings
+          const recurrenceDates = bookingData.recurrence_rule.calculated_dates;
+          const startTimeOnly = startTime;
+          const endTimeOnly = endTime;
+          
+          // Generate a unique series ID to link recurring bookings
+          const seriesId = crypto.randomUUID();
+          
+          // Create booking data for each date
+          const bookingsToCreate = recurrenceDates.map((dateStr, index) => {
+            const startDateTime = new Date(`${dateStr}T${startTimeOnly}`).toISOString();
+            const endDateTime = new Date(`${dateStr}T${endTimeOnly}`).toISOString();
+            
+            return {
+              hut_id: bookingData.hut_id,
+              event_name: bookingData.event_name,
+              contact_name: bookingData.contact_name,
+              contact_email: bookingData.contact_email,
+              contact_phone: bookingData.contact_phone,
+              start_time: startDateTime,
+              end_time: endDateTime,
+              notes: bookingData.notes,
+              is_recurring: true,
+              recurrence_series_id: seriesId,
+              recurrence_index: index,
+              recurrence_rule: index === 0 ? bookingData.recurrence_rule : null // Only store rule on first booking
+            };
+          });
+
+          // Insert all bookings in batches to avoid hitting limits
+          const batchSize = 50;
+          let allResults = [];
+          
+          for (let i = 0; i < bookingsToCreate.length; i += batchSize) {
+            const batch = bookingsToCreate.slice(i, i + batchSize);
+            const batchResult = await supabaseClient
+              .from('bookings')
+              .insert(batch)
+              .select();
+            
+            if (batchResult.error) {
+              throw new Error(batchResult.error.message || 'Failed to create recurring bookings');
+            }
+            allResults = allResults.concat(batchResult.data);
+          }
+
+          result = { data: allResults, error: null };
+          
+          const count = allResults.length;
+          showNotification(`Created ${count} recurring booking${count > 1 ? 's' : ''} successfully!`, 'success');
+        } else {
+          // Create single booking
+          result = await createBooking(bookingData);
+        }
+
+        if (result.error) {
+          throw new Error(result.error.message || 'Failed to save booking');
+        }
+
+        // Show appropriate notification based on sync status
+        if (!bookingData.is_recurring) {
+          const baseMessage = editingBookingId ? 'Booking updated successfully!' : 'Booking saved successfully!';
+          
+          // Check sync status and show appropriate message
+          if (result.syncStatus === 'synced') {
+            showNotification(`${baseMessage} (Synced to Google Calendar)`, 'success');
+          } else if (result.syncStatus === 'sync_failed' || result.syncStatus === 'sync_error') {
+            showNotification(`${baseMessage} (Calendar sync pending)`, 'success');
+          } else if (result.syncStatus === 'no_tokens') {
+            showNotification(`${baseMessage} (Calendar sync requires reconnection)`, 'success');
+          } else {
+            showNotification(baseMessage, 'success');
+          }
+        }
+
+        if (redirectAfter || editingBookingId) {
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1000);
+        } else {
+          await resetForm();
+          submitBtn.disabled = false;
+          saveAddBtn.disabled = false;
+          submitBtn.textContent = originalSubmitText;
+          saveAddBtn.textContent = originalSaveAddText;
+        }
+
+      } catch (err) {
+        console.error('Error saving booking:', err);
+        showNotification(err.message || 'Failed to save booking. Please try again.', 'error');
+
+        submitBtn.disabled = false;
+        saveAddBtn.disabled = false;
+        submitBtn.textContent = originalSubmitText;
+        saveAddBtn.textContent = originalSaveAddText;
+      }
+    }
+  </script>
+</body>
+</html>
