@@ -3,4 +3,3 @@ node_modules
 .DS_Store
 *.log
 .env.local
-js/config.js
