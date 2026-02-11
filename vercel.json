@@ -3,14 +3,14 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/dashboard", "destination": "/pages/dashboard.html" },
-    { "source": "/login", "destination": "/pages/login.html" },
-    { "source": "/signup", "destination": "/pages/signup.html" },
-    { "source": "/pricing", "destination": "/pages/pricing.html" },
-    { "source": "/add-booking", "destination": "/pages/add-booking.html" },
-    { "source": "/edit-booking", "destination": "/pages/edit-booking.html" },
-    { "source": "/create-hut", "destination": "/pages/create-hut.html" },
-    { "source": "/edit-hut", "destination": "/pages/edit-hut.html" },
-    { "source": "/settings", "destination": "/pages/settings.html" }
+    { "source": "/dashboard", "destination": "/pages/dashboard" },
+    { "source": "/login", "destination": "/pages/login" },
+    { "source": "/signup", "destination": "/pages/signup" },
+    { "source": "/pricing", "destination": "/pages/pricing" },
+    { "source": "/add-booking", "destination": "/pages/add-booking" },
+    { "source": "/edit-booking", "destination": "/pages/edit-booking" },
+    { "source": "/create-hut", "destination": "/pages/create-hut" },
+    { "source": "/edit-hut", "destination": "/pages/edit-hut" },
+    { "source": "/settings", "destination": "/pages/settings" }
   ]
 }
