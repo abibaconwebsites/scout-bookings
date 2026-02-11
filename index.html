@@ -107,5 +107,27 @@
       <p class="text-center text-muted">© 2026 Scout Bookings. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- Handle OAuth callback redirect -->
+  <script src="/js/config.js"></script>
+  <script>
+    // If we have OAuth tokens in the URL hash, redirect to dashboard
+    // This handles the case where Supabase redirects to root instead of dashboard
+    (async function() {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        // Initialize Supabase to process the tokens
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Let Supabase process the hash and establish the session
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+          // Redirect to dashboard with the hash intact so dashboard can process tokens
+          window.location.href = '/pages/dashboard.html' + hash;
+        }
+      }
+    })();
+  </script>
 </body>
 </html>
