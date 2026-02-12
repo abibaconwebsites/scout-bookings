@@ -448,12 +448,27 @@ async function loadSubscriptionPanel() {
 
 /**
  * Loads the Team panel data.
- * Displays team members and roles.
+ * Displays team members, pending invitations, and roles.
  */
 async function loadTeamPanel() {
     console.log('[Settings] Loading team panel');
     
     if (!currentUserId) return;
+    
+    const noHutEl = document.getElementById('team-no-hut');
+    const teamContent = document.getElementById('team-settings-content');
+    
+    // Check if user has a hut
+    if (!currentHutId) {
+        if (noHutEl) noHutEl.style.display = 'block';
+        if (teamContent) teamContent.style.display = 'none';
+        console.log('[Settings] No hut found for team panel');
+        return;
+    }
+    
+    // Show team content, hide no hut message
+    if (noHutEl) noHutEl.style.display = 'none';
+    if (teamContent) teamContent.style.display = 'block';
     
     try {
         // Get current user info
@@ -464,32 +479,649 @@ async function loadTeamPanel() {
             return;
         }
         
-        const teamList = document.getElementById('team-members-list');
+        // Load team members (owner + team_members)
+        await loadTeamMembers(user);
         
-        if (teamList) {
-            const userName = user.user_metadata?.full_name || 
-                            user.user_metadata?.name || 
-                            user.email?.split('@')[0] || 
-                            'You';
-            const initials = getInitials(userName);
-            
-            teamList.innerHTML = `
-                <div class="team-member">
-                    <div class="team-member-avatar">${escapeHtml(initials)}</div>
-                    <div class="team-member-info">
-                        <div class="team-member-name">${escapeHtml(userName)}</div>
-                        <div class="team-member-email">${escapeHtml(user.email)}</div>
-                    </div>
-                    <div class="team-member-role">Owner</div>
-                </div>
-            `;
-        }
+        // Load pending invitations
+        await loadPendingInvitations();
+        
+        // Setup team event listeners
+        setupTeamEventListeners();
         
         console.log('[Settings] Team panel loaded');
         
     } catch (err) {
         console.error('[Settings] Error loading team panel:', err);
     }
+}
+
+/**
+ * Loads and displays team members for the current hut.
+ * @param {Object} currentUser - The current authenticated user
+ */
+async function loadTeamMembers(currentUser) {
+    const teamList = document.getElementById('team-members-list');
+    if (!teamList) return;
+    
+    try {
+        // Get hut owner info
+        const { data: hut, error: hutError } = await supabaseClient
+            .from('scout_huts')
+            .select('owner_id')
+            .eq('id', currentHutId)
+            .single();
+        
+        if (hutError) {
+            console.error('[Settings] Error getting hut owner:', hutError);
+            return;
+        }
+        
+        // Get owner profile
+        const { data: ownerProfile, error: ownerError } = await supabaseClient
+            .from('user_profiles')
+            .select('id, full_name')
+            .eq('id', hut.owner_id)
+            .single();
+        
+        // Get team members
+        const { data: teamMembers, error: teamError } = await supabaseClient
+            .from('team_members')
+            .select(`
+                id,
+                user_id,
+                role,
+                joined_at,
+                user_profiles (
+                    id,
+                    full_name
+                )
+            `)
+            .eq('hut_id', currentHutId)
+            .order('joined_at', { ascending: true });
+        
+        if (teamError && teamError.code !== 'PGRST116') {
+            console.error('[Settings] Error loading team members:', teamError);
+        }
+        
+        // Build team members HTML
+        let html = '';
+        
+        // Add owner first
+        const ownerName = ownerProfile?.full_name || currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || 'Owner';
+        const ownerEmail = currentUser.email;
+        const ownerInitials = getInitials(ownerName);
+        const isCurrentUserOwner = hut.owner_id === currentUserId;
+        
+        // Check if current user can manage team (owner or admin)
+        const userCanManageTeam = isCurrentUserOwner || await canManageTeam();
+        
+        html += `
+            <div class="team-member" data-user-id="${hut.owner_id}">
+                <div class="team-member-avatar">${escapeHtml(ownerInitials)}</div>
+                <div class="team-member-info">
+                    <div class="team-member-name">${escapeHtml(ownerName)}${hut.owner_id === currentUserId ? ' (You)' : ''}</div>
+                    <div class="team-member-email">${escapeHtml(ownerEmail)}</div>
+                </div>
+                <div class="team-member-role owner">Owner</div>
+            </div>
+        `;
+        
+        // Add team members
+        if (teamMembers && teamMembers.length > 0) {
+            for (const member of teamMembers) {
+                // Get member's email from auth (we need to fetch it separately)
+                const memberName = member.user_profiles?.full_name || 'Team Member';
+                const memberInitials = getInitials(memberName);
+                const isCurrentUser = member.user_id === currentUserId;
+                const roleClass = member.role === 'admin' ? 'admin' : '';
+                
+                // Escape member name for use in onclick handlers (handle quotes)
+                const escapedMemberName = memberName.replace(/'/g, "\\'").replace(/"/g, '\\"');
+                
+                html += `
+                    <div class="team-member" data-member-id="${member.id}" data-user-id="${member.user_id}">
+                        <div class="team-member-avatar">${escapeHtml(memberInitials)}</div>
+                        <div class="team-member-info">
+                            <div class="team-member-name">${escapeHtml(memberName)}${isCurrentUser ? ' (You)' : ''}</div>
+                            <div class="team-member-email">Joined ${formatDate(member.joined_at)}</div>
+                        </div>
+                        <div class="team-member-role ${roleClass}">${capitalizeFirst(member.role)}</div>
+                        ${userCanManageTeam ? `
+                            <div class="team-member-actions">
+                                <button class="btn-icon" onclick="openEditRoleModal('${member.id}', '${escapedMemberName}', '${member.role}')" title="Change role">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                                <button class="btn-icon danger" onclick="removeTeamMember('${member.id}', '${escapedMemberName}')" title="Remove member">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        teamList.innerHTML = html;
+        
+    } catch (err) {
+        console.error('[Settings] Error loading team members:', err);
+        teamList.innerHTML = '<div class="feature-locked">Error loading team members</div>';
+    }
+}
+
+/**
+ * Loads and displays pending invitations for the current hut.
+ */
+async function loadPendingInvitations() {
+    const invitationsCard = document.getElementById('pending-invitations-card');
+    const invitationsList = document.getElementById('pending-invitations-list');
+    
+    if (!invitationsCard || !invitationsList) return;
+    
+    try {
+        const { data: invitations, error } = await supabaseClient
+            .from('team_invitations')
+            .select('*')
+            .eq('hut_id', currentHutId)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false });
+        
+        if (error && error.code !== 'PGRST116') {
+            console.error('[Settings] Error loading invitations:', error);
+            return;
+        }
+        
+        if (!invitations || invitations.length === 0) {
+            invitationsCard.style.display = 'none';
+            return;
+        }
+        
+        // Show the card and build HTML
+        invitationsCard.style.display = 'block';
+        
+        let html = '';
+        for (const invitation of invitations) {
+            const expiresAt = new Date(invitation.expires_at);
+            const now = new Date();
+            const daysLeft = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+            const isExpired = daysLeft <= 0;
+            
+            html += `
+                <div class="pending-invitation" data-invitation-id="${invitation.id}">
+                    <div class="pending-invitation-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="pending-invitation-info">
+                        <div class="pending-invitation-email">${escapeHtml(invitation.email)}</div>
+                        <div class="pending-invitation-meta">
+                            ${capitalizeFirst(invitation.role)} · ${isExpired ? 'Expired' : `Expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`}
+                        </div>
+                    </div>
+                    <div class="pending-invitation-status">${isExpired ? 'Expired' : 'Pending'}</div>
+                    <div class="team-member-actions">
+                        <button class="btn-icon" onclick="resendInvitation('${invitation.id}', '${invitation.email}')" title="Resend invitation">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                        </button>
+                        <button class="btn-icon danger" onclick="revokeInvitation('${invitation.id}', '${invitation.email}')" title="Revoke invitation">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        invitationsList.innerHTML = html;
+        
+    } catch (err) {
+        console.error('[Settings] Error loading pending invitations:', err);
+    }
+}
+
+/**
+ * Checks if the current user can manage team members.
+ * @returns {Promise<boolean>} True if user is owner or admin
+ */
+async function canManageTeam() {
+    if (!currentHutId || !currentUserId) return false;
+    
+    try {
+        // Check if owner
+        const { data: hut } = await supabaseClient
+            .from('scout_huts')
+            .select('owner_id')
+            .eq('id', currentHutId)
+            .single();
+        
+        if (hut?.owner_id === currentUserId) return true;
+        
+        // Check if admin
+        const { data: membership } = await supabaseClient
+            .from('team_members')
+            .select('role')
+            .eq('hut_id', currentHutId)
+            .eq('user_id', currentUserId)
+            .single();
+        
+        return membership?.role === 'admin';
+        
+    } catch (err) {
+        return false;
+    }
+}
+
+/**
+ * Sets up event listeners for team management.
+ */
+function setupTeamEventListeners() {
+    // Invite button
+    const inviteBtn = document.getElementById('invite-team-btn');
+    if (inviteBtn) {
+        inviteBtn.onclick = openInviteModal;
+    }
+    
+    // Invite modal close buttons
+    const inviteModalClose = document.getElementById('invite-modal-close');
+    const inviteCancelBtn = document.getElementById('invite-cancel-btn');
+    if (inviteModalClose) inviteModalClose.onclick = closeInviteModal;
+    if (inviteCancelBtn) inviteCancelBtn.onclick = closeInviteModal;
+    
+    // Send invitation button
+    const inviteSendBtn = document.getElementById('invite-send-btn');
+    if (inviteSendBtn) {
+        inviteSendBtn.onclick = sendInvitation;
+    }
+    
+    // Role option selection styling
+    const roleOptions = document.querySelectorAll('.role-option');
+    roleOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove selected from siblings
+            const siblings = this.parentElement.querySelectorAll('.role-option');
+            siblings.forEach(s => s.classList.remove('selected'));
+            // Add selected to clicked
+            this.classList.add('selected');
+        });
+    });
+    
+    // Edit role modal close buttons
+    const editRoleModalClose = document.getElementById('edit-role-modal-close');
+    const editRoleCancelBtn = document.getElementById('edit-role-cancel-btn');
+    if (editRoleModalClose) editRoleModalClose.onclick = closeEditRoleModal;
+    if (editRoleCancelBtn) editRoleCancelBtn.onclick = closeEditRoleModal;
+    
+    // Save role button
+    const editRoleSaveBtn = document.getElementById('edit-role-save-btn');
+    if (editRoleSaveBtn) {
+        editRoleSaveBtn.onclick = saveRoleChange;
+    }
+    
+    // Close modals on overlay click
+    const inviteModal = document.getElementById('invite-modal');
+    const editRoleModal = document.getElementById('edit-role-modal');
+    
+    if (inviteModal) {
+        inviteModal.addEventListener('click', function(e) {
+            if (e.target === this) closeInviteModal();
+        });
+    }
+    
+    if (editRoleModal) {
+        editRoleModal.addEventListener('click', function(e) {
+            if (e.target === this) closeEditRoleModal();
+        });
+    }
+}
+
+/**
+ * Opens the invite team member modal.
+ */
+function openInviteModal() {
+    const modal = document.getElementById('invite-modal');
+    if (modal) {
+        modal.classList.add('active');
+        document.getElementById('invite-email')?.focus();
+    }
+}
+
+/**
+ * Closes the invite team member modal.
+ */
+function closeInviteModal() {
+    const modal = document.getElementById('invite-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        // Reset form
+        const emailInput = document.getElementById('invite-email');
+        if (emailInput) emailInput.value = '';
+        // Reset role to member
+        const memberRadio = document.querySelector('input[name="invite-role"][value="member"]');
+        if (memberRadio) {
+            memberRadio.checked = true;
+            document.querySelectorAll('#invite-modal .role-option').forEach(o => o.classList.remove('selected'));
+            document.getElementById('role-member-option')?.classList.add('selected');
+        }
+    }
+}
+
+/**
+ * Sends a team invitation.
+ */
+async function sendInvitation() {
+    const emailInput = document.getElementById('invite-email');
+    const roleInput = document.querySelector('input[name="invite-role"]:checked');
+    const sendBtn = document.getElementById('invite-send-btn');
+    
+    const email = emailInput?.value?.trim();
+    const role = roleInput?.value || 'member';
+    
+    if (!email) {
+        showNotification('Please enter an email address', 'error');
+        return;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    // Disable button
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.textContent = 'Sending...';
+    }
+    
+    try {
+        // Check if user is already a team member
+        const { data: existingMember } = await supabaseClient
+            .from('team_members')
+            .select('id')
+            .eq('hut_id', currentHutId)
+            .eq('user_id', (await supabaseClient.from('user_profiles').select('id').eq('email', email).single()).data?.id)
+            .single();
+        
+        if (existingMember) {
+            showNotification('This user is already a team member', 'error');
+            return;
+        }
+        
+        // Check if there's already a pending invitation
+        const { data: existingInvitation } = await supabaseClient
+            .from('team_invitations')
+            .select('id')
+            .eq('hut_id', currentHutId)
+            .eq('email', email.toLowerCase())
+            .eq('status', 'pending')
+            .single();
+        
+        if (existingInvitation) {
+            showNotification('An invitation has already been sent to this email', 'error');
+            return;
+        }
+        
+        // Generate invitation token
+        const token = generateInvitationToken();
+        
+        // Create invitation
+        const { data: invitation, error } = await supabaseClient
+            .from('team_invitations')
+            .insert({
+                hut_id: currentHutId,
+                email: email.toLowerCase(),
+                role: role,
+                token: token,
+                invited_by: currentUserId,
+                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days
+            })
+            .select()
+            .single();
+        
+        if (error) {
+            throw error;
+        }
+        
+        // In a real app, you would send an email here with the invitation link
+        // For now, we'll just show a success message with the link
+        const inviteLink = `${window.location.origin}/pages/accept-invite.html?token=${token}`;
+        
+        console.log('[Settings] Invitation created:', invitation);
+        console.log('[Settings] Invitation link:', inviteLink);
+        
+        showNotification(`Invitation sent to ${email}`, 'success');
+        
+        // Close modal and refresh invitations list
+        closeInviteModal();
+        await loadPendingInvitations();
+        
+    } catch (err) {
+        console.error('[Settings] Error sending invitation:', err);
+        showNotification('Failed to send invitation', 'error');
+    } finally {
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send Invitation';
+        }
+    }
+}
+
+/**
+ * Generates a URL-safe invitation token.
+ * @returns {string} A random token
+ */
+function generateInvitationToken() {
+    const array = new Uint8Array(24);
+    crypto.getRandomValues(array);
+    return btoa(String.fromCharCode.apply(null, array))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+}
+
+/**
+ * Resends an invitation.
+ * @param {string} invitationId - The invitation ID
+ * @param {string} email - The email address
+ */
+async function resendInvitation(invitationId, email) {
+    try {
+        // Generate new token and extend expiry
+        const newToken = generateInvitationToken();
+        
+        const { error } = await supabaseClient
+            .from('team_invitations')
+            .update({
+                token: newToken,
+                expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+            })
+            .eq('id', invitationId);
+        
+        if (error) throw error;
+        
+        // In a real app, send the email here
+        const inviteLink = `${window.location.origin}/pages/accept-invite.html?token=${newToken}`;
+        console.log('[Settings] Resent invitation link:', inviteLink);
+        
+        showNotification(`Invitation resent to ${email}`, 'success');
+        await loadPendingInvitations();
+        
+    } catch (err) {
+        console.error('[Settings] Error resending invitation:', err);
+        showNotification('Failed to resend invitation', 'error');
+    }
+}
+
+/**
+ * Revokes an invitation.
+ * @param {string} invitationId - The invitation ID
+ * @param {string} email - The email address
+ */
+async function revokeInvitation(invitationId, email) {
+    const confirmed = confirm(`Revoke invitation for ${email}?`);
+    if (!confirmed) return;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('team_invitations')
+            .update({ status: 'revoked' })
+            .eq('id', invitationId);
+        
+        if (error) throw error;
+        
+        showNotification('Invitation revoked', 'success');
+        await loadPendingInvitations();
+        
+    } catch (err) {
+        console.error('[Settings] Error revoking invitation:', err);
+        showNotification('Failed to revoke invitation', 'error');
+    }
+}
+
+/** @type {string|null} Currently editing member ID */
+let editingMemberId = null;
+
+/**
+ * Opens the edit role modal.
+ * @param {string} memberId - The team member ID
+ * @param {string} memberName - The member's name
+ * @param {string} currentRole - The current role
+ */
+function openEditRoleModal(memberId, memberName, currentRole) {
+    editingMemberId = memberId;
+    
+    const modal = document.getElementById('edit-role-modal');
+    const nameEl = document.getElementById('edit-role-member-name');
+    
+    if (nameEl) nameEl.textContent = memberName;
+    
+    // Set current role
+    const roleRadio = document.querySelector(`input[name="edit-role"][value="${currentRole}"]`);
+    if (roleRadio) {
+        roleRadio.checked = true;
+        // Update selected styling
+        document.querySelectorAll('#edit-role-modal .role-option').forEach(o => o.classList.remove('selected'));
+        roleRadio.closest('.role-option')?.classList.add('selected');
+    }
+    
+    if (modal) {
+        modal.classList.add('active');
+    }
+}
+
+/**
+ * Closes the edit role modal.
+ */
+function closeEditRoleModal() {
+    const modal = document.getElementById('edit-role-modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    editingMemberId = null;
+}
+
+/**
+ * Saves the role change.
+ */
+async function saveRoleChange() {
+    if (!editingMemberId) return;
+    
+    const roleInput = document.querySelector('input[name="edit-role"]:checked');
+    const newRole = roleInput?.value;
+    
+    if (!newRole) {
+        showNotification('Please select a role', 'error');
+        return;
+    }
+    
+    const saveBtn = document.getElementById('edit-role-save-btn');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+    }
+    
+    try {
+        const { error } = await supabaseClient
+            .from('team_members')
+            .update({ role: newRole })
+            .eq('id', editingMemberId);
+        
+        if (error) throw error;
+        
+        showNotification('Role updated successfully', 'success');
+        closeEditRoleModal();
+        
+        // Refresh team members list
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        await loadTeamMembers(user);
+        
+    } catch (err) {
+        console.error('[Settings] Error updating role:', err);
+        showNotification('Failed to update role', 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Changes';
+        }
+    }
+}
+
+/**
+ * Removes a team member.
+ * @param {string} memberId - The team member ID
+ * @param {string} memberName - The member's name
+ */
+async function removeTeamMember(memberId, memberName) {
+    const confirmed = confirm(`Remove ${memberName} from the team? They will lose access to this hut.`);
+    if (!confirmed) return;
+    
+    try {
+        const { error } = await supabaseClient
+            .from('team_members')
+            .delete()
+            .eq('id', memberId);
+        
+        if (error) throw error;
+        
+        showNotification(`${memberName} has been removed from the team`, 'success');
+        
+        // Refresh team members list
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        await loadTeamMembers(user);
+        
+    } catch (err) {
+        console.error('[Settings] Error removing team member:', err);
+        showNotification('Failed to remove team member', 'error');
+    }
+}
+
+/**
+ * Formats a date for display.
+ * @param {string} dateStr - ISO date string
+ * @returns {string} Formatted date
+ */
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    });
 }
 
 /**
@@ -2372,6 +3004,20 @@ if (typeof window !== 'undefined') {
         loadSessionsPanel,
         saveWeeklySessions,
         
+        // Team Management
+        loadTeamPanel,
+        loadTeamMembers,
+        loadPendingInvitations,
+        openInviteModal,
+        closeInviteModal,
+        sendInvitation,
+        resendInvitation,
+        revokeInvitation,
+        openEditRoleModal,
+        closeEditRoleModal,
+        saveRoleChange,
+        removeTeamMember,
+        
         // Utilities
         getTimeAgo,
         getInitials
@@ -2400,4 +3046,10 @@ if (typeof window !== 'undefined') {
     window.copyTimesToAll = copyTimesToAll;
     window.saveAvailability = saveAvailability;
     window.saveWeeklySessions = saveWeeklySessions;
+    
+    // Global function aliases for team management (used by onclick handlers)
+    window.openEditRoleModal = openEditRoleModal;
+    window.removeTeamMember = removeTeamMember;
+    window.resendInvitation = resendInvitation;
+    window.revokeInvitation = revokeInvitation;
 }

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Accept your team invitation to Scout Bookings">
+  <title>Accept Invitation - Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .invite-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-background);
+      padding: 2rem;
+    }
+
+    .invite-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 2.5rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .invite-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .invite-icon.success {
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
+    }
+
+    .invite-icon.error {
+      background-color: var(--color-error-bg);
+      color: var(--color-error);
+    }
+
+    .invite-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--color-text);
+    }
+
+    .invite-subtitle {
+      color: var(--color-placeholder);
+      margin-bottom: 1.5rem;
+    }
+
+    .invite-details {
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .invite-detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .invite-detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .invite-detail-label {
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+    }
+
+    .invite-detail-value {
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    .invite-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .invite-actions .btn {
+      width: 100%;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="invite-page">
+    <div class="invite-card">
+      <!-- Loading State -->
+      <div id="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="invite-subtitle">Loading invitation...</p>
+      </div>
+
+      <!-- Invitation Details State -->
+      <div id="invitation-state" class="hidden">
+        <div class="invite-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+        </div>
+        <h1 class="invite-title">You're Invited!</h1>
+        <p class="invite-subtitle">You've been invited to join a Scout Bookings team</p>
+        
+        <div class="invite-details">
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Hut</span>
+            <span class="invite-detail-value" id="invite-hut-name">-</span>
+          </div>
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Role</span>
+            <span class="invite-detail-value" id="invite-role">-</span>
+          </div>
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Invited by</span>
+            <span class="invite-detail-value" id="invite-by">-</span>
+          </div>
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Expires</span>
+            <span class="invite-detail-value" id="invite-expires">-</span>
+          </div>
+        </div>
+
+        <div class="invite-actions">
+          <button class="btn btn-primary" id="accept-btn">Accept Invitation</button>
+          <button class="btn btn-secondary" id="decline-btn">Decline</button>
+        </div>
+      </div>
+
+      <!-- Login Required State -->
+      <div id="login-state" class="hidden">
+        <div class="invite-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </div>
+        <h1 class="invite-title">Sign In Required</h1>
+        <p class="invite-subtitle">Please sign in or create an account to accept this invitation</p>
+        
+        <div class="invite-details">
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Hut</span>
+            <span class="invite-detail-value" id="login-hut-name">-</span>
+          </div>
+          <div class="invite-detail-row">
+            <span class="invite-detail-label">Role</span>
+            <span class="invite-detail-value" id="login-role">-</span>
+          </div>
+        </div>
+
+        <div class="invite-actions">
+          <a href="login.html" class="btn btn-primary" id="login-btn">Sign In</a>
+          <a href="signup.html" class="btn btn-secondary" id="signup-btn">Create Account</a>
+        </div>
+      </div>
+
+      <!-- Success State -->
+      <div id="success-state" class="hidden">
+        <div class="invite-icon success">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h1 class="invite-title">Welcome to the Team!</h1>
+        <p class="invite-subtitle">You now have access to <span id="success-hut-name"></span></p>
+        
+        <div class="invite-actions">
+          <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-state" class="hidden">
+        <div class="invite-icon error">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <h1 class="invite-title">Invitation Invalid</h1>
+        <p class="invite-subtitle" id="error-message">This invitation has expired or is no longer valid.</p>
+        
+        <div class="invite-actions">
+          <a href="dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // State elements
+    const loadingState = document.getElementById('loading-state');
+    const invitationState = document.getElementById('invitation-state');
+    const loginState = document.getElementById('login-state');
+    const successState = document.getElementById('success-state');
+    const errorState = document.getElementById('error-state');
+
+    // Current invitation data
+    let currentInvitation = null;
+    let currentHut = null;
+    let currentInviter = null;
+
+    // Show a specific state
+    function showState(state) {
+      [loadingState, invitationState, loginState, successState, errorState].forEach(s => {
+        s.classList.add('hidden');
+      });
+      state.classList.remove('hidden');
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    }
+
+    // Capitalize first letter
+    function capitalizeFirst(str) {
+      if (!str) return '';
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Load invitation details
+    async function loadInvitation() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+
+      if (!token) {
+        document.getElementById('error-message').textContent = 'No invitation token provided.';
+        showState(errorState);
+        return;
+      }
+
+      try {
+        // Get invitation by token
+        const { data: invitation, error: inviteError } = await supabaseClient
+          .from('team_invitations')
+          .select('*')
+          .eq('token', token)
+          .single();
+
+        if (inviteError || !invitation) {
+          document.getElementById('error-message').textContent = 'This invitation link is invalid or has been revoked.';
+          showState(errorState);
+          return;
+        }
+
+        // Check if expired
+        if (new Date(invitation.expires_at) < new Date()) {
+          document.getElementById('error-message').textContent = 'This invitation has expired. Please ask for a new invitation.';
+          showState(errorState);
+          return;
+        }
+
+        // Check if already accepted
+        if (invitation.status === 'accepted') {
+          document.getElementById('error-message').textContent = 'This invitation has already been accepted.';
+          showState(errorState);
+          return;
+        }
+
+        // Check if revoked
+        if (invitation.status === 'revoked') {
+          document.getElementById('error-message').textContent = 'This invitation has been revoked.';
+          showState(errorState);
+          return;
+        }
+
+        currentInvitation = invitation;
+
+        // Get hut details
+        const { data: hut, error: hutError } = await supabaseClient
+          .from('scout_huts')
+          .select('id, name, owner_id')
+          .eq('id', invitation.hut_id)
+          .single();
+
+        if (hutError || !hut) {
+          document.getElementById('error-message').textContent = 'The hut associated with this invitation no longer exists.';
+          showState(errorState);
+          return;
+        }
+
+        currentHut = hut;
+
+        // Get inviter details
+        const { data: inviter } = await supabaseClient
+          .from('user_profiles')
+          .select('full_name')
+          .eq('id', invitation.invited_by)
+          .single();
+
+        currentInviter = inviter;
+
+        // Check if user is logged in
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+        if (user) {
+          // User is logged in - show invitation details
+          document.getElementById('invite-hut-name').textContent = hut.name;
+          document.getElementById('invite-role').textContent = capitalizeFirst(invitation.role);
+          document.getElementById('invite-by').textContent = inviter?.full_name || 'Team Admin';
+          document.getElementById('invite-expires').textContent = formatDate(invitation.expires_at);
+          showState(invitationState);
+        } else {
+          // User needs to log in - store token and show login prompt
+          sessionStorage.setItem('pendingInviteToken', token);
+          document.getElementById('login-hut-name').textContent = hut.name;
+          document.getElementById('login-role').textContent = capitalizeFirst(invitation.role);
+          
+          // Add token to login/signup links
+          const loginBtn = document.getElementById('login-btn');
+          const signupBtn = document.getElementById('signup-btn');
+          loginBtn.href = `login.html?redirect=accept-invite&token=${token}`;
+          signupBtn.href = `signup.html?redirect=accept-invite&token=${token}`;
+          
+          showState(loginState);
+        }
+
+      } catch (err) {
+        console.error('Error loading invitation:', err);
+        document.getElementById('error-message').textContent = 'An error occurred while loading the invitation.';
+        showState(errorState);
+      }
+    }
+
+    // Accept invitation
+    async function acceptInvitation() {
+      if (!currentInvitation || !currentHut) return;
+
+      const acceptBtn = document.getElementById('accept-btn');
+      acceptBtn.disabled = true;
+      acceptBtn.textContent = 'Accepting...';
+
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+        if (!user) {
+          showState(loginState);
+          return;
+        }
+
+        // Check if user is already a team member
+        const { data: existingMember } = await supabaseClient
+          .from('team_members')
+          .select('id')
+          .eq('hut_id', currentHut.id)
+          .eq('user_id', user.id)
+          .single();
+
+        if (existingMember) {
+          document.getElementById('error-message').textContent = 'You are already a member of this team.';
+          showState(errorState);
+          return;
+        }
+
+        // Check if user is the owner
+        if (currentHut.owner_id === user.id) {
+          document.getElementById('error-message').textContent = 'You are already the owner of this hut.';
+          showState(errorState);
+          return;
+        }
+
+        // Create team member record
+        const { error: memberError } = await supabaseClient
+          .from('team_members')
+          .insert({
+            hut_id: currentHut.id,
+            user_id: user.id,
+            role: currentInvitation.role,
+            invited_by: currentInvitation.invited_by
+          });
+
+        if (memberError) {
+          throw memberError;
+        }
+
+        // Update invitation status
+        const { error: inviteError } = await supabaseClient
+          .from('team_invitations')
+          .update({
+            status: 'accepted',
+            accepted_at: new Date().toISOString(),
+            accepted_by: user.id
+          })
+          .eq('id', currentInvitation.id);
+
+        if (inviteError) {
+          console.error('Error updating invitation:', inviteError);
+          // Don't fail - the membership was created
+        }
+
+        // Clear pending token
+        sessionStorage.removeItem('pendingInviteToken');
+
+        // Show success
+        document.getElementById('success-hut-name').textContent = currentHut.name;
+        showState(successState);
+
+      } catch (err) {
+        console.error('Error accepting invitation:', err);
+        document.getElementById('error-message').textContent = 'Failed to accept invitation. Please try again.';
+        showState(errorState);
+      }
+    }
+
+    // Decline invitation
+    function declineInvitation() {
+      if (confirm('Are you sure you want to decline this invitation?')) {
+        sessionStorage.removeItem('pendingInviteToken');
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    // Event listeners
+    document.getElementById('accept-btn').addEventListener('click', acceptInvitation);
+    document.getElementById('decline-btn').addEventListener('click', declineInvitation);
+
+    // Initialize
+    loadInvitation();
+  </script>
+</body>
+</html>
