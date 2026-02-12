@@ -1445,26 +1445,31 @@
               `;
               
               // Click to open modal for all event types
+              eventEl.style.cursor = 'pointer';
               if (event.type === 'booking') {
-                eventEl.style.cursor = 'pointer';
-                eventEl.addEventListener('click', (e) => {
+                const bookingData = event.booking;
+                eventEl.onclick = function(e) {
                   e.stopPropagation();
-                  openBookingModal(event.booking);
-                });
+                  e.preventDefault();
+                  openBookingModal(bookingData);
+                };
               } else if (event.type === 'synced-event') {
                 // Google events - clickable for view-only popup
-                eventEl.style.cursor = 'pointer';
-                eventEl.addEventListener('click', (e) => {
+                const syncedEventData = event.syncedEvent;
+                eventEl.onclick = function(e) {
                   e.stopPropagation();
-                  openGoogleEventModal(event.syncedEvent);
-                });
+                  e.preventDefault();
+                  openGoogleEventModal(syncedEventData);
+                };
               } else if (event.type === 'session') {
                 // Weekly sessions - clickable for view-only popup
-                eventEl.style.cursor = 'pointer';
-                eventEl.addEventListener('click', (e) => {
+                const sessionData = { ...event };
+                const sessionDate = new Date(date.getTime());
+                eventEl.onclick = function(e) {
                   e.stopPropagation();
-                  openSessionModal(event, date);
-                });
+                  e.preventDefault();
+                  openSessionModal(sessionData, sessionDate);
+                };
               }
               
               eventsEl.appendChild(eventEl);
@@ -1629,10 +1634,14 @@
             sessionEl.appendChild(tooltip);
             
             // Click to open session modal (view only, no edit buttons)
-            sessionEl.addEventListener('click', (e) => {
+            // Use a closure to capture the current event and date values
+            const sessionData = { ...event };
+            const sessionDate = new Date(date.getTime());
+            sessionEl.onclick = function(e) {
               e.stopPropagation();
-              openSessionModal(event, date);
-            });
+              e.preventDefault();
+              openSessionModal(sessionData, sessionDate);
+            };
             
             eventsContainer.appendChild(sessionEl);
           } else if (event.type === 'booking') {
@@ -1669,10 +1678,12 @@
             googleEl.appendChild(tooltip);
             
             // Click to open Google event modal (view only, no edit buttons)
-            googleEl.addEventListener('click', (e) => {
+            const syncedEventData = event.syncedEvent;
+            googleEl.onclick = function(e) {
               e.stopPropagation();
-              openGoogleEventModal(event.syncedEvent);
-            });
+              e.preventDefault();
+              openGoogleEventModal(syncedEventData);
+            };
             
             eventsContainer.appendChild(googleEl);
           }
