@@ -10,22 +10,28 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    .edit-hut-page {
-      padding: var(--space-xl) 0 var(--space-3xl);
+    .page-hero {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-xl) 0;
     }
 
-    .page-header {
-      margin-bottom: var(--space-xl);
+    .page-hero .back-button {
+      margin-bottom: var(--space-md);
     }
 
-    .page-header h1 {
+    .page-hero h1 {
       font-size: 1.75rem;
       margin-bottom: var(--space-xs);
     }
 
-    .page-header p {
+    .page-hero p {
       color: var(--color-placeholder);
       margin: 0;
+    }
+
+    .edit-hut-page {
+      padding: var(--space-xl) 0 var(--space-3xl);
     }
 
     .form-card {
@@ -159,30 +165,6 @@
 
     .copy-times-btn:hover {
       background-color: var(--color-border);
-    }
-
-    /* Quick Set Buttons */
-    .quick-set-buttons {
-      display: flex;
-      gap: var(--space-sm);
-      margin-bottom: var(--space-md);
-      flex-wrap: wrap;
-    }
-
-    .quick-set-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
-      background-color: var(--color-background);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      color: var(--color-text);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-
-    .quick-set-btn:hover {
-      border-color: var(--color-primary);
-      color: var(--color-primary);
     }
 
     /* Form Actions */
@@ -320,12 +302,6 @@
       cursor: pointer;
     }
 
-    @media (max-width: 768px) {
-      .group-schedule {
-        grid-template-columns: 1fr;
-      }
-    }
-
     /* Loading State */
     .loading-state {
       text-align: center;
@@ -338,22 +314,73 @@
     }
 
     @media (max-width: 768px) {
+      .page-hero {
+        padding: var(--space-lg) 0;
+      }
+
+      .page-hero h1 {
+        font-size: 1.5rem;
+      }
+
+      .page-hero p {
+        font-size: 0.875rem;
+      }
+
+      .edit-hut-page {
+        padding: var(--space-lg) 0 var(--space-2xl);
+      }
+
       .day-row {
-        grid-template-columns: 1fr;
-        gap: var(--space-sm);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 0.5rem;
       }
 
       .day-toggle {
-        padding-bottom: var(--space-sm);
-        border-bottom: 1px solid var(--color-border);
-      }
-
-      .day-times {
-        padding-left: 26px;
+        grid-column: 1;
+        grid-row: 1;
       }
 
       .copy-times-btn {
-        margin-left: auto;
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .day-times {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-content: flex-start;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--color-border);
+      }
+
+      .group-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .group-schedule {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: nowrap;
+      }
+
+      .group-day-select .form-select {
+        width: auto;
+        min-width: 100px;
+        flex-shrink: 0;
+      }
+
+      .group-time-inputs {
+        flex: 1;
+        justify-content: flex-end;
+      }
+
+      .group-time-inputs .time-input {
+        width: 75px;
       }
 
       .address-grid {
@@ -391,22 +418,22 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="container container-md edit-hut-page">
-    <!-- Back Link -->
-    <a href="dashboard.html" class="back-button">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Back to Dashboard
-    </a>
-
-    <!-- Page Header -->
-    <div class="page-header">
+  <!-- Page Hero -->
+  <section class="page-hero">
+    <div class="container container-md">
+      <a href="dashboard.html" class="back-button">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Dashboard
+      </a>
       <h1>Edit Your Scout Hut</h1>
       <p>Update your hut details and availability schedule</p>
     </div>
+  </section>
 
+  <!-- Main Content -->
+  <main class="container container-md edit-hut-page">
     <!-- Loading State -->
     <div id="loading-state" class="loading-state">
       <div class="loading-spinner"></div>
@@ -507,14 +534,6 @@
             Availability Schedule
           </h2>
           <p class="form-section-description">Set the days and hours when your hut is available for bookings.</p>
-          
-          <!-- Quick Set Buttons -->
-          <div class="quick-set-buttons">
-            <button type="button" class="quick-set-btn" onclick="setWeekdaysOnly()">Weekdays Only</button>
-            <button type="button" class="quick-set-btn" onclick="setWeekendsOnly()">Weekends Only</button>
-            <button type="button" class="quick-set-btn" onclick="setAllDays()">All Days</button>
-            <button type="button" class="quick-set-btn" onclick="clearAllDays()">Clear All</button>
-          </div>
 
           <!-- Availability Schedule -->
           <div class="availability-schedule" id="availability-schedule">
@@ -936,82 +955,6 @@
           });
         }
 
-      });
-    }
-
-    // =============================================================================
-    // QUICK SET FUNCTIONS
-    // =============================================================================
-
-    /**
-     * Enables only weekdays (Monday-Friday)
-     */
-    function setWeekdaysOnly() {
-      const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-      const weekends = ['saturday', 'sunday'];
-      
-      weekdays.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = true;
-        if (row) row.classList.remove('disabled');
-      });
-      
-      weekends.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = false;
-        if (row) row.classList.add('disabled');
-      });
-    }
-
-    /**
-     * Enables only weekends (Saturday-Sunday)
-     */
-    function setWeekendsOnly() {
-      const weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
-      const weekends = ['saturday', 'sunday'];
-      
-      weekdays.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = false;
-        if (row) row.classList.add('disabled');
-      });
-      
-      weekends.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = true;
-        if (row) row.classList.remove('disabled');
-      });
-    }
-
-    /**
-     * Enables all days
-     */
-    function setAllDays() {
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
-      days.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = true;
-        if (row) row.classList.remove('disabled');
-      });
-    }
-
-    /**
-     * Disables all days
-     */
-    function clearAllDays() {
-      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-      
-      days.forEach(day => {
-        const checkbox = document.getElementById(`${day}-enabled`);
-        const row = document.querySelector(`[data-day="${day}"]`);
-        if (checkbox) checkbox.checked = false;
-        if (row) row.classList.add('disabled');
       });
     }
 
