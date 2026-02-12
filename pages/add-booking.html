@@ -888,7 +888,10 @@
       } else {
         // Add mode - use date param or today
         const dateParam = urlParams.get('date');
-        const bookingDate = dateParam || new Date().toISOString().split('T')[0];
+        // Get today's date in local time format
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        const bookingDate = dateParam || todayStr;
         document.getElementById('booking-date').value = bookingDate;
         await loadBlockedSlots(bookingDate);
       }
@@ -928,10 +931,13 @@
       const endDateInput = document.getElementById('recurrence-end-date');
       const endCountInput = document.getElementById('recurrence-end-count');
 
-      // Set default end date to 3 months from now
+      // Set default end date to 3 months from now (use local time)
       const defaultEndDate = new Date();
       defaultEndDate.setMonth(defaultEndDate.getMonth() + 3);
-      endDateInput.value = defaultEndDate.toISOString().split('T')[0];
+      const endYear = defaultEndDate.getFullYear();
+      const endMonth = String(defaultEndDate.getMonth() + 1).padStart(2, '0');
+      const endDay = String(defaultEndDate.getDate()).padStart(2, '0');
+      endDateInput.value = `${endYear}-${endMonth}-${endDay}`;
 
       // Toggle recurrence options visibility
       isRecurringCheckbox.addEventListener('change', function() {
@@ -1449,11 +1455,12 @@
         document.getElementById('contact-phone').value = booking.contact_phone || '';
         document.getElementById('notes').value = booking.notes || '';
 
-        // Parse date and times
+        // Parse date and times (use local time for date display)
         const startDate = new Date(booking.start_time);
         const endDate = new Date(booking.end_time);
         
-        const dateStr = startDate.toISOString().split('T')[0];
+        // Format date as YYYY-MM-DD in local time
+        const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
         const startTimeStr = startDate.toTimeString().slice(0, 5);
         const endTimeStr = endDate.toTimeString().slice(0, 5);
 

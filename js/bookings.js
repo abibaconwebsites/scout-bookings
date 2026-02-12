@@ -1246,7 +1246,11 @@ async function checkAvailability(hutId, requestedStart, requestedEnd, options = 
     // These are recurring scout group meetings that block time every week
     // =========================================================================
     if (options.hut && options.hut.weekly_sessions) {
-        const dateStr = startDate.toISOString().split('T')[0];  // YYYY-MM-DD
+        // Format date as YYYY-MM-DD in local time (consistent with getDay())
+        const year = startDate.getFullYear();
+        const month = String(startDate.getMonth() + 1).padStart(2, '0');
+        const day = String(startDate.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         const dayName = dayNames[startDate.getDay()];
         

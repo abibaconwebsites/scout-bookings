@@ -1826,17 +1826,24 @@
      * Checks if a day has any events (bookings or synced Google events).
      */
     function dayHasBookings(date) {
-      const dateStr = date.toISOString().split('T')[0];
+      // Helper to format date as YYYY-MM-DD in local time
+      const formatLocalDate = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const dateStr = formatLocalDate(date);
       
-      // Check Scout bookings
+      // Check Scout bookings (compare in local time)
       const hasBookings = calendarBookings.some(booking => {
-        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        const bookingDate = formatLocalDate(new Date(booking.start_time));
         return bookingDate === dateStr;
       });
       
-      // Check synced Google events
+      // Check synced Google events (compare in local time)
       const hasSyncedEvents = syncedGoogleEvents.some(event => {
-        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        const eventDate = formatLocalDate(new Date(event.start_time));
         return eventDate === dateStr;
       });
       
@@ -1848,9 +1855,16 @@
      * Returns only bookings from the bookings table (editable).
      */
     function getBookingsForDay(date) {
-      const dateStr = date.toISOString().split('T')[0];
+      // Format date as YYYY-MM-DD in local time
+      const formatLocalDate = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const dateStr = formatLocalDate(date);
       return calendarBookings.filter(booking => {
-        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        const bookingDate = formatLocalDate(new Date(booking.start_time));
         return bookingDate === dateStr;
       }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     }
@@ -1861,9 +1875,16 @@
      * These events are not editable in Scout - they're managed in Google Calendar.
      */
     function getSyncedEventsForDay(date) {
-      const dateStr = date.toISOString().split('T')[0];
+      // Format date as YYYY-MM-DD in local time
+      const formatLocalDate = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const dateStr = formatLocalDate(date);
       return syncedGoogleEvents.filter(event => {
-        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        const eventDate = formatLocalDate(new Date(event.start_time));
         return eventDate === dateStr;
       }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
     }
@@ -1902,7 +1923,11 @@
     }
 
     function goToAddBooking(date) {
-      const dateStr = date.toISOString().split('T')[0];
+      // Format date as YYYY-MM-DD in local time
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
       window.location.href = `add-booking.html?date=${dateStr}`;
     }
 
@@ -1915,17 +1940,24 @@
      * Synced Google events are displayed but not editable.
      */
     function showDayBookings(date) {
-      const dateStr = date.toISOString().split('T')[0];
+      // Format date as YYYY-MM-DD in local time
+      const formatLocalDate = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const dateStr = formatLocalDate(date);
       
       // Get Scout bookings for this day (editable)
       const dayBookings = calendarBookings.filter(booking => {
-        const bookingDate = new Date(booking.start_time).toISOString().split('T')[0];
+        const bookingDate = formatLocalDate(new Date(booking.start_time));
         return bookingDate === dateStr;
       });
       
       // Get synced Google events for this day (not editable)
       const daySyncedEvents = syncedGoogleEvents.filter(event => {
-        const eventDate = new Date(event.start_time).toISOString().split('T')[0];
+        const eventDate = formatLocalDate(new Date(event.start_time));
         return eventDate === dateStr;
       });
 
