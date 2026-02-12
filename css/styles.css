@@ -1543,7 +1543,8 @@ small {
 
 /* Hero Section */
 .hero {
-  padding: var(--space-3xl) 0;
+  padding: var(--space-3xl) 0 calc(var(--space-3xl) * 1.5);
+  margin-top: var(--space-xl);
 }
 
 .hero-content {
@@ -1554,14 +1555,14 @@ small {
 
 .hero h1 {
   font-size: 3rem;
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
   color: var(--color-text);
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
   color: var(--color-placeholder);
-  margin-bottom: var(--space-xl);
+  margin-bottom: var(--space-2xl);
 }
 
 .hero-buttons {
