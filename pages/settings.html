@@ -1526,213 +1526,25 @@
           <p>Manage who has access to your Scout Bookings</p>
         </div>
 
-        <!-- No Hut Message -->
-        <div class="settings-card" id="team-no-hut" style="display: none;">
-          <div class="feature-locked">
-            <p>You need to create a hut before you can invite team members.</p>
-            <a href="add-hut.html" class="btn btn-primary" style="margin-top: 1rem;">Create Your Hut</a>
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Your Team</h2>
+          </div>
+
+          <div id="team-members-list">
+            <!-- Team members will be loaded here -->
+          </div>
+
+          <div class="feature-locked" id="team-feature-locked">
+            Team features available on Pro plan
           </div>
         </div>
 
-        <!-- Team Members List -->
-        <div id="team-settings-content">
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <h2 class="settings-card-title">Your Team</h2>
-              <button class="btn btn-primary" id="invite-team-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="8.5" cy="7" r="4"></circle>
-                  <line x1="20" y1="8" x2="20" y2="14"></line>
-                  <line x1="23" y1="11" x2="17" y2="11"></line>
-                </svg>
-                Invite Member
-              </button>
-            </div>
-
-            <div id="team-members-list">
-              <!-- Team members will be loaded here -->
-            </div>
-          </div>
-
-          <!-- Pending Invitations -->
-          <div class="settings-card" id="pending-invitations-card" style="display: none;">
-            <div class="settings-card-header">
-              <h2 class="settings-card-title">Pending Invitations</h2>
-            </div>
-            <div id="pending-invitations-list">
-              <!-- Pending invitations will be loaded here -->
-            </div>
-          </div>
-
-          <!-- Role Permissions Info -->
-          <div class="settings-card">
-            <div class="settings-card-header">
-              <h2 class="settings-card-title">Role Permissions</h2>
-            </div>
-            <div class="help-text" style="margin-bottom: 1rem;">
-              Team members have different levels of access based on their role:
-            </div>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <th style="text-align: left; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">Permission</th>
-                  <th style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-primary);">Owner</th>
-                  <th style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">Admin</th>
-                  <th style="text-align: center; padding: 0.75rem 0.5rem;">Member</th>
-                  <th style="text-align: center; padding: 0.75rem 0.5rem;">Viewer</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 0.75rem 0.5rem;">View bookings</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 0.75rem 0.5rem;">Create/edit bookings</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 0.75rem 0.5rem;">Delete bookings</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 0.75rem 0.5rem;">Edit hut settings</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                </tr>
-                <tr style="border-bottom: 1px solid var(--color-border);">
-                  <td style="padding: 0.75rem 0.5rem;">Manage team</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                </tr>
-                <tr>
-                  <td style="padding: 0.75rem 0.5rem;">Delete hut</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-success);">✓</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                  <td style="text-align: center; padding: 0.75rem 0.5rem; color: var(--color-placeholder);">—</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="settings-card">
+          <button class="btn btn-secondary" disabled>Invite Team Member</button>
+          <p class="help-text">Team invitations coming soon</p>
         </div>
       </section>
-
-      <!-- Invite Team Member Modal -->
-      <div class="invite-modal-overlay" id="invite-modal">
-        <div class="invite-modal">
-          <div class="invite-modal-header">
-            <h2 class="invite-modal-title">Invite Team Member</h2>
-            <button class="invite-modal-close" id="invite-modal-close">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-          <div class="invite-modal-body">
-            <div class="form-section" style="margin-bottom: 1.5rem;">
-              <label class="form-section-label" for="invite-email">Email Address</label>
-              <input type="email" id="invite-email" class="form-input" placeholder="colleague@example.com" required>
-              <p class="help-text">An invitation link will be sent to this email address.</p>
-            </div>
-
-            <div class="form-section">
-              <label class="form-section-label">Role</label>
-              
-              <label class="role-option" id="role-admin-option">
-                <input type="radio" name="invite-role" value="admin">
-                <div class="role-option-content">
-                  <div class="role-option-title">Admin</div>
-                  <div class="role-option-description">Full access to bookings, hut settings, and team management. Cannot delete the hut.</div>
-                </div>
-              </label>
-
-              <label class="role-option selected" id="role-member-option">
-                <input type="radio" name="invite-role" value="member" checked>
-                <div class="role-option-content">
-                  <div class="role-option-title">Member</div>
-                  <div class="role-option-description">Can view and create bookings. Cannot edit hut settings or manage team.</div>
-                </div>
-              </label>
-
-              <label class="role-option" id="role-viewer-option">
-                <input type="radio" name="invite-role" value="viewer">
-                <div class="role-option-content">
-                  <div class="role-option-title">Viewer</div>
-                  <div class="role-option-description">Read-only access. Can view bookings and calendar but cannot make changes.</div>
-                </div>
-              </label>
-            </div>
-          </div>
-          <div class="invite-modal-footer">
-            <button class="btn btn-secondary" id="invite-cancel-btn">Cancel</button>
-            <button class="btn btn-primary" id="invite-send-btn">Send Invitation</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Edit Role Modal -->
-      <div class="invite-modal-overlay" id="edit-role-modal">
-        <div class="invite-modal">
-          <div class="invite-modal-header">
-            <h2 class="invite-modal-title">Change Role</h2>
-            <button class="invite-modal-close" id="edit-role-modal-close">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-          <div class="invite-modal-body">
-            <p style="margin-bottom: 1rem;">Change role for <strong id="edit-role-member-name"></strong></p>
-            
-            <div class="form-section">
-              <label class="role-option" id="edit-role-admin-option">
-                <input type="radio" name="edit-role" value="admin">
-                <div class="role-option-content">
-                  <div class="role-option-title">Admin</div>
-                  <div class="role-option-description">Full access to bookings, hut settings, and team management.</div>
-                </div>
-              </label>
-
-              <label class="role-option" id="edit-role-member-option">
-                <input type="radio" name="edit-role" value="member">
-                <div class="role-option-content">
-                  <div class="role-option-title">Member</div>
-                  <div class="role-option-description">Can view and create bookings only.</div>
-                </div>
-              </label>
-
-              <label class="role-option" id="edit-role-viewer-option">
-                <input type="radio" name="edit-role" value="viewer">
-                <div class="role-option-content">
-                  <div class="role-option-title">Viewer</div>
-                  <div class="role-option-description">Read-only access to bookings and calendar.</div>
-                </div>
-              </label>
-            </div>
-          </div>
-          <div class="invite-modal-footer">
-            <button class="btn btn-secondary" id="edit-role-cancel-btn">Cancel</button>
-            <button class="btn btn-primary" id="edit-role-save-btn">Save Changes</button>
-          </div>
-        </div>
-      </div>
 
       <!-- Notifications Panel -->
       <section class="settings-panel" id="panel-notifications">
