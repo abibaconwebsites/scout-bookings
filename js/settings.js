@@ -196,6 +196,9 @@ async function loadSettings() {
         currentUserId = user.id;
         console.log('[Settings] User authenticated:', currentUserId);
         
+        // Handle OAuth callback if returning from Google Calendar authorization
+        await handleCalendarOAuthCallback(currentUserId);
+        
         // Load user's hut
         const hut = await getUserHut(currentUserId);
         if (hut) {
@@ -221,6 +224,47 @@ async function loadSettings() {
     } catch (err) {
         console.error('[Settings] Error loading settings:', err);
         showNotification('Failed to load settings', 'error');
+    }
+}
+
+/**
+ * Handles the OAuth callback when returning from Google Calendar authorization.
+ * Saves the calendar tokens if present in the session.
+ * 
+ * @param {string} userId - The current user's ID
+ */
+async function handleCalendarOAuthCallback(userId) {
+    try {
+        // Get the current session to check for provider tokens
+        const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+        
+        if (sessionError || !session) {
+            console.log('[Settings] No session found for OAuth callback check');
+            return;
+        }
+        
+        // Check if we have provider tokens (indicates OAuth just completed with calendar scope)
+        const providerToken = session.provider_token;
+        const providerRefreshToken = session.provider_refresh_token;
+        
+        if (providerToken && providerRefreshToken) {
+            console.log('[Settings] Found provider tokens, saving calendar credentials');
+            
+            // Save the calendar tokens
+            // saveCalendarTokens is defined in calendar.js
+            if (typeof saveCalendarTokens === 'function') {
+                await saveCalendarTokens(userId, providerToken, providerRefreshToken);
+                console.log('[Settings] ✅ Calendar tokens saved successfully');
+                showNotification('Google Calendar connected successfully!', 'success');
+            } else {
+                console.error('[Settings] saveCalendarTokens function not found - ensure calendar.js is loaded');
+            }
+        } else {
+            console.log('[Settings] No provider tokens in session (normal if not returning from OAuth)');
+        }
+    } catch (err) {
+        console.error('[Settings] Error handling calendar OAuth callback:', err);
+        // Don't show error to user - this runs on every page load
     }
 }
 
@@ -1254,7 +1298,8 @@ async function loadSyncSettings() {
 
 /**
  * Handles the Connect Calendar button click.
- * Initiates Google OAuth flow.
+ * Initiates Google OAuth flow with calendar permissions.
+ * This is where users grant Google Calendar access (not during sign-up).
  */
 async function handleConnectCalendar() {
     console.log('[Settings] Connect calendar clicked');
@@ -1278,13 +1323,19 @@ async function handleConnectCalendar() {
     
     try {
         // Initiate Google OAuth with calendar scope
-        // This uses Supabase's built-in OAuth which should include calendar scopes
+        // Request offline access and force consent to ensure we get refresh token
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 scopes: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events',
                 redirectTo: window.location.href,
-                skipBrowserRedirect: false // Ensure automatic redirect
+                skipBrowserRedirect: false,
+                queryParams: {
+                    // Request offline access to get refresh token for background sync
+                    access_type: 'offline',
+                    // Force consent screen to ensure we get refresh token
+                    prompt: 'consent'
+                }
             }
         });
         

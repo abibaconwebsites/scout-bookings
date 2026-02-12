@@ -9,15 +9,12 @@
 // =============================================================================
 
 /**
- * Initiates Google OAuth sign-in flow with Google Calendar API access.
+ * Initiates Google OAuth sign-in flow for basic authentication.
  * Redirects user to Google for authentication, then back to dashboard on success.
- * Uses offline access and consent prompt for reliable token refresh.
  * 
- * Requests calendar scope for two-way sync:
- * - Read events from user's calendars
- * - Create events in user's calendars
- * - Update events in user's calendars
- * - Delete events in user's calendars
+ * Note: This only requests basic profile access (email, profile).
+ * Google Calendar access is requested separately in Settings when the user
+ * chooses to enable calendar sync.
  */
 async function signInWithGoogle() {
     try {
@@ -26,14 +23,8 @@ async function signInWithGoogle() {
             options: {
                 // Redirect to dashboard after successful authentication
                 redirectTo: window.location.origin + '/dashboard',
-                // Request email, profile, and full Google Calendar access for two-way sync
-                scopes: 'email profile https://www.googleapis.com/auth/calendar',
-                queryParams: {
-                    // Request offline access to get refresh token for background sync
-                    access_type: 'offline',
-                    // Force consent screen to ensure we get refresh token on re-auth
-                    prompt: 'consent'
-                }
+                // Only request basic profile scopes - calendar access is granted later in Settings
+                scopes: 'email profile'
             }
         });
 
@@ -177,10 +168,8 @@ async function handleMagicLink(event) {
  * Creates a user profile record if one doesn't exist (first-time login).
  * Sets up trial subscription for new users.
  * 
- * For Google OAuth users who granted calendar permission:
- * - Extracts provider_token (access token) and provider_refresh_token from session
- * - Saves tokens to user_calendar_tokens table for Google Calendar sync
- * - These tokens enable two-way calendar synchronization features
+ * Note: Google Calendar tokens are NOT saved here during sign-up.
+ * Calendar access is granted separately when the user enables it in Settings.
  */
 async function handleAuthCallback() {
     try {
@@ -235,42 +224,10 @@ async function handleAuthCallback() {
                 console.error('Error checking user profile:', profileError);
             }
 
-            // =================================================================
-            // GOOGLE CALENDAR TOKEN STORAGE
-            // =================================================================
-            // After Google OAuth, the session contains provider tokens that allow
-            // us to access the user's Google Calendar. These tokens are:
-            // - provider_token: Short-lived access token for API calls
-            // - provider_refresh_token: Long-lived token to get new access tokens
-            // 
-            // We save these to our database so we can sync calendar events even
-            // when the user isn't actively logged in (background sync).
-            // =================================================================
-            
-            try {
-                // Extract Google Calendar tokens from the OAuth session
-                // These are only present if user signed in with Google AND granted calendar permission
-                const providerToken = session.provider_token;
-                const providerRefreshToken = session.provider_refresh_token;
-
-                if (providerToken && providerRefreshToken) {
-                    // User granted calendar permission - save tokens for sync features
-                    // saveCalendarTokens is defined in calendar.js (must be loaded before auth.js)
-                    await saveCalendarTokens(user.id, providerToken, providerRefreshToken);
-                    console.log('✅ Calendar tokens saved successfully');
-                } else {
-                    // Tokens not present - this happens when:
-                    // 1. User signed in with magic link (no Google OAuth)
-                    // 2. User denied calendar permission during Google OAuth
-                    // 3. User previously signed in and tokens are already stored
-                    // This is not an error - calendar sync features just won't be available
-                    console.log('ℹ️ No calendar tokens in session - user did not grant calendar permission or used magic link');
-                }
-            } catch (tokenError) {
-                // Log token storage errors but don't block the user
-                // Calendar sync is a nice-to-have feature, not critical for login
-                console.error('⚠️ Error saving calendar tokens (non-blocking):', tokenError);
-            }
+            // Note: Calendar tokens are NOT saved here during sign-up.
+            // Users connect their Google Calendar in Settings > Calendar Sync
+            // when they're ready to enable that feature.
+            console.log('ℹ️ Auth callback complete - calendar access can be enabled in Settings');
         }
     } catch (err) {
         console.error('Unexpected error in auth callback:', err);
