@@ -231,10 +231,22 @@ async function loadSettings() {
  * Handles the OAuth callback when returning from Google Calendar authorization.
  * Saves the calendar tokens if present in the session.
  * 
+ * Only saves tokens if:
+ * 1. Provider tokens exist in the session (from OAuth flow)
+ * 2. We set a flag indicating we initiated OAuth (prevents re-saving after disconnect)
+ * 
  * @param {string} userId - The current user's ID
  */
 async function handleCalendarOAuthCallback(userId) {
     try {
+        // Check if we initiated an OAuth flow (set by handleConnectCalendar)
+        const pendingOAuth = sessionStorage.getItem('pendingCalendarOAuth');
+        
+        if (!pendingOAuth) {
+            console.log('[Settings] No pending OAuth flow, skipping callback check');
+            return;
+        }
+        
         // Get the current session to check for provider tokens
         const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
         
@@ -248,7 +260,10 @@ async function handleCalendarOAuthCallback(userId) {
         const providerRefreshToken = session.provider_refresh_token;
         
         if (providerToken && providerRefreshToken) {
-            console.log('[Settings] Found provider tokens, saving calendar credentials');
+            console.log('[Settings] Found provider tokens from OAuth callback, saving calendar credentials');
+            
+            // Clear the pending OAuth flag
+            sessionStorage.removeItem('pendingCalendarOAuth');
             
             // Save the calendar tokens
             // saveCalendarTokens is defined in calendar.js
@@ -260,11 +275,14 @@ async function handleCalendarOAuthCallback(userId) {
                 console.error('[Settings] saveCalendarTokens function not found - ensure calendar.js is loaded');
             }
         } else {
-            console.log('[Settings] No provider tokens in session (normal if not returning from OAuth)');
+            console.log('[Settings] No provider tokens in session despite pending OAuth');
+            // Clear the flag anyway to prevent stale state
+            sessionStorage.removeItem('pendingCalendarOAuth');
         }
     } catch (err) {
         console.error('[Settings] Error handling calendar OAuth callback:', err);
         // Don't show error to user - this runs on every page load
+        sessionStorage.removeItem('pendingCalendarOAuth');
     }
 }
 
@@ -1357,6 +1375,10 @@ async function handleConnectCalendar() {
     }
     
     try {
+        // Set flag to indicate we're initiating OAuth
+        // This prevents re-saving tokens after disconnect when session still has provider tokens
+        sessionStorage.setItem('pendingCalendarOAuth', 'true');
+        
         // Initiate Google OAuth with calendar scope
         // Request offline access and force consent to ensure we get refresh token
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
@@ -1377,6 +1399,7 @@ async function handleConnectCalendar() {
         if (error) {
             console.error('[Settings] OAuth error:', error);
             showNotification('Failed to connect Google Calendar: ' + error.message, 'error');
+            sessionStorage.removeItem('pendingCalendarOAuth');
             
             if (connectBtn) {
                 connectBtn.disabled = false;
@@ -1392,6 +1415,7 @@ async function handleConnectCalendar() {
         } else {
             console.error('[Settings] No OAuth URL returned');
             showNotification('Failed to initiate Google sign-in', 'error');
+            sessionStorage.removeItem('pendingCalendarOAuth');
             
             if (connectBtn) {
                 connectBtn.disabled = false;
