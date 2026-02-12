@@ -1045,8 +1045,8 @@
         
         // If current end date is before booking date, update it
         if (endDateInput.value && endDateInput.value < bookingDate) {
-          // Set to 3 months after booking date
-          const newEndDate = new Date(bookingDate);
+          // Set to 3 months after booking date - parse as local time
+          const newEndDate = new Date(bookingDate + 'T00:00:00');
           newEndDate.setMonth(newEndDate.getMonth() + 3);
           endDateInput.value = newEndDate.toISOString().split('T')[0];
           recurrenceState.endDate = endDateInput.value;
@@ -1058,7 +1058,8 @@
       const dateInput = document.getElementById('booking-date');
       if (!dateInput.value) return;
 
-      const date = new Date(dateInput.value);
+      // Parse date as local time (not UTC) by adding T00:00:00
+      const date = new Date(dateInput.value + 'T00:00:00');
       const dayOfWeek = date.getDay();
 
       // If no weekdays selected or only one, set to the booking date's day
@@ -1080,7 +1081,8 @@
       const dateInput = document.getElementById('booking-date');
       if (!dateInput.value) return;
 
-      const date = new Date(dateInput.value);
+      // Parse date as local time (not UTC) by adding T00:00:00
+      const date = new Date(dateInput.value + 'T00:00:00');
       const dayOfMonth = date.getDate();
       const dayOfWeek = date.getDay();
       const weekOfMonth = Math.ceil(dayOfMonth / 7) - 1;
@@ -1158,7 +1160,8 @@
             break;
           case 'monthly':
             if (dateInput.value) {
-              const date = new Date(dateInput.value);
+              // Parse date as local time (not UTC) by adding T00:00:00
+              const date = new Date(dateInput.value + 'T00:00:00');
               if (monthlyType === 'day_of_month') {
                 text += `monthly on day ${date.getDate()}`;
               } else {
@@ -1171,7 +1174,8 @@
             break;
           case 'yearly':
             if (dateInput.value) {
-              const date = new Date(dateInput.value);
+              // Parse date as local time (not UTC) by adding T00:00:00
+              const date = new Date(dateInput.value + 'T00:00:00');
               text += `annually on ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
             } else {
               text += 'annually';
@@ -1251,7 +1255,8 @@
       if (!dateInput.value) return [];
 
       const { frequency, interval, weekdays, monthlyType, endType, endDate, endCount } = recurrenceState;
-      const startDate = new Date(dateInput.value);
+      // Parse date as local time (not UTC) by adding T00:00:00
+      const startDate = new Date(dateInput.value + 'T00:00:00');
       const dates = [];
       
       // Determine end condition
@@ -1259,7 +1264,8 @@
       let maxOccurrences = maxCount;
       
       if (endType === 'on_date' && endDate) {
-        maxDate = new Date(endDate);
+        // Parse end date as local time too
+        maxDate = new Date(endDate + 'T23:59:59');
       } else if (endType === 'after_count') {
         maxOccurrences = Math.min(endCount, maxCount);
       }
@@ -1349,6 +1355,14 @@
         return null;
       }
 
+      // Helper to format date as YYYY-MM-DD in local time
+      const formatLocalDate = (d) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       return {
         frequency: recurrenceState.frequency,
         interval: recurrenceState.interval,
@@ -1357,7 +1371,7 @@
         end_type: recurrenceState.endType,
         end_date: recurrenceState.endType === 'on_date' ? recurrenceState.endDate : null,
         end_count: recurrenceState.endType === 'after_count' ? recurrenceState.endCount : null,
-        calculated_dates: calculateRecurringDates(365).map(d => d.toISOString().split('T')[0])
+        calculated_dates: calculateRecurringDates(365).map(formatLocalDate)
       };
     }
 
