@@ -1638,28 +1638,8 @@
       const syncToggle = document.getElementById('sync-toggle');
       const syncNowBtn = document.getElementById('sync-now-btn');
 
-      // Connect button
-      if (connectBtn) {
-        connectBtn.addEventListener('click', async () => {
-          if (typeof initiateGoogleCalendarAuth === 'function') {
-            await initiateGoogleCalendarAuth();
-          } else {
-            showNotification('Calendar sync not configured', 'error');
-          }
-        });
-      }
-
-      // Disconnect button
-      if (disconnectBtn) {
-        disconnectBtn.addEventListener('click', async () => {
-          if (confirm('Are you sure you want to disconnect Google Calendar?')) {
-            if (typeof disconnectGoogleCalendar === 'function') {
-              await disconnectGoogleCalendar();
-              updateConnectionUI(false);
-            }
-          }
-        });
-      }
+      // Connect and Disconnect buttons are handled by settings.js setupEventListeners
+      // No need to add listeners here as settings.js already handles them
 
       // Sync toggle
       if (syncToggle) {
