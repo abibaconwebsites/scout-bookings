@@ -1295,11 +1295,9 @@
             if (monthlyType === 'day_of_month') {
               shouldInclude = currentDate.getDate() === startDate.getDate();
             } else {
-              // Same weekday and same week of month
-              const startWeekOfMonth = Math.ceil(startDate.getDate() / 7);
-              const currentWeekOfMonth = Math.ceil(currentDate.getDate() / 7);
-              shouldInclude = currentDate.getDay() === startDate.getDay() && 
-                             currentWeekOfMonth === startWeekOfMonth;
+              // For day_of_week type, we handle this differently - see the advancement logic below
+              // The currentDate is already set to the correct Nth weekday of the month
+              shouldInclude = true;
             }
             break;
           case 'yearly':
@@ -1330,10 +1328,41 @@
             }
             break;
           case 'monthly':
-            currentDate.setMonth(currentDate.getMonth() + interval);
-            // Handle month overflow (e.g., Jan 31 -> Feb 28)
-            if (monthlyType === 'day_of_month' && currentDate.getDate() !== startDate.getDate()) {
-              currentDate.setDate(0); // Go to last day of previous month
+            if (monthlyType === 'day_of_month') {
+              currentDate.setMonth(currentDate.getMonth() + interval);
+              // Handle month overflow (e.g., Jan 31 -> Feb 28)
+              if (currentDate.getDate() !== startDate.getDate()) {
+                currentDate.setDate(0); // Go to last day of previous month
+              }
+            } else {
+              // For day_of_week type (e.g., "third Friday"), calculate the Nth weekday of the next month
+              const targetWeekday = startDate.getDay(); // 0-6 (Sunday-Saturday)
+              const targetWeekOfMonth = Math.ceil(startDate.getDate() / 7); // 1-5
+              
+              // Move to the first day of the target month
+              currentDate.setMonth(currentDate.getMonth() + interval);
+              currentDate.setDate(1);
+              
+              // Find the first occurrence of the target weekday in this month
+              const firstDayOfMonth = currentDate.getDay();
+              let daysUntilTargetWeekday = (targetWeekday - firstDayOfMonth + 7) % 7;
+              
+              // Calculate the date of the Nth occurrence
+              const nthWeekdayDate = 1 + daysUntilTargetWeekday + (targetWeekOfMonth - 1) * 7;
+              
+              // Check if this date exists in the month (e.g., 5th Friday might not exist)
+              const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+              if (nthWeekdayDate <= daysInMonth) {
+                currentDate.setDate(nthWeekdayDate);
+              } else {
+                // Skip this month if the Nth weekday doesn't exist (e.g., no 5th Friday)
+                // Move to next month and try again by not incrementing dates.length
+                currentDate.setMonth(currentDate.getMonth() + interval);
+                currentDate.setDate(1);
+                const nextFirstDay = currentDate.getDay();
+                let nextDaysUntil = (targetWeekday - nextFirstDay + 7) % 7;
+                currentDate.setDate(1 + nextDaysUntil + (targetWeekOfMonth - 1) * 7);
+              }
             }
             break;
           case 'yearly':
