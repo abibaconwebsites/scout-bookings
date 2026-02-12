@@ -2240,7 +2240,7 @@
           try {
             if (currentHutData) {
               await loadBookings(currentHutData.id);
-              await loadCalendarBookings(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+              await loadCalendarEvents(currentHutData.id, currentCalendarDate.getMonth(), currentCalendarDate.getFullYear());
               renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
             }
           } catch (reloadErr) {
