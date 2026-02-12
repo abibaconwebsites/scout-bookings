@@ -1045,10 +1045,14 @@
         
         // If current end date is before booking date, update it
         if (endDateInput.value && endDateInput.value < bookingDate) {
-          // Set to 3 months after booking date - parse as local time
-          const newEndDate = new Date(bookingDate + 'T00:00:00');
+          // Set to 3 months after booking date - use noon to avoid DST edge cases
+          const newEndDate = new Date(bookingDate + 'T12:00:00');
           newEndDate.setMonth(newEndDate.getMonth() + 3);
-          endDateInput.value = newEndDate.toISOString().split('T')[0];
+          // Format as local date
+          const year = newEndDate.getFullYear();
+          const month = String(newEndDate.getMonth() + 1).padStart(2, '0');
+          const day = String(newEndDate.getDate()).padStart(2, '0');
+          endDateInput.value = `${year}-${month}-${day}`;
           recurrenceState.endDate = endDateInput.value;
         }
       }
@@ -1058,8 +1062,8 @@
       const dateInput = document.getElementById('booking-date');
       if (!dateInput.value) return;
 
-      // Parse date as local time (not UTC) by adding T00:00:00
-      const date = new Date(dateInput.value + 'T00:00:00');
+      // Parse date as local time - use noon to avoid DST edge cases
+      const date = new Date(dateInput.value + 'T12:00:00');
       const dayOfWeek = date.getDay();
 
       // If no weekdays selected or only one, set to the booking date's day
@@ -1081,8 +1085,8 @@
       const dateInput = document.getElementById('booking-date');
       if (!dateInput.value) return;
 
-      // Parse date as local time (not UTC) by adding T00:00:00
-      const date = new Date(dateInput.value + 'T00:00:00');
+      // Parse date as local time - use noon to avoid DST edge cases
+      const date = new Date(dateInput.value + 'T12:00:00');
       const dayOfMonth = date.getDate();
       const dayOfWeek = date.getDay();
       const weekOfMonth = Math.ceil(dayOfMonth / 7) - 1;
@@ -1160,8 +1164,8 @@
             break;
           case 'monthly':
             if (dateInput.value) {
-              // Parse date as local time (not UTC) by adding T00:00:00
-              const date = new Date(dateInput.value + 'T00:00:00');
+              // Parse date as local time - use noon to avoid DST edge cases
+              const date = new Date(dateInput.value + 'T12:00:00');
               if (monthlyType === 'day_of_month') {
                 text += `monthly on day ${date.getDate()}`;
               } else {
@@ -1174,8 +1178,8 @@
             break;
           case 'yearly':
             if (dateInput.value) {
-              // Parse date as local time (not UTC) by adding T00:00:00
-              const date = new Date(dateInput.value + 'T00:00:00');
+              // Parse date as local time - use noon to avoid DST edge cases
+              const date = new Date(dateInput.value + 'T12:00:00');
               text += `annually on ${MONTH_NAMES[date.getMonth()]} ${date.getDate()}`;
             } else {
               text += 'annually';
@@ -1255,8 +1259,8 @@
       if (!dateInput.value) return [];
 
       const { frequency, interval, weekdays, monthlyType, endType, endDate, endCount } = recurrenceState;
-      // Parse date as local time (not UTC) by adding T00:00:00
-      const startDate = new Date(dateInput.value + 'T00:00:00');
+      // Parse date as local time (not UTC) - use noon to avoid DST edge cases
+      const startDate = new Date(dateInput.value + 'T12:00:00');
       const dates = [];
       
       // Determine end condition
@@ -1339,30 +1343,41 @@
               const targetWeekday = startDate.getDay(); // 0-6 (Sunday-Saturday)
               const targetWeekOfMonth = Math.ceil(startDate.getDate() / 7); // 1-5
               
-              // Move to the first day of the target month
-              currentDate.setMonth(currentDate.getMonth() + interval);
-              currentDate.setDate(1);
+              // Helper function to find Nth weekday of a given month
+              const findNthWeekday = (year, month, weekday, n) => {
+                // Use noon to avoid DST issues
+                const firstOfMonth = new Date(year, month, 1, 12, 0, 0);
+                const firstDayOfMonth = firstOfMonth.getDay();
+                const daysUntilWeekday = (weekday - firstDayOfMonth + 7) % 7;
+                const nthDate = 1 + daysUntilWeekday + (n - 1) * 7;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                return nthDate <= daysInMonth ? nthDate : null;
+              };
               
-              // Find the first occurrence of the target weekday in this month
-              const firstDayOfMonth = currentDate.getDay();
-              let daysUntilTargetWeekday = (targetWeekday - firstDayOfMonth + 7) % 7;
+              // Move to next month and find the Nth weekday
+              let targetMonth = currentDate.getMonth() + interval;
+              let targetYear = currentDate.getFullYear();
               
-              // Calculate the date of the Nth occurrence
-              const nthWeekdayDate = 1 + daysUntilTargetWeekday + (targetWeekOfMonth - 1) * 7;
-              
-              // Check if this date exists in the month (e.g., 5th Friday might not exist)
-              const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-              if (nthWeekdayDate <= daysInMonth) {
-                currentDate.setDate(nthWeekdayDate);
-              } else {
-                // Skip this month if the Nth weekday doesn't exist (e.g., no 5th Friday)
-                // Move to next month and try again by not incrementing dates.length
-                currentDate.setMonth(currentDate.getMonth() + interval);
-                currentDate.setDate(1);
-                const nextFirstDay = currentDate.getDay();
-                let nextDaysUntil = (targetWeekday - nextFirstDay + 7) % 7;
-                currentDate.setDate(1 + nextDaysUntil + (targetWeekOfMonth - 1) * 7);
+              // Normalize month/year
+              while (targetMonth > 11) {
+                targetMonth -= 12;
+                targetYear++;
               }
+              
+              let nthDate = findNthWeekday(targetYear, targetMonth, targetWeekday, targetWeekOfMonth);
+              
+              // If Nth weekday doesn't exist in this month (e.g., 5th Friday), skip to next month
+              while (nthDate === null) {
+                targetMonth += interval;
+                while (targetMonth > 11) {
+                  targetMonth -= 12;
+                  targetYear++;
+                }
+                nthDate = findNthWeekday(targetYear, targetMonth, targetWeekday, targetWeekOfMonth);
+              }
+              
+              // Create date at noon local time to avoid any DST edge cases
+              currentDate = new Date(targetYear, targetMonth, nthDate, 12, 0, 0);
             }
             break;
           case 'yearly':
