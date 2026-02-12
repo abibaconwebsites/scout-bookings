@@ -1088,20 +1088,30 @@ async function loadConnectedState(userId) {
             googleEmail = user.email;
         }
         
-        // Update connection UI
+        // Update connection UI (shows calendar is connected)
         updateConnectionUI(true, googleEmail);
+        
+        // IMPORTANT: Set sync toggle to OFF by default before loading settings
+        // This ensures we don't show sync as enabled if loadSyncSettings fails
+        const syncToggle = document.getElementById('sync-toggle');
+        const syncOptions = document.getElementById('sync-options');
+        if (syncToggle) {
+            syncToggle.checked = false;
+        }
+        if (syncOptions) {
+            syncOptions.style.display = 'none';
+        }
         
         // Load user's Google Calendars
         await loadUserCalendars(userId);
         
-        // Load current sync settings from hut
+        // Load current sync settings from hut (will set toggle to correct state)
         await loadSyncSettings();
         
         // Load sync history
         await loadSyncHistory(currentHutId);
         
         // If sync is enabled, start auto-sync
-        const syncToggle = document.getElementById('sync-toggle');
         if (syncToggle && syncToggle.checked && currentHutId) {
             startAutoSync(currentHutId, userId);
         }
@@ -1242,8 +1252,19 @@ async function loadUserCalendars(userId) {
  * Loads sync settings from the hut configuration.
  */
 async function loadSyncSettings() {
+    // Get UI elements
+    const syncToggle = document.getElementById('sync-toggle');
+    const syncOptions = document.getElementById('sync-options');
+    
     if (!currentHutId) {
-        console.log('[Settings] No hut ID, skipping sync settings load');
+        console.log('[Settings] No hut ID, setting sync toggle to disabled');
+        // No hut means sync should be off
+        if (syncToggle) {
+            syncToggle.checked = false;
+        }
+        if (syncOptions) {
+            syncOptions.style.display = 'none';
+        }
         return;
     }
     
@@ -1258,19 +1279,26 @@ async function loadSyncSettings() {
         
         if (error) {
             console.error('[Settings] Error loading hut sync settings:', error);
+            // On error, default to sync disabled
+            if (syncToggle) {
+                syncToggle.checked = false;
+            }
+            if (syncOptions) {
+                syncOptions.style.display = 'none';
+            }
             return;
         }
         
-        // Update sync toggle
-        const syncToggle = document.getElementById('sync-toggle');
-        const syncOptions = document.getElementById('sync-options');
+        // Update sync toggle - explicitly check for true, default to false
+        const syncEnabled = hut.sync_enabled === true;
+        console.log('[Settings] Sync enabled from database:', syncEnabled);
         
         if (syncToggle) {
-            syncToggle.checked = hut.sync_enabled || false;
+            syncToggle.checked = syncEnabled;
         }
         
         if (syncOptions) {
-            syncOptions.style.display = hut.sync_enabled ? 'block' : 'none';
+            syncOptions.style.display = syncEnabled ? 'block' : 'none';
         }
         
         // Update sync direction
@@ -1289,10 +1317,17 @@ async function loadSyncSettings() {
             updateLastSyncDisplay(hut.last_sync_at);
         }
         
-        console.log('[Settings] Sync settings loaded');
+        console.log('[Settings] Sync settings loaded, sync_enabled:', syncEnabled);
         
     } catch (err) {
         console.error('[Settings] Error loading sync settings:', err);
+        // On error, default to sync disabled
+        if (syncToggle) {
+            syncToggle.checked = false;
+        }
+        if (syncOptions) {
+            syncOptions.style.display = 'none';
+        }
     }
 }
 
@@ -1499,16 +1534,27 @@ async function handleSyncToggle(enabled) {
             return;
         }
         
-        // Hide sync options
-        if (syncOptions) syncOptions.style.display = 'none';
-        
-        // Update hut settings
+        // Update hut settings first
         if (currentHutId) {
-            await supabaseClient
+            const { error } = await supabaseClient
                 .from('scout_huts')
                 .update({ sync_enabled: false })
                 .eq('id', currentHutId);
+            
+            if (error) {
+                console.error('[Settings] Error disabling sync:', error);
+                showNotification('Failed to disable sync', 'error');
+                // Revert toggle on error
+                const syncToggle = document.getElementById('sync-toggle');
+                if (syncToggle) syncToggle.checked = true;
+                return;
+            }
+            
+            console.log('[Settings] Sync disabled in database for hut:', currentHutId);
         }
+        
+        // Hide sync options
+        if (syncOptions) syncOptions.style.display = 'none';
         
         // Stop auto-sync
         stopAutoSync();

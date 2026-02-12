@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             // User signed out, redirect to home if on a protected page
-            const protectedPages = ['/dashboard', '/add-booking', '/edit-hut', '/create-hut'];
+            const protectedPages = ['/dashboard', '/add-booking', '/edit-hut', '/create-hut', '/settings'];
             const isProtectedPage = protectedPages.some(page => 
                 window.location.pathname.includes(page)
             );
@@ -386,12 +386,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // Check if we're on the dashboard page (auth callback destination)
-    const isDashboardPage = window.location.pathname.includes('/dashboard') 
-        || window.location.pathname.includes('/dashboard');
+    const isDashboardPage = window.location.pathname.includes('/dashboard');
 
     if (isDashboardPage) {
         // Handle the auth callback (creates profile for new users)
         await handleAuthCallback();
+    }
+
+    // Check if user is on login/signup page while already authenticated
+    // If so, redirect them to dashboard
+    const isAuthPage = window.location.pathname.includes('/login') 
+        || window.location.pathname.includes('/signup');
+    
+    if (isAuthPage) {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+            // User is already logged in, redirect to dashboard
+            console.log('User already authenticated, redirecting to dashboard');
+            window.location.href = '/dashboard';
+            return;
+        }
     }
 
     // Always update the navigation based on auth state
