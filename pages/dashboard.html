@@ -577,7 +577,7 @@
 
   
 
-    /* Google synced event bars - Google events (blue, not editable) */
+    /* Google synced event bars - Google events (blue, view-only popup) */
     .google-event {
       background-color: #4285F4;
       color: #ffffff !important;
@@ -587,7 +587,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      cursor: default;
+      cursor: pointer;
       transition: all var(--transition-fast);
       opacity: 0.9;
     }
@@ -889,8 +889,13 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      cursor: default;
+      cursor: pointer;
       position: relative;
+      transition: all var(--transition-fast);
+    }
+
+    .session-event:hover {
+      background-color: #002a5c;
     }
 
     .session-event-time {
@@ -1137,13 +1142,17 @@
   <div class="modal-overlay" id="booking-modal">
     <div class="modal">
       <div class="modal-header">
-        <h3>Booking Details</h3>
+        <h3 id="modal-title">Booking Details</h3>
         <button class="modal-close" onclick="closeBookingModal()">&times;</button>
       </div>
       <div class="modal-body">
         <div class="modal-detail">
           <div class="modal-detail-label">Event</div>
           <div class="modal-detail-value" id="modal-event-name"></div>
+        </div>
+        <div class="modal-detail" id="modal-type-section" style="display: none;">
+          <div class="modal-detail-label">Type</div>
+          <div class="modal-detail-value" id="modal-type"></div>
         </div>
         <div class="modal-detail">
           <div class="modal-detail-label">Date</div>
@@ -1170,7 +1179,7 @@
           <div class="modal-detail-value" id="modal-notes"></div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" id="modal-footer">
         <button class="btn btn-primary" id="modal-amend-btn" onclick="amendBookingFromModal()">Amend</button>
         <button class="btn btn-danger" id="modal-cancel-btn" onclick="cancelBookingFromModal()">Cancel</button>
       </div>
@@ -1435,7 +1444,7 @@
                 <span class="list-view-event-type-wrapper"><span class="list-view-event-type ${event.type}">${typeLabel}</span></span>
               `;
               
-              // Click to open booking modal (only for Scout bookings, not Google events)
+              // Click to open modal for all event types
               if (event.type === 'booking') {
                 eventEl.style.cursor = 'pointer';
                 eventEl.addEventListener('click', (e) => {
@@ -1443,9 +1452,19 @@
                   openBookingModal(event.booking);
                 });
               } else if (event.type === 'synced-event') {
-                // Google events are not clickable - show tooltip on hover
-                eventEl.title = 'This time is blocked by your Google Calendar';
-                eventEl.style.cursor = 'default';
+                // Google events - clickable for view-only popup
+                eventEl.style.cursor = 'pointer';
+                eventEl.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  openGoogleEventModal(event.syncedEvent);
+                });
+              } else if (event.type === 'session') {
+                // Weekly sessions - clickable for view-only popup
+                eventEl.style.cursor = 'pointer';
+                eventEl.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  openSessionModal(event, date);
+                });
               }
               
               eventsEl.appendChild(eventEl);
@@ -1597,9 +1616,10 @@
         
         visibleEvents.forEach(event => {
           if (event.type === 'session') {
-            // Weekly session - navy blue
+            // Weekly session - navy blue, clickable for popup
             const sessionEl = document.createElement('div');
             sessionEl.className = 'session-event';
+            sessionEl.style.cursor = 'pointer';
             sessionEl.innerHTML = `<span class="session-event-name">${event.name}</span><span class="session-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
             
             // Add tooltip
@@ -1607,6 +1627,12 @@
             tooltip.className = 'event-tooltip';
             tooltip.textContent = `${event.name}: ${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}`;
             sessionEl.appendChild(tooltip);
+            
+            // Click to open session modal (view only, no edit buttons)
+            sessionEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              openSessionModal(event, date);
+            });
             
             eventsContainer.appendChild(sessionEl);
           } else if (event.type === 'booking') {
@@ -1630,9 +1656,10 @@
             
             eventsContainer.appendChild(bookingEl);
           } else if (event.type === 'synced-event') {
-            // Synced Google Calendar event - blue, not clickable, not editable
+            // Synced Google Calendar event - blue, clickable for popup (view only)
             const googleEl = document.createElement('div');
             googleEl.className = 'google-event';
+            googleEl.style.cursor = 'pointer';
             googleEl.innerHTML = `<span class="google-event-name">${escapeHtml(event.name)} (Google)</span><span class="google-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
             
             // Tooltip: Explain this is a Google Calendar event
@@ -1641,7 +1668,11 @@
             tooltip.textContent = `This time is blocked by your Google Calendar`;
             googleEl.appendChild(tooltip);
             
-            // No click handler - Google events are not editable in Scout
+            // Click to open Google event modal (view only, no edit buttons)
+            googleEl.addEventListener('click', (e) => {
+              e.stopPropagation();
+              openGoogleEventModal(event.syncedEvent);
+            });
             
             eventsContainer.appendChild(googleEl);
           }
@@ -1936,8 +1967,7 @@
 
     /**
      * Shows bookings for a specific day when clicking "+X more".
-     * Only Scout bookings can be opened in a modal (editable).
-     * Synced Google events are displayed but not editable.
+     * All event types now show in popups (bookings, sessions, Google events).
      */
     function showDayBookings(date) {
       // Format date as YYYY-MM-DD in local time
@@ -1948,30 +1978,63 @@
         return `${year}-${month}-${day}`;
       };
       const dateStr = formatLocalDate(date);
+      const dayName = getDayName(date);
       
-      // Get Scout bookings for this day (editable)
+      // Get all events for this day
       const dayBookings = calendarBookings.filter(booking => {
         const bookingDate = formatLocalDate(new Date(booking.start_time));
         return bookingDate === dateStr;
       });
       
-      // Get synced Google events for this day (not editable)
       const daySyncedEvents = syncedGoogleEvents.filter(event => {
         const eventDate = formatLocalDate(new Date(event.start_time));
         return eventDate === dateStr;
       });
-
-      // If there are Scout bookings, show the first one
-      // (Google events cannot be opened in a modal - they're managed in Google Calendar)
-      if (dayBookings.length === 1) {
-        // Single booking - show details directly
-        openBookingModal(dayBookings[0]);
-      } else if (dayBookings.length > 1) {
-        // Multiple bookings - show first one (could be enhanced to show a list)
-        openBookingModal(dayBookings[0]);
-      } else if (daySyncedEvents.length > 0) {
-        // Only synced events - show an alert explaining they're from Google
-        alert('This day has events from your Google Calendar. These events can only be edited in Google Calendar.');
+      
+      const weeklySessions = getWeeklySessionsForDay(dayName);
+      
+      // Combine all events
+      const allEvents = [];
+      
+      weeklySessions.forEach(session => {
+        allEvents.push({
+          type: 'session',
+          start_time: session.start_time,
+          data: session
+        });
+      });
+      
+      dayBookings.forEach(booking => {
+        const startDate = new Date(booking.start_time);
+        allEvents.push({
+          type: 'booking',
+          start_time: startDate.toTimeString().slice(0, 5),
+          data: booking
+        });
+      });
+      
+      daySyncedEvents.forEach(syncedEvent => {
+        const startDate = new Date(syncedEvent.start_time);
+        allEvents.push({
+          type: 'synced-event',
+          start_time: startDate.toTimeString().slice(0, 5),
+          data: syncedEvent
+        });
+      });
+      
+      // Sort by start time
+      allEvents.sort((a, b) => a.start_time.localeCompare(b.start_time));
+      
+      // Open the first event's modal
+      if (allEvents.length > 0) {
+        const firstEvent = allEvents[0];
+        if (firstEvent.type === 'booking') {
+          openBookingModal(firstEvent.data);
+        } else if (firstEvent.type === 'session') {
+          openSessionModal(firstEvent.data, date);
+        } else if (firstEvent.type === 'synced-event') {
+          openGoogleEventModal(firstEvent.data);
+        }
       }
     }
 
@@ -1985,6 +2048,11 @@
       const timeOptions = { hour: '2-digit', minute: '2-digit' };
       const formattedDate = startDate.toLocaleDateString('en-GB', dateOptions);
       const formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
+      
+      // Set modal title and show footer buttons for bookings
+      document.getElementById('modal-title').textContent = 'Booking Details';
+      document.getElementById('modal-footer').style.display = 'flex';
+      document.getElementById('modal-type-section').style.display = 'none';
       
       // Populate modal
       document.getElementById('modal-event-name').textContent = booking.event_name || 'Untitled Booking';
@@ -2030,6 +2098,91 @@
       } else {
         notesSection.style.display = 'none';
       }
+      
+      // Show modal
+      document.getElementById('booking-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Opens a view-only modal for weekly sessions.
+     * No edit/cancel buttons are shown since sessions are configured in settings.
+     */
+    function openSessionModal(session, date) {
+      currentModalBookingId = null; // Not a booking
+      
+      // Format date
+      const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      const formattedDate = date.toLocaleDateString('en-GB', dateOptions);
+      const formattedTime = `${formatTimeShort(session.start_time)} - ${formatTimeShort(session.end_time)}`;
+      
+      // Set modal title and hide footer buttons for sessions
+      document.getElementById('modal-title').textContent = 'Weekly Session';
+      document.getElementById('modal-footer').style.display = 'none';
+      
+      // Show type
+      document.getElementById('modal-type-section').style.display = 'block';
+      document.getElementById('modal-type').textContent = 'Weekly Session (recurring)';
+      
+      // Populate modal
+      document.getElementById('modal-event-name').textContent = session.name || 'Weekly Session';
+      document.getElementById('modal-date').textContent = formattedDate;
+      document.getElementById('modal-time').textContent = formattedTime;
+      
+      // Hide contact/email/phone/notes for sessions
+      document.getElementById('modal-contact-section').style.display = 'none';
+      document.getElementById('modal-email-section').style.display = 'none';
+      document.getElementById('modal-phone-section').style.display = 'none';
+      
+      // Show a note about editing sessions
+      const notesSection = document.getElementById('modal-notes-section');
+      const notesValue = document.getElementById('modal-notes');
+      notesSection.style.display = 'block';
+      notesValue.innerHTML = '<em>Weekly sessions can be edited in Settings → Weekly Sessions</em>';
+      
+      // Show modal
+      document.getElementById('booking-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * Opens a view-only modal for Google Calendar events.
+     * No edit/cancel buttons are shown since these are managed in Google Calendar.
+     */
+    function openGoogleEventModal(syncedEvent) {
+      currentModalBookingId = null; // Not a booking
+      
+      // Format date
+      const startDate = new Date(syncedEvent.start_time);
+      const endDate = new Date(syncedEvent.end_time);
+      const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      const timeOptions = { hour: '2-digit', minute: '2-digit' };
+      const formattedDate = startDate.toLocaleDateString('en-GB', dateOptions);
+      const formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
+      
+      // Set modal title and hide footer buttons for Google events
+      document.getElementById('modal-title').textContent = 'Google Calendar Event';
+      document.getElementById('modal-footer').style.display = 'none';
+      
+      // Show type
+      document.getElementById('modal-type-section').style.display = 'block';
+      document.getElementById('modal-type').textContent = 'Synced from Google Calendar';
+      
+      // Populate modal
+      document.getElementById('modal-event-name').textContent = syncedEvent.title || 'Google Event';
+      document.getElementById('modal-date').textContent = formattedDate;
+      document.getElementById('modal-time').textContent = formattedTime;
+      
+      // Hide contact/email/phone for Google events
+      document.getElementById('modal-contact-section').style.display = 'none';
+      document.getElementById('modal-email-section').style.display = 'none';
+      document.getElementById('modal-phone-section').style.display = 'none';
+      
+      // Show a note about editing Google events
+      const notesSection = document.getElementById('modal-notes-section');
+      const notesValue = document.getElementById('modal-notes');
+      notesSection.style.display = 'block';
+      notesValue.innerHTML = '<em>This event is synced from your Google Calendar and can only be edited there.</em>';
       
       // Show modal
       document.getElementById('booking-modal').classList.add('active');
