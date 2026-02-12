@@ -1412,14 +1412,15 @@ async function handleConnectCalendar() {
 
 /**
  * Handles the Disconnect Calendar button click.
- * Removes tokens and disables sync.
+ * Removes tokens, disables sync, and clears all synced event data.
  */
 async function handleDisconnectCalendar() {
     console.log('[Settings] Disconnect calendar clicked');
     
     const confirmed = confirm(
         'Disconnect Google Calendar?\n\n' +
-        'This will disable calendar sync and remove the connection to your Google account.'
+        'This will disable calendar sync, remove the connection to your Google account, ' +
+        'and delete all synced Google Calendar events from Scout Bookings.'
     );
     
     if (!confirmed) {
@@ -1437,13 +1438,30 @@ async function handleDisconnectCalendar() {
         // Stop auto-sync
         stopAutoSync();
         
-        // Disable sync on hut
+        // Delete all synced events for this hut (both directions)
+        // This removes all Google Calendar event data from Scout Bookings
+        if (currentHutId) {
+            const { error: syncedEventsError } = await supabaseClient
+                .from('synced_events')
+                .delete()
+                .eq('hut_id', currentHutId);
+            
+            if (syncedEventsError) {
+                console.error('[Settings] Error deleting synced events:', syncedEventsError);
+                // Continue with disconnect even if this fails
+            } else {
+                console.log('[Settings] Deleted all synced events for hut');
+            }
+        }
+        
+        // Disable sync on hut and clear calendar ID
         if (currentHutId) {
             await supabaseClient
                 .from('scout_huts')
                 .update({ 
                     sync_enabled: false,
-                    google_calendar_id: null
+                    google_calendar_id: null,
+                    last_sync_at: null
                 })
                 .eq('id', currentHutId);
         }
