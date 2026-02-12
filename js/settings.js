@@ -1359,7 +1359,7 @@ async function handleConnectCalendar() {
     
     // Show confirmation modal
     const confirmed = confirm(
-        'You will be redirected to sign in with Google to grant calendar access.\n\n' +
+        'You will be redirected to grant calendar access.\n\n' +
         'This will allow Scout Bookings to read and write to your Google Calendar.'
     );
     
@@ -1379,6 +1379,11 @@ async function handleConnectCalendar() {
         // This prevents re-saving tokens after disconnect when session still has provider tokens
         sessionStorage.setItem('pendingCalendarOAuth', 'true');
         
+        // Get current user's email to use as login hint
+        // This skips the account selection screen since they're already logged in
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const userEmail = user?.email;
+        
         // Initiate Google OAuth with calendar scope
         // Request offline access and force consent to ensure we get refresh token
         const { data, error } = await supabaseClient.auth.signInWithOAuth({
@@ -1390,7 +1395,9 @@ async function handleConnectCalendar() {
                 queryParams: {
                     // Request offline access to get refresh token for background sync
                     access_type: 'offline',
-                    // Force consent screen to ensure we get refresh token
+                    // Use login_hint to skip account selection (user is already logged in)
+                    // Only show consent for the new calendar permissions
+                    login_hint: userEmail,
                     prompt: 'consent'
                 }
             }
