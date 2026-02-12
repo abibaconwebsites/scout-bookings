@@ -1748,21 +1748,28 @@
         }
         
         // 3. Load Synced Google Events from synced_events table
-        // Only load google_to_scout type events (events imported from Google)
-        const { data: syncedData, error: syncedError } = await supabaseClient
-          .from('synced_events')
-          .select('*')
-          .eq('hut_id', hutId)
-          .eq('event_type', 'google_to_scout')
-          .gte('start_time', firstDayISO)
-          .lte('start_time', lastDayISO);
-        
-        if (syncedError) {
-          console.error('[Calendar] Error loading synced events:', syncedError);
-          syncedGoogleEvents = [];
+        // Only load if Google Calendar sync is enabled (user has connected their calendar)
+        // If sync is disabled (disconnected), don't show Google events on the calendar
+        if (currentHutData?.sync_enabled) {
+          const { data: syncedData, error: syncedError } = await supabaseClient
+            .from('synced_events')
+            .select('*')
+            .eq('hut_id', hutId)
+            .eq('event_type', 'google_to_scout')
+            .gte('start_time', firstDayISO)
+            .lte('start_time', lastDayISO);
+          
+          if (syncedError) {
+            console.error('[Calendar] Error loading synced events:', syncedError);
+            syncedGoogleEvents = [];
+          } else {
+            syncedGoogleEvents = syncedData || [];
+            console.log('[Calendar] Loaded', syncedGoogleEvents.length, 'synced Google events');
+          }
         } else {
-          syncedGoogleEvents = syncedData || [];
-          console.log('[Calendar] Loaded', syncedGoogleEvents.length, 'synced Google events');
+          // Google Calendar not connected - don't show synced events
+          syncedGoogleEvents = [];
+          console.log('[Calendar] Google Calendar sync disabled - skipping synced events');
         }
         
         // 4. Combine into unified array for external use
