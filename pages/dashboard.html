@@ -26,7 +26,7 @@
       min-width: 18px;
       height: 18px;
       padding: 0 5px;
-      background-color: #ef4444;
+      background-color: var(--color-primary);
       color: white;
       font-size: 0.6875rem;
       font-weight: 700;
@@ -87,18 +87,21 @@
     }
 
     .notification-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
       padding: var(--space-md);
       border-bottom: 1px solid var(--color-border);
-      cursor: pointer;
-      transition: background-color 0.15s ease;
     }
 
     .notification-item:last-child {
       border-bottom: none;
     }
 
-    .notification-item:hover {
-      background-color: var(--color-background);
+    .notification-item-content {
+      flex: 1;
+      min-width: 0;
     }
 
     .notification-item-title {
@@ -108,15 +111,13 @@
       margin-bottom: 2px;
     }
 
-    .notification-item-details {
-      font-size: 0.8125rem;
+    .notification-item-date {
+      font-size: 0.75rem;
       color: var(--color-placeholder);
     }
 
-    .notification-item-date {
-      font-size: 0.75rem;
-      color: var(--color-primary);
-      margin-top: 4px;
+    .notification-item .btn {
+      flex-shrink: 0;
     }
 
     .dashboard-header {
@@ -160,7 +161,6 @@
     .dashboard-top-row > .dashboard-card {
       flex: 1;
       overflow: hidden;
-      max-height: 400px;
       display: flex;
       flex-direction: column;
     }
@@ -224,9 +224,6 @@
 
     .hut-info {
       padding: var(--space-md) 0;
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
     }
 
     .hut-name {
@@ -324,19 +321,7 @@
       text-decoration: underline;
     }
 
-    /* Pending Bookings Card */
-    .dashboard-card.pending-card {
-      display: flex;
-      flex-direction: column;
-      max-height: 400px;
-    }
-
-    .dashboard-card.pending-card h2 {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
-
+    /* Pending Badge */
     .pending-badge {
       display: inline-flex;
       align-items: center;
@@ -438,11 +423,62 @@
     .dashboard-card.bookings-card {
       display: flex;
       flex-direction: column;
-      max-height: 400px;
     }
 
-    .dashboard-card.bookings-card h2 {
+    /* Bookings Toggle Header */
+    .bookings-toggle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
       flex-shrink: 0;
+    }
+
+    .bookings-toggle {
+      display: flex;
+      background-color: var(--color-gray-100);
+      border-radius: var(--radius-md);
+      padding: 4px;
+    }
+
+    .bookings-toggle-btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-gray-600);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .bookings-toggle-btn:hover {
+      color: var(--color-gray-900);
+    }
+
+    .bookings-toggle-btn.active {
+      background-color: var(--color-white);
+      color: var(--color-primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bookings-toggle-btn .pending-badge {
+      background-color: var(--color-primary);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+
+    .bookings-view {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
     }
 
     /* Bookings List */
@@ -1408,23 +1444,36 @@
           </div>
         </div>
 
-        <!-- Pending Booking Requests Card -->
-        <div class="dashboard-card pending-card" id="pending-bookings-card" style="display: none;">
-          <h2>
-            Pending Bookings
-            <span class="pending-badge" id="pending-count">0</span>
-          </h2>
-          <div id="pending-list" class="pending-list"></div>
-        </div>
-
-        <!-- Upcoming Bookings Card -->
+        <!-- Bookings Card with Toggle -->
         <div class="dashboard-card bookings-card">
-          <h2>This Month's Bookings</h2>
-          <div id="bookings-empty" class="empty-state">
-            <p>No bookings this month.</p>
-            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add Booking</a>
+          <div class="bookings-toggle-header">
+            <div class="bookings-toggle">
+              <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
+                This Month
+              </button>
+              <button class="bookings-toggle-btn" id="toggle-pending" onclick="toggleBookingsView('pending')">
+                Pending
+                <span class="pending-badge" id="pending-count" style="display: none;">0</span>
+              </button>
+            </div>
+            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
           </div>
-          <div id="bookings-list" class="bookings-list"></div>
+          
+          <!-- This Month's Bookings View -->
+          <div id="this-month-view" class="bookings-view">
+            <div id="bookings-empty" class="empty-state">
+              <p>No bookings this month.</p>
+            </div>
+            <div id="bookings-list" class="bookings-list"></div>
+          </div>
+          
+          <!-- Pending Bookings View -->
+          <div id="pending-view" class="bookings-view" style="display: none;">
+            <div id="pending-empty" class="empty-state">
+              <p>No pending booking requests.</p>
+            </div>
+            <div id="pending-list" class="pending-list"></div>
+          </div>
         </div>
       </div>
 
@@ -1552,6 +1601,7 @@
         <button class="btn btn-danger" id="modal-cancel-btn" onclick="cancelBookingFromModal()">Cancel</button>
       </div>
       <div class="modal-footer" id="modal-pending-footer" style="display: none;">
+        <button class="btn btn-secondary" id="modal-edit-pending-btn" onclick="editPendingBookingFromModal()">Edit</button>
         <button class="btn btn-approve" id="modal-approve-btn" onclick="approveBookingFromModal()">Approve</button>
         <button class="btn btn-decline" id="modal-decline-btn" onclick="declineBookingFromModal()">Decline</button>
       </div>
@@ -2638,6 +2688,13 @@
       }
     }
 
+    // Edit pending booking from modal
+    function editPendingBookingFromModal() {
+      if (!currentModalBookingId) return;
+      // Navigate to edit booking page with booking ID
+      window.location.href = `add-booking.html?edit=${currentModalBookingId}`;
+    }
+
     // Approve booking from modal
     async function approveBookingFromModal() {
       if (!currentModalBookingId) return;
@@ -2842,10 +2899,12 @@
         const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
 
         return `
-          <div class="notification-item" onclick="viewPendingBookingFromDropdown('${booking.id}')">
-            <div class="notification-item-title">${escapeHtml(booking.event_name)}</div>
-            <div class="notification-item-details">${escapeHtml(booking.contact_name || 'No name')} &bull; ${escapeHtml(booking.contact_email || 'No email')}</div>
-            <div class="notification-item-date">${dateStr} at ${startTime}</div>
+          <div class="notification-item">
+            <div class="notification-item-content">
+              <div class="notification-item-title">${escapeHtml(booking.event_name)}</div>
+              <div class="notification-item-date">${dateStr} at ${startTime}</div>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="viewPendingBookingFromDropdown('${booking.id}')">View</button>
           </div>
         `;
       }).join('');
@@ -2855,6 +2914,26 @@
     function viewPendingBookingFromDropdown(bookingId) {
       document.getElementById('notifications-dropdown').classList.remove('active');
       viewPendingBooking(bookingId);
+    }
+
+    // Toggle between This Month and Pending views
+    function toggleBookingsView(view) {
+      const thisMonthBtn = document.getElementById('toggle-this-month');
+      const pendingBtn = document.getElementById('toggle-pending');
+      const thisMonthView = document.getElementById('this-month-view');
+      const pendingView = document.getElementById('pending-view');
+
+      if (view === 'this-month') {
+        thisMonthBtn.classList.add('active');
+        pendingBtn.classList.remove('active');
+        thisMonthView.style.display = 'block';
+        pendingView.style.display = 'none';
+      } else {
+        thisMonthBtn.classList.remove('active');
+        pendingBtn.classList.add('active');
+        thisMonthView.style.display = 'none';
+        pendingView.style.display = 'block';
+      }
     }
 
     // Load and display pending bookings
@@ -2874,8 +2953,8 @@
 
         pendingBookingsData = pendingBookings || [];
 
-        const pendingCard = document.getElementById('pending-bookings-card');
         const pendingList = document.getElementById('pending-list');
+        const pendingEmpty = document.getElementById('pending-empty');
         const pendingCount = document.getElementById('pending-count');
 
         // Update notification badge in navbar
@@ -2883,16 +2962,19 @@
         if (pendingBookings && pendingBookings.length > 0) {
           notificationBadge.textContent = pendingBookings.length;
           notificationBadge.style.display = 'flex';
+          pendingCount.textContent = pendingBookings.length;
+          pendingCount.style.display = 'inline-flex';
         } else {
           notificationBadge.style.display = 'none';
+          pendingCount.style.display = 'none';
         }
 
         // Update notifications dropdown
         updateNotificationsDropdown();
 
         if (pendingBookings && pendingBookings.length > 0) {
-          pendingCard.style.display = 'flex';
-          pendingCount.textContent = pendingBookings.length;
+          pendingEmpty.style.display = 'none';
+          pendingList.style.display = 'flex';
 
           pendingList.innerHTML = pendingBookings.map(booking => {
             const start = new Date(booking.start_time);
@@ -2910,18 +2992,16 @@
                     <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
                     <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
                   </div>
-                  <div class="pending-item-contact">
-                    ${escapeHtml(booking.contact_name || 'No name')} &bull; ${escapeHtml(booking.contact_email || 'No email')}
-                  </div>
                 </div>
                 <div class="pending-item-actions">
-                  <button class="btn-view" onclick="viewPendingBooking('${booking.id}')">View</button>
+                  <button class="btn btn-primary btn-small" onclick="viewPendingBooking('${booking.id}')">View</button>
                 </div>
               </div>
             `;
           }).join('');
         } else {
-          pendingCard.style.display = 'none';
+          pendingEmpty.style.display = 'block';
+          pendingList.style.display = 'none';
         }
       } catch (err) {
         console.error('Error loading pending bookings:', err);

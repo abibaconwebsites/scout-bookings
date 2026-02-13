@@ -842,6 +842,7 @@
     let currentUser = null;
     let currentHut = null;
     let editingBookingId = null;
+    let editingBookingStatus = null;
 
     // Recurrence state
     const recurrenceState = {
@@ -1439,10 +1440,16 @@
           return;
         }
 
+        // Store booking status for pending check
+        editingBookingStatus = booking.status;
+
         // Update page title and button text
-        document.querySelector('.page-hero h1').textContent = 'Edit Booking';
-        document.querySelector('.page-hero p').textContent = 'Update the booking details below.';
-        document.getElementById('submit-btn').textContent = 'Update Booking';
+        const isPending = booking.status === 'pending';
+        document.querySelector('.page-hero h1').textContent = isPending ? 'Edit Pending Booking' : 'Edit Booking';
+        document.querySelector('.page-hero p').textContent = isPending 
+          ? 'Update the booking details and approve the request.'
+          : 'Update the booking details below.';
+        document.getElementById('submit-btn').textContent = isPending ? 'Save & Approve' : 'Update Booking';
         document.getElementById('save-add-another-btn').style.display = 'none';
         
         // Hide recurrence section when editing
@@ -1695,6 +1702,12 @@
           // Update existing booking (don't change recurrence for edits)
           // Use updateBooking function to get Google Calendar sync
           const { is_recurring, recurrence_rule, hut_id, ...updateData } = bookingData;
+          
+          // If editing a pending booking, approve it (change status to confirmed)
+          if (editingBookingStatus === 'pending') {
+            updateData.status = 'confirmed';
+          }
+          
           result = await updateBooking(editingBookingId, updateData);
         } else if (bookingData.is_recurring && bookingData.recurrence_rule) {
           // Create recurring bookings
@@ -1758,7 +1771,14 @@
 
         // Show appropriate notification based on sync status
         if (!bookingData.is_recurring) {
-          const baseMessage = editingBookingId ? 'Booking updated successfully!' : 'Booking saved successfully!';
+          let baseMessage;
+          if (editingBookingId && editingBookingStatus === 'pending') {
+            baseMessage = 'Booking approved and saved!';
+          } else if (editingBookingId) {
+            baseMessage = 'Booking updated successfully!';
+          } else {
+            baseMessage = 'Booking saved successfully!';
+          }
           
           // Check sync status and show appropriate message
           if (result.syncStatus === 'synced') {
