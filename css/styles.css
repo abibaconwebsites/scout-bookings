@@ -464,6 +464,19 @@ small {
   transition: all var(--transition-fast);
 }
 
+/* Mobile Auth Buttons - shown in header on mobile */
+.nav-mobile-auth {
+  display: none;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.nav-mobile-auth .btn {
+  width: auto;
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-sm);
+}
+
 /* ============================================
    7. BUTTONS
    ============================================ */
@@ -1428,6 +1441,11 @@ small {
   
   .nav-links a:last-child {
     border-bottom: none;
+  }
+
+  /* Mobile auth buttons in header */
+  .nav-mobile-auth {
+    display: flex;
   }
   
   .nav-user {
