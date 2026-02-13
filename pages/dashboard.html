@@ -2478,7 +2478,10 @@
     }
 
     function openBookingModal(booking) {
+      console.log('openBookingModal called with booking:', booking);
+      console.log('booking.id:', booking.id);
       currentModalBookingId = booking.id;
+      console.log('currentModalBookingId set to:', currentModalBookingId);
       
       // Format date
       const startDate = new Date(booking.start_time);
@@ -3092,9 +3095,14 @@
 
     // View a pending booking in the modal
     function viewPendingBooking(bookingId) {
+      console.log('viewPendingBooking called with:', bookingId);
+      console.log('pendingBookingsData:', pendingBookingsData);
       const booking = pendingBookingsData.find(b => b.id === bookingId);
+      console.log('Found booking:', booking);
       if (booking) {
         openBookingModal(booking);
+      } else {
+        showNotification('Booking not found', 'error');
       }
     }
 
