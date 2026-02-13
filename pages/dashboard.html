@@ -2698,23 +2698,23 @@
       }
     }
 
-    // Decline a pending booking
+    // Decline a pending booking - deletes the booking entirely
     async function declineBooking(bookingId) {
-      if (!confirm('Are you sure you want to decline this booking request?')) {
+      if (!confirm('Are you sure you want to decline this booking request? This will delete the request.')) {
         return;
       }
 
       try {
         const { error } = await supabaseClient
           .from('bookings')
-          .update({ status: 'cancelled' })
+          .delete()
           .eq('id', bookingId);
 
         if (error) {
           throw error;
         }
 
-        showNotification('Booking declined', 'success');
+        showNotification('Booking request declined and removed', 'success');
         
         // Reload pending bookings and calendar
         if (currentHutData) {
