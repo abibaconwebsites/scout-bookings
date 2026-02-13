@@ -189,7 +189,7 @@
       }
 
       .dashboard-top-row > .dashboard-card {
-        height: 70vh;
+        height: auto;
         flex: none;
       }
     }
@@ -437,15 +437,7 @@
       flex-direction: column;
     }
 
-    /* Bookings Toggle Header */
-    .bookings-toggle-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-md);
-      flex-shrink: 0;
-    }
-
+    /* Bookings Toggle */
     .bookings-toggle {
       display: inline-flex;
       background-color: var(--color-gray-100);
@@ -548,28 +540,9 @@
       margin-bottom: var(--space-sm);
     }
 
-    .booking-item-details {
-      display: flex;
-      gap: var(--space-lg);
-    }
-
-    @media (max-width: 480px) {
-      .booking-item-details {
-        flex-direction: column;
-        gap: var(--space-sm);
-      }
-    }
-
-    .booking-item-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .booking-item-label {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      color: var(--color-placeholder);
-      text-transform: uppercase;
+    .booking-item-datetime {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
     }
 
     .booking-item-value {
@@ -769,6 +742,15 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+
+    .calendar-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
     }
 
     .calendar-header h2 {
@@ -914,9 +896,7 @@
       font-size: 0.6875rem;
       padding: 3px 5px;
       border-radius: 3px;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
       cursor: pointer;
       transition: all var(--transition-fast);
     }
@@ -953,9 +933,7 @@
       font-size: 0.6875rem;
       padding: 3px 5px;
       border-radius: 3px;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
       cursor: pointer;
       transition: all var(--transition-fast);
       opacity: 0.9;
@@ -1263,9 +1241,7 @@
       font-size: 0.6875rem;
       padding: 3px 5px;
       border-radius: 3px;
-      white-space: nowrap;
       overflow: hidden;
-      text-overflow: ellipsis;
       cursor: pointer;
       position: relative;
       transition: all var(--transition-fast);
@@ -1458,21 +1434,8 @@
           </div>
         </div>
 
-        <!-- Bookings Card with Toggle -->
+        <!-- Bookings Card -->
         <div class="dashboard-card bookings-card">
-          <div class="bookings-toggle-header">
-            <div class="bookings-toggle">
-              <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
-                This Month
-              </button>
-              <button class="bookings-toggle-btn" id="toggle-pending" onclick="toggleBookingsView('pending')">
-                Pending
-                <span class="pending-badge" id="pending-count" style="display: none;">0</span>
-              </button>
-            </div>
-            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
-          </div>
-          
           <!-- This Month's Bookings View -->
           <div id="this-month-view" class="bookings-view">
             <div id="bookings-empty" class="empty-state">
@@ -1494,7 +1457,19 @@
       <!-- Calendar Card -->
       <div class="dashboard-card calendar-card full-width">
       <div class="calendar-header">
-        <h2>Availability Calendar</h2>
+        <div class="calendar-header-left">
+          <h2>Availability Calendar</h2>
+          <div class="bookings-toggle">
+            <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
+              This Month
+            </button>
+            <button class="bookings-toggle-btn" id="toggle-pending" onclick="toggleBookingsView('pending')">
+              Pending
+              <span class="pending-badge" id="pending-count" style="display: none;">0</span>
+            </button>
+          </div>
+          <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
+        </div>
         <div style="display: flex; align-items: center; gap: var(--space-md);">
           <!-- View Toggle -->
           <div class="view-toggle">
@@ -2852,16 +2827,7 @@
               <div class="booking-item" data-booking-id="${booking.id}">
                 <div class="booking-item-content">
                   <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
-                  <div class="booking-item-details">
-                    <div class="booking-item-group">
-                      <div class="booking-item-label">Date</div>
-                      <div class="booking-item-value">${dateStr}</div>
-                    </div>
-                    <div class="booking-item-group">
-                      <div class="booking-item-label">Time</div>
-                      <div class="booking-item-value">${startTime} - ${endTime}</div>
-                    </div>
-                  </div>
+                  <div class="booking-item-datetime">${dateStr}, ${startTime} - ${endTime}</div>
                 </div>
                 <div class="booking-item-actions">
                   <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>

@@ -338,7 +338,20 @@
 
     @media (max-width: 768px) {
       .booking-page {
-        padding: var(--space-lg) 0 var(--space-2xl);
+        padding: 0;
+        background-color: var(--color-white);
+      }
+
+      .booking-layout {
+        gap: 0;
+      }
+
+      .hut-header,
+      .sidebar-card,
+      .form-card {
+        box-shadow: none;
+        border-radius: 0;
+        margin-bottom: 0;
       }
 
       .hut-header {
@@ -349,8 +362,12 @@
         font-size: 1.5rem;
       }
 
+      .sidebar-card {
+        padding: var(--space-lg);
+      }
+
       .form-card {
-        padding: var(--space-md);
+        padding: var(--space-lg);
       }
 
       .datetime-grid,
