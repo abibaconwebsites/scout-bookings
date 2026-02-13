@@ -167,6 +167,60 @@
       background-color: var(--color-border);
     }
 
+    /* Slug Input */
+    .slug-input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-background);
+      overflow: hidden;
+    }
+
+    .slug-prefix {
+      padding: 0.625rem 0 0.625rem 0.75rem;
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      white-space: nowrap;
+      background-color: var(--color-background);
+    }
+
+    .slug-input {
+      border: none !important;
+      background-color: var(--color-white) !important;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+      flex: 1;
+    }
+
+    .slug-input:focus {
+      box-shadow: none !important;
+    }
+
+    .slug-input-wrapper:focus-within {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(116, 19, 220, 0.1);
+    }
+
+    .slug-status {
+      font-size: 0.8125rem;
+      margin-top: var(--space-xs);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .slug-status.available {
+      color: var(--color-success);
+    }
+
+    .slug-status.unavailable {
+      color: var(--color-error);
+    }
+
+    .slug-status.checking {
+      color: var(--color-placeholder);
+    }
+
     /* Form Actions */
     .form-actions {
       display: flex;
@@ -462,6 +516,31 @@
               maxlength="100"
             >
             <span class="form-hint">This is how your group will appear to people making bookings</span>
+          </div>
+
+          <div class="form-group">
+            <label for="hut-slug" class="form-label">Booking Link</label>
+            <div class="slug-input-wrapper">
+              <span class="slug-prefix">scoutbookings.com/book/</span>
+              <input 
+                type="text" 
+                id="hut-slug" 
+                name="slug" 
+                class="form-input slug-input" 
+                placeholder="my-scout-hut"
+                maxlength="100"
+                pattern="[a-z0-9-]+"
+              >
+            </div>
+            <span class="form-hint">Your public booking page URL. Use lowercase letters, numbers, and hyphens only.</span>
+            <div id="slug-status" class="slug-status"></div>
+            <button type="button" id="copy-url-btn" class="btn btn-secondary btn-small" style="margin-top: var(--space-sm); display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              Copy Link
+            </button>
           </div>
 
         </div>
@@ -832,6 +911,9 @@
       // Set up group session toggles
       setupGroupToggles();
 
+      // Set up slug input
+      setupSlugInput();
+
       // Set up form submission
       document.getElementById('edit-hut-form').addEventListener('submit', handleFormSubmit);
 
@@ -878,6 +960,15 @@
     function populateForm(hut) {
       // Basic details
       document.getElementById('hut-name').value = hut.name || '';
+      
+      // Slug / Booking Link
+      const slugInput = document.getElementById('hut-slug');
+      const copyUrlBtn = document.getElementById('copy-url-btn');
+      if (hut.slug) {
+        slugInput.value = hut.slug;
+        copyUrlBtn.style.display = 'inline-flex';
+        updateSlugStatus('available', 'This is your current booking link');
+      }
       
       // Address
       document.getElementById('address-line1').value = hut.address_line1 || '';
@@ -1012,6 +1103,133 @@
     }
 
     // =============================================================================
+    // SLUG / BOOKING LINK FUNCTIONALITY
+    // =============================================================================
+
+    let slugCheckTimeout = null;
+    let currentSlugValid = true;
+
+    /**
+     * Sets up the slug input event listeners
+     */
+    function setupSlugInput() {
+      const slugInput = document.getElementById('hut-slug');
+      const copyUrlBtn = document.getElementById('copy-url-btn');
+      const hutNameInput = document.getElementById('hut-name');
+
+      // Validate and check slug on input
+      slugInput.addEventListener('input', function() {
+        // Normalize input: lowercase, replace spaces with hyphens, remove invalid chars
+        let value = this.value.toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '');
+        this.value = value;
+
+        // Debounce the availability check
+        clearTimeout(slugCheckTimeout);
+        
+        if (value.length === 0) {
+          updateSlugStatus('', '');
+          copyUrlBtn.style.display = 'none';
+          currentSlugValid = true;
+          return;
+        }
+
+        if (value.length < 3) {
+          updateSlugStatus('unavailable', 'Slug must be at least 3 characters');
+          copyUrlBtn.style.display = 'none';
+          currentSlugValid = false;
+          return;
+        }
+
+        updateSlugStatus('checking', 'Checking availability...');
+        
+        slugCheckTimeout = setTimeout(async () => {
+          await checkSlugAndUpdate(value);
+        }, 500);
+      });
+
+      // Copy URL button
+      copyUrlBtn.addEventListener('click', function() {
+        const slug = slugInput.value;
+        if (slug) {
+          const url = `${window.location.origin}/book/${slug}`;
+          navigator.clipboard.writeText(url).then(() => {
+            showNotification('Booking link copied to clipboard!', 'success');
+          }).catch(() => {
+            showNotification('Failed to copy link', 'error');
+          });
+        }
+      });
+
+      // Auto-generate slug from name if slug is empty when name changes
+      hutNameInput.addEventListener('blur', function() {
+        const slugInput = document.getElementById('hut-slug');
+        if (!slugInput.value && this.value) {
+          const generatedSlug = generateSlug(this.value);
+          if (generatedSlug && generatedSlug.length >= 3) {
+            slugInput.value = generatedSlug;
+            slugInput.dispatchEvent(new Event('input'));
+          }
+        }
+      });
+    }
+
+    /**
+     * Checks slug availability and updates the UI
+     * @param {string} slug - The slug to check
+     */
+    async function checkSlugAndUpdate(slug) {
+      const copyUrlBtn = document.getElementById('copy-url-btn');
+      
+      try {
+        // Exclude current hut's ID when checking (so editing doesn't fail on own slug)
+        const excludeId = currentHut ? currentHut.id : null;
+        const isAvailable = await checkSlugAvailability(slug, excludeId);
+        
+        if (isAvailable) {
+          updateSlugStatus('available', 'This booking link is available');
+          copyUrlBtn.style.display = 'inline-flex';
+          currentSlugValid = true;
+        } else {
+          updateSlugStatus('unavailable', 'This booking link is already taken');
+          copyUrlBtn.style.display = 'none';
+          currentSlugValid = false;
+        }
+      } catch (err) {
+        console.error('Error checking slug:', err);
+        updateSlugStatus('unavailable', 'Error checking availability');
+        currentSlugValid = false;
+      }
+    }
+
+    /**
+     * Updates the slug status display
+     * @param {string} status - 'available', 'unavailable', 'checking', or ''
+     * @param {string} message - The message to display
+     */
+    function updateSlugStatus(status, message) {
+      const statusEl = document.getElementById('slug-status');
+      statusEl.className = 'slug-status ' + status;
+      
+      if (!message) {
+        statusEl.innerHTML = '';
+        return;
+      }
+
+      let icon = '';
+      if (status === 'available') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      } else if (status === 'unavailable') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+      } else if (status === 'checking') {
+        icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>';
+      }
+      
+      statusEl.innerHTML = icon + ' ' + message;
+    }
+
+    // =============================================================================
     // FORM SUBMISSION
     // =============================================================================
 
@@ -1142,6 +1360,7 @@
 
       // Collect form data
       const name = document.getElementById('hut-name').value.trim();
+      const slug = document.getElementById('hut-slug').value.trim();
       const addressLine1 = document.getElementById('address-line1').value.trim();
       const addressLine2 = document.getElementById('address-line2').value.trim();
       const city = document.getElementById('city').value.trim();
@@ -1156,6 +1375,13 @@
 
       if (!addressLine1 || !city || !postcode) {
         showNotification('Please fill in all required address fields.', 'error');
+        return;
+      }
+
+      // Validate slug if provided
+      if (slug && !currentSlugValid) {
+        showNotification('Please choose an available booking link.', 'error');
+        document.getElementById('hut-slug').focus();
         return;
       }
 
@@ -1184,6 +1410,7 @@
       try {
         const hutData = {
           name,
+          slug: slug || null,
           address_line1: addressLine1,
           address_line2: addressLine2 || null,
           city,

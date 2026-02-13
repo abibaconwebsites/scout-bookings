@@ -3,6 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    { "source": "/book/:slug", "destination": "/pages/book?slug=:slug" },
     { "source": "/dashboard", "destination": "/pages/dashboard" },
     { "source": "/login", "destination": "/pages/login" },
     { "source": "/signup", "destination": "/pages/signup" },

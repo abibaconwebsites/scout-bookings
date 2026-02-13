@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Request a booking - Scout Bookings">
+  <title>Request a Booking - Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    body {
+      background-color: var(--color-background);
+    }
+
+    .public-navbar {
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-md) 0;
+    }
+
+    .public-navbar .nav-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .public-navbar .logo {
+      font-size: 1.25rem;
+    }
+
+    .booking-page {
+      padding: var(--space-xl) 0 var(--space-3xl);
+    }
+
+    .hut-header {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+      text-align: center;
+    }
+
+    .hut-header h1 {
+      font-size: 1.75rem;
+      margin-bottom: var(--space-sm);
+    }
+
+    .hut-header .hut-address {
+      color: var(--color-placeholder);
+      margin-bottom: var(--space-md);
+    }
+
+    .availability-summary {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+    }
+
+    .availability-badge {
+      background-color: var(--color-background);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+    }
+
+    .availability-badge .day {
+      font-weight: 600;
+    }
+
+    .availability-badge .times {
+      color: var(--color-primary);
+    }
+
+    .form-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-lg);
+    }
+
+    .form-section {
+      margin-bottom: var(--space-xl);
+    }
+
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+    }
+
+    .form-section-description {
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      margin-bottom: var(--space-lg);
+    }
+
+    .datetime-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+    }
+
+    .contact-grid .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    /* Unavailable Times Display */
+    .unavailable-section {
+      margin-top: var(--space-lg);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .unavailable-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .unavailable-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .unavailable-slot {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      border-left: 3px solid var(--color-placeholder);
+    }
+
+    .unavailable-slot-time {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .unavailable-slot-label {
+      color: var(--color-placeholder);
+    }
+
+    .no-unavailable {
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+
+    /* Conflict Warning */
+    .conflict-warning {
+      background-color: var(--color-error-bg);
+      border: 1px solid var(--color-error);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+      display: none;
+    }
+
+    .conflict-warning.visible {
+      display: block;
+    }
+
+    .conflict-warning-text {
+      color: var(--color-error);
+      font-size: 0.875rem;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: flex-end;
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+      margin-top: var(--space-xl);
+    }
+
+    /* Loading State */
+    .loading-state {
+      text-align: center;
+      padding: var(--space-3xl);
+      color: var(--color-placeholder);
+    }
+
+    /* Error State */
+    .error-state {
+      text-align: center;
+      padding: var(--space-3xl);
+    }
+
+    .error-state h2 {
+      margin-bottom: var(--space-md);
+    }
+
+    .error-state p {
+      color: var(--color-placeholder);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* Success State */
+    .success-state {
+      text-align: center;
+      padding: var(--space-3xl);
+    }
+
+    .success-icon {
+      width: 64px;
+      height: 64px;
+      background-color: var(--color-success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-lg);
+    }
+
+    .success-icon svg {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .success-state h2 {
+      margin-bottom: var(--space-md);
+    }
+
+    .success-state p {
+      color: var(--color-placeholder);
+    }
+
+    @media (max-width: 768px) {
+      .booking-page {
+        padding: var(--space-lg) 0 var(--space-2xl);
+      }
+
+      .hut-header {
+        padding: var(--space-lg);
+      }
+
+      .hut-header h1 {
+        font-size: 1.5rem;
+      }
+
+      .form-card {
+        padding: var(--space-md);
+      }
+
+      .datetime-grid,
+      .contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      .form-actions .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="public-navbar">
+    <div class="nav-container">
+      <span class="logo">Scout Bookings</span>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container container-md booking-page">
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading booking page...</p>
+    </div>
+
+    <!-- Error State (hut not found) -->
+    <div id="error-state" class="form-card error-state" style="display: none;">
+      <h2>Booking Page Not Found</h2>
+      <p>This booking page doesn't exist or is no longer available.</p>
+      <a href="/" class="btn btn-primary">Go to Homepage</a>
+    </div>
+
+    <!-- Success State -->
+    <div id="success-state" class="form-card success-state" style="display: none;">
+      <div class="success-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      </div>
+      <h2>Booking Request Submitted!</h2>
+      <p>Your booking request has been sent. The hut owner will review it and get back to you.</p>
+    </div>
+
+    <!-- Booking Form -->
+    <div id="booking-content" style="display: none;">
+      <!-- Hut Header -->
+      <div class="hut-header">
+        <h1 id="hut-name"></h1>
+        <p class="hut-address" id="hut-address"></p>
+        <div class="availability-summary" id="availability-summary"></div>
+      </div>
+
+      <!-- Booking Form -->
+      <form id="booking-form">
+        <div class="form-card">
+          <!-- Date & Time Section -->
+          <div class="form-section">
+            <h2 class="form-section-title">When would you like to book?</h2>
+            
+            <div class="datetime-grid">
+              <div class="form-group">
+                <label for="booking-date" class="form-label required">Date</label>
+                <input 
+                  type="date" 
+                  id="booking-date" 
+                  name="booking_date" 
+                  class="form-input"
+                  required
+                >
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label required">Time</label>
+                <div class="time-grid">
+                  <input 
+                    type="time" 
+                    id="start-time" 
+                    name="start_time" 
+                    class="form-input"
+                    value="09:00"
+                    required
+                  >
+                  <input 
+                    type="time" 
+                    id="end-time" 
+                    name="end_time" 
+                    class="form-input"
+                    value="17:00"
+                    required
+                  >
+                </div>
+                <span class="form-hint">Start and end time</span>
+              </div>
+            </div>
+
+            <!-- Conflict Warning -->
+            <div class="conflict-warning" id="conflict-warning">
+              <span class="conflict-warning-text">This time slot is not available. Please choose a different time.</span>
+            </div>
+
+            <!-- Unavailable Times for Selected Date -->
+            <div class="unavailable-section" id="unavailable-section">
+              <div class="unavailable-title">
+                Unavailable times on <span id="unavailable-date-display">this date</span>
+              </div>
+              <div class="unavailable-list" id="unavailable-list">
+                <span class="no-unavailable">Select a date to see unavailable times</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Event Details Section -->
+          <div class="form-section">
+            <h2 class="form-section-title">Event Details</h2>
+            
+            <div class="form-group">
+              <label for="event-name" class="form-label required">What is the booking for?</label>
+              <input 
+                type="text" 
+                id="event-name" 
+                name="event_name" 
+                class="form-input" 
+                placeholder="e.g. Birthday Party, Community Meeting"
+                required
+                maxlength="200"
+              >
+            </div>
+          </div>
+
+          <!-- Contact Details Section -->
+          <div class="form-section">
+            <h2 class="form-section-title">Your Contact Details</h2>
+            <p class="form-section-description">So the hut owner can get in touch with you about your booking.</p>
+            
+            <div class="contact-grid">
+              <div class="form-group">
+                <label for="contact-name" class="form-label required">Your Name</label>
+                <input 
+                  type="text" 
+                  id="contact-name" 
+                  name="contact_name" 
+                  class="form-input" 
+                  placeholder="Full name"
+                  maxlength="100"
+                  required
+                >
+              </div>
+              
+              <div class="form-group">
+                <label for="contact-phone" class="form-label">Phone</label>
+                <input 
+                  type="tel" 
+                  id="contact-phone" 
+                  name="contact_phone" 
+                  class="form-input" 
+                  placeholder="Phone number"
+                  maxlength="20"
+                >
+              </div>
+
+              <div class="form-group full-width">
+                <label for="contact-email" class="form-label required">Email</label>
+                <input 
+                  type="email" 
+                  id="contact-email" 
+                  name="contact_email" 
+                  class="form-input" 
+                  placeholder="email@example.com"
+                  maxlength="100"
+                  required
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Details Section -->
+          <div class="form-section">
+            <h2 class="form-section-title">Additional Details</h2>
+            
+            <div class="form-group">
+              <label for="notes" class="form-label">Anything else we should know?</label>
+              <textarea 
+                id="notes" 
+                name="notes" 
+                class="form-textarea" 
+                placeholder="Number of attendees, special requirements, etc."
+                rows="3"
+                maxlength="1000"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">Submit Booking Request</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">&copy; 2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script>
+    // Initialize Supabase client (no auth required for public page)
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentHut = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Get slug from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      let slug = urlParams.get('slug');
+      
+      // Also check path for /book/slug format
+      if (!slug) {
+        const pathParts = window.location.pathname.split('/');
+        const bookIndex = pathParts.indexOf('book');
+        if (bookIndex !== -1 && pathParts[bookIndex + 1]) {
+          slug = pathParts[bookIndex + 1];
+        }
+      }
+
+      if (!slug) {
+        showError();
+        return;
+      }
+
+      // Load hut by slug
+      try {
+        const { data: hut, error } = await supabaseClient
+          .from('scout_huts')
+          .select('*')
+          .eq('slug', slug)
+          .eq('is_active', true)
+          .single();
+
+        if (error || !hut) {
+          showError();
+          return;
+        }
+
+        currentHut = hut;
+        displayHutInfo(hut);
+        setupForm();
+        
+        // Hide loading, show content
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('booking-content').style.display = 'block';
+
+      } catch (err) {
+        console.error('Error loading hut:', err);
+        showError();
+      }
+    });
+
+    function showError() {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+    }
+
+    function showSuccess() {
+      document.getElementById('booking-content').style.display = 'none';
+      document.getElementById('success-state').style.display = 'block';
+    }
+
+    function displayHutInfo(hut) {
+      // Set page title
+      document.title = `Book ${hut.name} - Scout Bookings`;
+      
+      // Display hut name
+      document.getElementById('hut-name').textContent = hut.name;
+      
+      // Display address
+      const addressParts = [
+        hut.address_line1,
+        hut.address_line2,
+        hut.city,
+        hut.postcode
+      ].filter(Boolean);
+      document.getElementById('hut-address').textContent = addressParts.join(', ');
+      
+      // Display availability summary
+      const availabilitySummary = document.getElementById('availability-summary');
+      if (hut.availability) {
+        const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+        const dayNames = {
+          monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu',
+          friday: 'Fri', saturday: 'Sat', sunday: 'Sun'
+        };
+        
+        const badges = dayOrder
+          .filter(day => hut.availability[day]?.enabled)
+          .map(day => {
+            const config = hut.availability[day];
+            return `<span class="availability-badge"><span class="day">${dayNames[day]}</span> <span class="times">${formatTimeShort(config.start_time)}-${formatTimeShort(config.end_time)}</span></span>`;
+          });
+        
+        availabilitySummary.innerHTML = badges.join('');
+      }
+    }
+
+    function formatTimeShort(time) {
+      if (!time) return '';
+      const [hours, minutes] = time.split(':').map(Number);
+      const period = hours >= 12 ? 'pm' : 'am';
+      const hour12 = hours % 12 || 12;
+      return minutes === 0 ? `${hour12}${period}` : `${hour12}:${String(minutes).padStart(2, '0')}${period}`;
+    }
+
+    function setupForm() {
+      // Set minimum date to today
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      document.getElementById('booking-date').min = todayStr;
+      document.getElementById('booking-date').value = todayStr;
+
+      // Load unavailable times for today
+      loadUnavailableTimes(todayStr);
+
+      // Set up date change listener
+      document.getElementById('booking-date').addEventListener('change', async function() {
+        await loadUnavailableTimes(this.value);
+        checkForConflicts();
+      });
+
+      // Set up time change listeners
+      document.getElementById('start-time').addEventListener('change', checkForConflicts);
+      document.getElementById('end-time').addEventListener('change', checkForConflicts);
+
+      // Set up form submission
+      document.getElementById('booking-form').addEventListener('submit', handleFormSubmit);
+    }
+
+    async function loadUnavailableTimes(date) {
+      if (!currentHut || !date) return;
+
+      const unavailableList = document.getElementById('unavailable-list');
+      const unavailableDateDisplay = document.getElementById('unavailable-date-display');
+      
+      // Update date display
+      const dateObj = new Date(date + 'T12:00:00');
+      const options = { weekday: 'long', day: 'numeric', month: 'long' };
+      unavailableDateDisplay.textContent = dateObj.toLocaleDateString('en-GB', options);
+
+      try {
+        // Get unavailable time slots (privacy-safe - no details)
+        const unavailableSlots = await getUnavailableTimesForDate(currentHut.id, currentHut, date);
+        
+        if (unavailableSlots.length === 0) {
+          unavailableList.innerHTML = '<span class="no-unavailable">No unavailable times on this date</span>';
+        } else {
+          unavailableList.innerHTML = unavailableSlots.map(slot => `
+            <div class="unavailable-slot">
+              <span class="unavailable-slot-time">${slot.start_time} - ${slot.end_time}</span>
+              <span class="unavailable-slot-label">Unavailable</span>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Error loading unavailable times:', err);
+        unavailableList.innerHTML = '<span class="no-unavailable">Unable to load unavailable times</span>';
+      }
+    }
+
+    /**
+     * Gets unavailable time slots for a date - PRIVACY SAFE
+     * Only returns time ranges, no event names or details
+     */
+    async function getUnavailableTimesForDate(hutId, hut, dateStr) {
+      const unavailableSlots = [];
+      
+      // Parse date for day of week check
+      const date = new Date(dateStr + 'T12:00:00');
+      const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const dayName = dayNames[date.getDay()];
+      
+      // 1. Check if day is available at all
+      if (hut.availability && !hut.availability[dayName]?.enabled) {
+        // Entire day is unavailable
+        return [{ start_time: '00:00', end_time: '23:59' }];
+      }
+      
+      // 2. Get confirmed bookings for this date (only time ranges, no details)
+      try {
+        const startOfDay = new Date(dateStr + 'T00:00:00').toISOString();
+        const endOfDay = new Date(dateStr + 'T23:59:59').toISOString();
+        
+        const { data: bookings, error } = await supabaseClient
+          .from('bookings')
+          .select('start_time, end_time')
+          .eq('hut_id', hutId)
+          .in('status', ['confirmed', 'pending'])
+          .gte('start_time', startOfDay)
+          .lte('start_time', endOfDay);
+        
+        if (!error && bookings) {
+          bookings.forEach(booking => {
+            const start = new Date(booking.start_time);
+            const end = new Date(booking.end_time);
+            unavailableSlots.push({
+              start_time: start.toTimeString().slice(0, 5),
+              end_time: end.toTimeString().slice(0, 5)
+            });
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching bookings:', err);
+      }
+      
+      // 3. Add weekly sessions for this day (no group names)
+      if (hut.weekly_sessions) {
+        for (const [group, config] of Object.entries(hut.weekly_sessions)) {
+          if (config.enabled && config.day === dayName) {
+            unavailableSlots.push({
+              start_time: config.start_time,
+              end_time: config.end_time
+            });
+          }
+        }
+      }
+      
+      // 4. Get synced Google Calendar events (no titles)
+      try {
+        const startOfDay = new Date(dateStr + 'T00:00:00').toISOString();
+        const endOfDay = new Date(dateStr + 'T23:59:59').toISOString();
+        
+        const { data: syncedEvents, error } = await supabaseClient
+          .from('synced_events')
+          .select('start_time, end_time')
+          .eq('hut_id', hutId)
+          .eq('event_type', 'google_to_scout')
+          .gte('start_time', startOfDay)
+          .lte('start_time', endOfDay);
+        
+        if (!error && syncedEvents) {
+          syncedEvents.forEach(event => {
+            const start = new Date(event.start_time);
+            const end = new Date(event.end_time);
+            unavailableSlots.push({
+              start_time: start.toTimeString().slice(0, 5),
+              end_time: end.toTimeString().slice(0, 5)
+            });
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching synced events:', err);
+      }
+      
+      // Sort by start time
+      unavailableSlots.sort((a, b) => a.start_time.localeCompare(b.start_time));
+      
+      return unavailableSlots;
+    }
+
+    async function checkForConflicts() {
+      if (!currentHut) return;
+
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+      
+      if (!date || !startTime || !endTime) return;
+
+      const conflictWarning = document.getElementById('conflict-warning');
+
+      try {
+        // Check for conflicts
+        const startDateTime = new Date(`${date}T${startTime}`);
+        const endDateTime = new Date(`${date}T${endTime}`);
+        
+        // Get unavailable times and check for overlap
+        const unavailableSlots = await getUnavailableTimesForDate(currentHut.id, currentHut, date);
+        
+        let hasConflict = false;
+        for (const slot of unavailableSlots) {
+          const slotStart = new Date(`${date}T${slot.start_time}`);
+          const slotEnd = new Date(`${date}T${slot.end_time}`);
+          
+          // Check for overlap
+          if (startDateTime < slotEnd && endDateTime > slotStart) {
+            hasConflict = true;
+            break;
+          }
+        }
+        
+        if (hasConflict) {
+          conflictWarning.classList.add('visible');
+        } else {
+          conflictWarning.classList.remove('visible');
+        }
+      } catch (err) {
+        console.error('Error checking conflicts:', err);
+        conflictWarning.classList.remove('visible');
+      }
+    }
+
+    function validateForm() {
+      const eventName = document.getElementById('event-name').value.trim();
+      const contactName = document.getElementById('contact-name').value.trim();
+      const contactEmail = document.getElementById('contact-email').value.trim();
+      const date = document.getElementById('booking-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+
+      if (!eventName) {
+        return { valid: false, message: 'Please enter what the booking is for.' };
+      }
+
+      if (!contactName) {
+        return { valid: false, message: 'Please enter your name.' };
+      }
+
+      if (!contactEmail) {
+        return { valid: false, message: 'Please enter your email address.' };
+      }
+
+      if (!date) {
+        return { valid: false, message: 'Please select a date.' };
+      }
+
+      if (!startTime || !endTime) {
+        return { valid: false, message: 'Please enter start and end times.' };
+      }
+
+      if (startTime >= endTime) {
+        return { valid: false, message: 'End time must be after start time.' };
+      }
+
+      return { valid: true, message: '' };
+    }
+
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const validation = validateForm();
+      if (!validation.valid) {
+        showNotification(validation.message, 'error');
+        return;
+      }
+
+      // Check for conflicts before submitting
+      const conflictWarning = document.getElementById('conflict-warning');
+      if (conflictWarning.classList.contains('visible')) {
+        showNotification('Please choose a time that doesn\'t conflict with existing bookings.', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      const originalBtnText = submitBtn.textContent;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      try {
+        const date = document.getElementById('booking-date').value;
+        const startTime = document.getElementById('start-time').value;
+        const endTime = document.getElementById('end-time').value;
+
+        const startDateTime = new Date(`${date}T${startTime}`).toISOString();
+        const endDateTime = new Date(`${date}T${endTime}`).toISOString();
+
+        const bookingData = {
+          hut_id: currentHut.id,
+          event_name: document.getElementById('event-name').value.trim(),
+          contact_name: document.getElementById('contact-name').value.trim(),
+          contact_email: document.getElementById('contact-email').value.trim(),
+          contact_phone: document.getElementById('contact-phone').value.trim() || null,
+          start_time: startDateTime,
+          end_time: endDateTime,
+          notes: document.getElementById('notes').value.trim() || null,
+          status: 'pending'  // Public bookings are always pending
+        };
+
+        const { data, error } = await supabaseClient
+          .from('bookings')
+          .insert([bookingData])
+          .select();
+
+        if (error) {
+          throw new Error(error.message || 'Failed to submit booking request');
+        }
+
+        // Show success state
+        showSuccess();
+
+      } catch (err) {
+        console.error('Error submitting booking:', err);
+        showNotification(err.message || 'Failed to submit booking request. Please try again.', 'error');
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
+    }
+
+    // Simple notification function for this page
+    function showNotification(message, type) {
+      // Check if notification container exists, create if not
+      let container = document.querySelector('.notification-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'notification-container';
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        document.body.appendChild(container);
+      }
+
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.style.cssText = `
+        background-color: ${type === 'error' ? '#fee2e2' : '#dcfce7'};
+        color: ${type === 'error' ? '#dc2626' : '#16a34a'};
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-size: 14px;
+      `;
+      notification.textContent = message;
+
+      container.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

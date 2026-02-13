@@ -170,6 +170,141 @@
       color: var(--color-placeholder);
     }
 
+    /* Booking Link */
+    .booking-link-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .booking-link-url {
+      font-size: 0.8125rem;
+      color: var(--color-primary);
+      word-break: break-all;
+    }
+
+    .copy-link-btn {
+      background: none;
+      border: none;
+      padding: 4px;
+      cursor: pointer;
+      color: var(--color-placeholder);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .copy-link-btn:hover {
+      color: var(--color-primary);
+      background-color: var(--color-background);
+    }
+
+    .setup-link {
+      font-size: 0.875rem;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    .setup-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Pending Bookings Card */
+    .dashboard-card.pending-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-card.pending-card h2 {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .pending-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background-color: var(--color-error);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 10px;
+    }
+
+    .pending-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .pending-item {
+      padding: var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-placeholder);
+    }
+
+    .pending-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-sm);
+    }
+
+    .pending-item-title {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .pending-item-date {
+      font-size: 0.8125rem;
+      color: var(--color-placeholder);
+    }
+
+    .pending-item-contact {
+      font-size: 0.8125rem;
+      color: var(--color-text);
+      margin-bottom: var(--space-sm);
+    }
+
+    .pending-item-actions {
+      display: flex;
+      gap: var(--space-sm);
+    }
+
+    .pending-item-actions .btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-approve {
+      background-color: var(--color-success);
+      color: white;
+      border: none;
+    }
+
+    .btn-approve:hover {
+      background-color: #0a8754;
+    }
+
+    .btn-decline {
+      background-color: transparent;
+      color: var(--color-error);
+      border: 1px solid var(--color-error);
+    }
+
+    .btn-decline:hover {
+      background-color: var(--color-error);
+      color: white;
+    }
+
     /* Bookings Card */
     .dashboard-card.bookings-card {
       display: flex;
@@ -565,6 +700,15 @@
       background-color: #5a0db8;
     }
 
+    /* Pending booking style - grey */
+    .booking-event.booking-pending {
+      background-color: #9ca3af;
+    }
+
+    .booking-event.booking-pending:hover {
+      background-color: #6b7280;
+    }
+
     .booking-event-time,
     .booking-event-name {
       color: #ffffff !important;
@@ -843,6 +987,14 @@
       color: white;
     }
 
+    .list-view-event-type.booking.pending {
+      background-color: #9ca3af;
+    }
+
+    .list-view-event.pending {
+      opacity: 0.85;
+    }
+
     .list-view-event-type.synced-event {
       background-color: #4285F4;
       color: white;
@@ -1045,8 +1197,33 @@
               <span class="hut-detail-label">Availability</span>
               <span class="hut-availability" id="hut-availability"></span>
             </div>
+            <div class="hut-detail" id="booking-link-section" style="display: none;">
+              <span class="hut-detail-label">Booking Link</span>
+              <div class="booking-link-row">
+                <span class="booking-link-url" id="booking-link-url"></span>
+                <button type="button" class="copy-link-btn" id="copy-booking-link" title="Copy link">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div id="no-booking-link" class="hut-detail" style="display: none;">
+              <span class="hut-detail-label">Booking Link</span>
+              <a href="edit-hut.html" class="setup-link">Set up your booking link</a>
+            </div>
             <a href="edit-hut.html" class="btn btn-secondary btn-small mt-md">Edit Hut Details</a>
           </div>
+        </div>
+
+        <!-- Pending Booking Requests Card -->
+        <div class="dashboard-card pending-card" id="pending-bookings-card" style="display: none;">
+          <h2>
+            Pending Requests
+            <span class="pending-badge" id="pending-count">0</span>
+          </h2>
+          <div id="pending-list" class="pending-list"></div>
         </div>
 
         <!-- Upcoming Bookings Card -->
@@ -1227,6 +1404,7 @@
         const hut = await loadUserHut(user.id);
         if (hut) {
           await loadBookings(hut.id);
+          await loadPendingBookings(hut.id);
           initCalendar(hut);
         }
       }
@@ -1428,12 +1606,13 @@
           if (allEvents.length > 0) {
             allEvents.forEach(event => {
               const eventEl = document.createElement('div');
-              eventEl.className = `list-view-event ${event.type}`;
+              const isPending = event.type === 'booking' && event.status === 'pending';
+              eventEl.className = `list-view-event ${event.type}${isPending ? ' pending' : ''}`;
               
               // Different label based on event type
               let typeLabel = 'Session';
               if (event.type === 'booking') {
-                typeLabel = 'Booking';
+                typeLabel = isPending ? 'Pending' : 'Booking';
               } else if (event.type === 'synced-event') {
                 typeLabel = 'Google';
               }
@@ -1441,7 +1620,7 @@
               eventEl.innerHTML = `
                 <span class="list-view-event-time">${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}</span>
                 <span class="list-view-event-name">${escapeHtml(event.name)}${event.type === 'synced-event' ? ' (Google)' : ''}</span>
-                <span class="list-view-event-type-wrapper"><span class="list-view-event-type ${event.type}">${typeLabel}</span></span>
+                <span class="list-view-event-type-wrapper"><span class="list-view-event-type ${event.type}${isPending ? ' pending' : ''}">${typeLabel}</span></span>
               `;
               
               // Click to open modal for all event types
@@ -1585,7 +1764,7 @@
           });
         });
         
-        // Add Scout bookings (purple, clickable, editable)
+        // Add Scout bookings (purple for confirmed, grey for pending)
         dayBookings.forEach(booking => {
           const startDate = new Date(booking.start_time);
           const endDate = new Date(booking.end_time);
@@ -1594,6 +1773,7 @@
             start_time: startDate.toTimeString().slice(0, 5),
             end_time: endDate.toTimeString().slice(0, 5),
             name: booking.event_name || 'Booking',
+            status: booking.status,
             booking: booking
           });
         });
@@ -1645,10 +1825,11 @@
             
             eventsContainer.appendChild(sessionEl);
           } else if (event.type === 'booking') {
-            // Scout booking - purple, clickable, editable
+            // Scout booking - purple for confirmed, grey for pending
             const bookingEl = document.createElement('div');
-            bookingEl.className = 'booking-event';
-            bookingEl.innerHTML = `<span class="booking-event-name">${escapeHtml(event.name)}</span><span class="booking-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
+            const isPending = event.status === 'pending';
+            bookingEl.className = isPending ? 'booking-event booking-pending' : 'booking-event';
+            bookingEl.innerHTML = `<span class="booking-event-name">${escapeHtml(event.name)}${isPending ? ' (Pending)' : ''}</span><span class="booking-event-time">${formatTimeShort(event.start_time)}-${formatTimeShort(event.end_time)}</span>`;
             
             // Tooltip: Show contact info, edit/delete options available
             const tooltip = document.createElement('span');
@@ -1817,16 +1998,17 @@
         // 4. Combine into unified array for external use
         // This array can be used by other functions that need all events
         const allEvents = [
-          // Scout bookings - purple, editable
+          // Scout bookings - purple for confirmed, grey for pending
           ...calendarBookings.map(b => ({
             id: b.id,
             type: 'booking',
             title: b.event_name,
             start: b.start_time,
             end: b.end_time,
-            color: '#7413dc',
+            color: b.status === 'pending' ? '#9ca3af' : '#7413dc',
             editable: true,
             contact: b.contact_name,
+            status: b.status,
             booking: b
           })),
           // Synced Google events - blue, not editable
@@ -2309,6 +2491,31 @@
                 ).join('');
               }
             }
+
+            // Display booking link
+            const bookingLinkSection = document.getElementById('booking-link-section');
+            const noBookingLink = document.getElementById('no-booking-link');
+            const bookingLinkUrl = document.getElementById('booking-link-url');
+            const copyBookingLinkBtn = document.getElementById('copy-booking-link');
+
+            if (hut.slug) {
+              const fullUrl = `${window.location.origin}/book/${hut.slug}`;
+              bookingLinkSection.style.display = 'block';
+              noBookingLink.style.display = 'none';
+              bookingLinkUrl.textContent = fullUrl;
+              
+              // Set up copy button
+              copyBookingLinkBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(fullUrl).then(() => {
+                  showNotification('Booking link copied!', 'success');
+                }).catch(() => {
+                  showNotification('Failed to copy link', 'error');
+                });
+              });
+            } else {
+              bookingLinkSection.style.display = 'none';
+              noBookingLink.style.display = 'block';
+            }
           }
           return hut;
         } else {
@@ -2379,6 +2586,125 @@
         }
       } catch (err) {
         console.error('Error loading bookings:', err);
+      }
+    }
+
+    // Store pending bookings for reference
+    let pendingBookingsData = [];
+
+    // Load and display pending bookings
+    async function loadPendingBookings(hutId) {
+      try {
+        const { data: pendingBookings, error } = await supabaseClient
+          .from('bookings')
+          .select('*')
+          .eq('hut_id', hutId)
+          .eq('status', 'pending')
+          .order('start_time', { ascending: true });
+
+        if (error) {
+          console.error('Error loading pending bookings:', error);
+          return;
+        }
+
+        pendingBookingsData = pendingBookings || [];
+
+        const pendingCard = document.getElementById('pending-bookings-card');
+        const pendingList = document.getElementById('pending-list');
+        const pendingCount = document.getElementById('pending-count');
+
+        if (pendingBookings && pendingBookings.length > 0) {
+          pendingCard.style.display = 'flex';
+          pendingCount.textContent = pendingBookings.length;
+
+          pendingList.innerHTML = pendingBookings.map(booking => {
+            const start = new Date(booking.start_time);
+            const end = new Date(booking.end_time);
+            const dateOptions = { weekday: 'short', day: 'numeric', month: 'short' };
+            const dateStr = start.toLocaleDateString('en-GB', dateOptions);
+            const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+            const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
+            const endTime = end.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
+
+            return `
+              <div class="pending-item" data-booking-id="${booking.id}">
+                <div class="pending-item-header">
+                  <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
+                  <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
+                </div>
+                <div class="pending-item-contact">
+                  ${escapeHtml(booking.contact_name || 'No name')} &bull; ${escapeHtml(booking.contact_email || 'No email')}
+                </div>
+                ${booking.notes ? `<div class="pending-item-notes" style="font-size: 0.8125rem; color: var(--color-placeholder); margin-bottom: var(--space-sm);">${escapeHtml(booking.notes)}</div>` : ''}
+                <div class="pending-item-actions">
+                  <button class="btn btn-approve" onclick="approveBooking('${booking.id}')">Approve</button>
+                  <button class="btn btn-decline" onclick="declineBooking('${booking.id}')">Decline</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          pendingCard.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Error loading pending bookings:', err);
+      }
+    }
+
+    // Approve a pending booking
+    async function approveBooking(bookingId) {
+      try {
+        const { error } = await supabaseClient
+          .from('bookings')
+          .update({ status: 'confirmed' })
+          .eq('id', bookingId);
+
+        if (error) {
+          throw error;
+        }
+
+        showNotification('Booking approved!', 'success');
+        
+        // Reload pending bookings and calendar
+        if (currentHutData) {
+          await loadPendingBookings(currentHutData.id);
+          await loadBookings(currentHutData.id);
+          await loadCalendarEvents(currentHutData.id, currentCalendarDate.getMonth(), currentCalendarDate.getFullYear());
+          renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+        }
+      } catch (err) {
+        console.error('Error approving booking:', err);
+        showNotification('Failed to approve booking', 'error');
+      }
+    }
+
+    // Decline a pending booking
+    async function declineBooking(bookingId) {
+      if (!confirm('Are you sure you want to decline this booking request?')) {
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from('bookings')
+          .update({ status: 'cancelled' })
+          .eq('id', bookingId);
+
+        if (error) {
+          throw error;
+        }
+
+        showNotification('Booking declined', 'success');
+        
+        // Reload pending bookings and calendar
+        if (currentHutData) {
+          await loadPendingBookings(currentHutData.id);
+          await loadCalendarEvents(currentHutData.id, currentCalendarDate.getMonth(), currentCalendarDate.getFullYear());
+          renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+        }
+      } catch (err) {
+        console.error('Error declining booking:', err);
+        showNotification('Failed to decline booking', 'error');
       }
     }
 
