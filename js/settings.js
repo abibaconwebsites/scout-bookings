@@ -48,6 +48,9 @@ function initializeSidebar() {
         return;
     }
     
+    // Remove any existing active classes first
+    navItems.forEach(item => item.classList.remove('active'));
+    
     // Add click listeners to each nav item
     navItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -58,25 +61,29 @@ function initializeSidebar() {
         });
     });
     
+    // Determine which panel to show
+    let targetPanelId = 'panel-profile';
+    let targetNav = document.getElementById('nav-profile');
+    
     // Check URL hash for direct panel navigation
     const hash = window.location.hash.replace('#', '');
     if (hash) {
-        const panelId = `panel-${hash}`;
-        const targetNav = document.querySelector(`[data-panel="${panelId}"]`);
-        if (targetNav) {
-            handleNavClick(panelId, targetNav);
-            return;
+        const hashPanelId = `panel-${hash}`;
+        const hashNav = document.querySelector(`[data-panel="${hashPanelId}"]`);
+        if (hashNav) {
+            targetPanelId = hashPanelId;
+            targetNav = hashNav;
         }
     }
     
-    // Set Profile as active by default (matches HTML default)
-    const defaultNav = document.getElementById('nav-profile');
-    if (defaultNav) {
-        defaultNav.classList.add('active');
+    // Set the target nav as active and show the panel
+    if (targetNav) {
+        targetNav.classList.add('active');
     }
-    showPanel('panel-profile');
+    showPanel(targetPanelId);
+    currentPanel = targetPanelId;
     
-    console.log('[Settings] Sidebar initialized with default panel: profile');
+    console.log('[Settings] Sidebar initialized with panel:', targetPanelId);
 }
 
 /**
@@ -208,16 +215,15 @@ async function loadSettings() {
             console.log('[Settings] No hut found for user');
         }
         
-        // Initialize sidebar navigation
+        // Initialize sidebar navigation (sets currentPanel)
         initializeSidebar();
         
         // Setup event listeners
         setupEventListeners();
         
-        // Load initial panel data based on URL hash or default
-        const hash = window.location.hash.replace('#', '');
-        const panelId = hash ? `panel-${hash}` : 'panel-calendar';
-        await loadPanelData(panelId);
+        // Load initial panel data (uses currentPanel set by initializeSidebar)
+        console.log('[Settings] Loading data for panel:', currentPanel);
+        await loadPanelData(currentPanel);
         
         console.log('[Settings] Settings page loaded successfully');
         
@@ -326,7 +332,10 @@ async function loadCalendarPanel() {
 async function loadProfilePanel() {
     console.log('[Settings] Loading profile panel');
     
-    if (!currentUserId) return;
+    if (!currentUserId) {
+        console.log('[Settings] No currentUserId, cannot load profile');
+        return;
+    }
     
     try {
         // Get user data from Supabase auth
@@ -336,6 +345,8 @@ async function loadProfilePanel() {
             console.error('[Settings] Error getting user:', authError);
             return;
         }
+        
+        console.log('[Settings] Got user from auth:', user.email);
         
         // Get profile data from user_profiles table
         const { data: profile, error: profileError } = await supabaseClient
@@ -348,6 +359,8 @@ async function loadProfilePanel() {
             console.error('[Settings] Error loading profile:', profileError);
         }
         
+        console.log('[Settings] Got profile from database:', profile);
+        
         // Get form elements
         const firstNameEl = document.getElementById('profile-first-name');
         const lastNameEl = document.getElementById('profile-last-name');
@@ -356,6 +369,16 @@ async function loadProfilePanel() {
         const organisationEl = document.getElementById('profile-organisation');
         const createdEl = document.getElementById('account-created');
         const lastSignInEl = document.getElementById('last-sign-in');
+        
+        console.log('[Settings] Form elements found:', {
+            firstNameEl: !!firstNameEl,
+            lastNameEl: !!lastNameEl,
+            emailEl: !!emailEl,
+            phoneEl: !!phoneEl,
+            organisationEl: !!organisationEl,
+            createdEl: !!createdEl,
+            lastSignInEl: !!lastSignInEl
+        });
         
         // Parse full name into first/last from profile or auth metadata
         const fullName = profile?.full_name || 
@@ -366,17 +389,22 @@ async function loadProfilePanel() {
         const firstName = user.user_metadata?.first_name || nameParts[0] || '';
         const lastName = user.user_metadata?.last_name || nameParts.slice(1).join(' ') || '';
         
+        console.log('[Settings] Parsed name:', { firstName, lastName, fullName });
+        
         // Populate form fields
         if (firstNameEl) {
             firstNameEl.value = firstName;
+            console.log('[Settings] Set first name:', firstName);
         }
         
         if (lastNameEl) {
             lastNameEl.value = lastName;
+            console.log('[Settings] Set last name:', lastName);
         }
         
         if (emailEl) {
             emailEl.value = user.email || '';
+            console.log('[Settings] Set email:', user.email);
         }
         
         if (phoneEl) {
@@ -410,7 +438,7 @@ async function loadProfilePanel() {
                 : 'Never';
         }
         
-        console.log('[Settings] Profile panel loaded');
+        console.log('[Settings] Profile panel loaded successfully');
         
     } catch (err) {
         console.error('[Settings] Error loading profile panel:', err);
@@ -3107,6 +3135,10 @@ if (typeof window !== 'undefined') {
         // Navigation
         handleNavClick,
         showPanel,
+        
+        // Profile
+        loadProfilePanel,
+        handleProfileFormSubmit,
         
         // Calendar connection
         handleConnectCalendar,
