@@ -1153,7 +1153,7 @@
       copyUrlBtn.addEventListener('click', function() {
         const slug = slugInput.value;
         if (slug) {
-          const url = `${window.location.origin}/book/${slug}`;
+          const url = `https://scoutbookings.co.uk/book/${slug}`;
           navigator.clipboard.writeText(url).then(() => {
             showNotification('Booking link copied to clipboard!', 'success');
           }).catch(() => {

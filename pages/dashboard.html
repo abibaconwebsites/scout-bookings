@@ -249,6 +249,13 @@
       background-color: var(--color-background);
       border-radius: var(--radius-md);
       border-left: 3px solid var(--color-placeholder);
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .pending-item:hover {
+      background-color: var(--color-surface);
+      transform: translateX(2px);
     }
 
     .pending-item-header {
@@ -1237,7 +1244,7 @@
         <!-- Pending Booking Requests Card -->
         <div class="dashboard-card pending-card" id="pending-bookings-card" style="display: none;">
           <h2>
-            Pending Requests
+            Pending Bookings
             <span class="pending-badge" id="pending-count">0</span>
           </h2>
           <div id="pending-list" class="pending-list"></div>
@@ -1376,6 +1383,10 @@
       <div class="modal-footer" id="modal-footer">
         <button class="btn btn-primary" id="modal-amend-btn" onclick="amendBookingFromModal()">Amend</button>
         <button class="btn btn-danger" id="modal-cancel-btn" onclick="cancelBookingFromModal()">Cancel</button>
+      </div>
+      <div class="modal-footer" id="modal-pending-footer" style="display: none;">
+        <button class="btn btn-approve" id="modal-approve-btn" onclick="approveBookingFromModal()">Approve</button>
+        <button class="btn btn-decline" id="modal-decline-btn" onclick="declineBookingFromModal()">Decline</button>
       </div>
     </div>
   </div>
@@ -2259,9 +2270,13 @@
       const formattedDate = startDate.toLocaleDateString('en-GB', dateOptions);
       const formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
       
-      // Set modal title and show footer buttons for bookings
-      document.getElementById('modal-title').textContent = 'Booking Details';
-      document.getElementById('modal-footer').style.display = 'flex';
+      // Check if this is a pending booking
+      const isPending = booking.status === 'pending';
+      
+      // Set modal title and show appropriate footer buttons
+      document.getElementById('modal-title').textContent = isPending ? 'Pending Booking Request' : 'Booking Details';
+      document.getElementById('modal-footer').style.display = isPending ? 'none' : 'flex';
+      document.getElementById('modal-pending-footer').style.display = isPending ? 'flex' : 'none';
       document.getElementById('modal-type-section').style.display = 'none';
       
       // Populate modal
@@ -2455,6 +2470,20 @@
       }
     }
 
+    // Approve booking from modal
+    async function approveBookingFromModal() {
+      if (!currentModalBookingId) return;
+      closeBookingModal();
+      await approveBooking(currentModalBookingId);
+    }
+
+    // Decline booking from modal
+    async function declineBookingFromModal() {
+      if (!currentModalBookingId) return;
+      closeBookingModal();
+      await declineBooking(currentModalBookingId);
+    }
+
     // Close modal when clicking outside
     document.getElementById('booking-modal').addEventListener('click', function(e) {
       if (e.target === this) {
@@ -2516,7 +2545,7 @@
             const copyBookingLinkBtn = document.getElementById('copy-booking-link');
 
             if (hut.slug) {
-              const fullUrl = `${window.location.origin}/book/${hut.slug}`;
+              const fullUrl = `https://scoutbookings.co.uk/book/${hut.slug}`;
               bookingLinkSection.style.display = 'block';
               noBookingLink.style.display = 'none';
               bookingLinkUrl.textContent = fullUrl;
@@ -2647,18 +2676,13 @@
             const endTime = end.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
 
             return `
-              <div class="pending-item" data-booking-id="${booking.id}">
+              <div class="pending-item" data-booking-id="${booking.id}" onclick="viewPendingBooking('${booking.id}')" style="cursor: pointer;">
                 <div class="pending-item-header">
                   <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
                   <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
                 </div>
                 <div class="pending-item-contact">
                   ${escapeHtml(booking.contact_name || 'No name')} &bull; ${escapeHtml(booking.contact_email || 'No email')}
-                </div>
-                ${booking.notes ? `<div class="pending-item-notes" style="font-size: 0.8125rem; color: var(--color-placeholder); margin-bottom: var(--space-sm);">${escapeHtml(booking.notes)}</div>` : ''}
-                <div class="pending-item-actions">
-                  <button class="btn btn-approve" onclick="approveBooking('${booking.id}')">Approve</button>
-                  <button class="btn btn-decline" onclick="declineBooking('${booking.id}')">Decline</button>
                 </div>
               </div>
             `;
@@ -2737,6 +2761,18 @@
       if (!booking) {
         booking = calendarBookings.find(b => b.id === bookingId);
       }
+      // If not found, check pending bookings
+      if (!booking) {
+        booking = pendingBookingsData.find(b => b.id === bookingId);
+      }
+      if (booking) {
+        openBookingModal(booking);
+      }
+    }
+
+    // View a pending booking in the modal
+    function viewPendingBooking(bookingId) {
+      const booking = pendingBookingsData.find(b => b.id === bookingId);
       if (booking) {
         openBookingModal(booking);
       }
