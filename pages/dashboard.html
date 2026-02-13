@@ -340,6 +340,23 @@
       border-left: 3px solid var(--color-primary);
     }
 
+    .booking-item.pending {
+      border-left-color: #9ca3af;
+    }
+
+    .booking-pending-badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      background-color: #9ca3af;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
     .booking-item-content {
       flex: 1;
     }
@@ -2561,10 +2578,13 @@
               const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
               const endTime = end.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
               
+              const isPending = booking.status === 'pending';
+              const statusClass = booking.status === 'cancelled' ? 'cancelled' : (isPending ? 'pending' : '');
+              
               return `
-              <div class="booking-item ${booking.status === 'cancelled' ? 'cancelled' : ''}" data-booking-id="${booking.id}">
+              <div class="booking-item ${statusClass}" data-booking-id="${booking.id}">
                 <div class="booking-item-content">
-                  <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
+                  <div class="booking-item-title">${escapeHtml(booking.event_name)}${isPending ? ' <span class="booking-pending-badge">Pending</span>' : ''}</div>
                   <div class="booking-item-details">
                     <div class="booking-item-group">
                       <div class="booking-item-label">Date</div>

@@ -852,7 +852,7 @@ async function checkBookingConflicts(hutId, hut, date, startTime, endTime, exclu
     
     // =========================================================================
     // CHECK 1: Existing bookings in the bookings table
-    // Query confirmed bookings that overlap with the requested time
+    // Query confirmed AND pending bookings that overlap with the requested time
     // =========================================================================
     try {
         const dayStart = new Date(`${date}T00:00:00`).toISOString();
@@ -862,7 +862,7 @@ async function checkBookingConflicts(hutId, hut, date, startTime, endTime, exclu
             .from('bookings')
             .select('*')
             .eq('hut_id', hutId)
-            .eq('status', 'confirmed')  // Only check confirmed bookings
+            .in('status', ['confirmed', 'pending'])  // Check both confirmed and pending
             .gte('start_time', dayStart)
             .lte('start_time', dayEnd);
         
@@ -1005,7 +1005,7 @@ async function getBlockedTimeSlotsForDate(hutId, hut, date, isOwner = false) {
             .from('bookings')
             .select('*')
             .eq('hut_id', hutId)
-            .eq('status', 'confirmed')
+            .in('status', ['confirmed', 'pending'])
             .gte('start_time', dayStart)
             .lte('start_time', dayEnd)
             .order('start_time', { ascending: true });
@@ -1014,12 +1014,14 @@ async function getBlockedTimeSlotsForDate(hutId, hut, date, isOwner = false) {
             for (const booking of bookings) {
                 const start = new Date(booking.start_time);
                 const end = new Date(booking.end_time);
+                const isPending = booking.status === 'pending';
                 blockedSlots.push({
                     type: 'booking',
-                    name: booking.event_name,
+                    name: booking.event_name + (isPending ? ' (Pending)' : ''),
                     start_time: start.toTimeString().slice(0, 5),
                     end_time: end.toTimeString().slice(0, 5),
-                    color: 'var(--color-primary)'
+                    color: isPending ? '#9ca3af' : 'var(--color-primary)',
+                    status: booking.status
                 });
             }
         }
@@ -1172,15 +1174,15 @@ async function checkAvailability(hutId, requestedStart, requestedEnd, options = 
     }
     
     // =========================================================================
-    // CHECK 1: Query bookings table for confirmed bookings that overlap
+    // CHECK 1: Query bookings table for confirmed AND pending bookings that overlap
     // Overlap condition: booking starts before requested end AND ends after requested start
     // =========================================================================
     try {
         let query = supabaseClient
             .from('bookings')
-            .select('id, event_name, contact_name, start_time, end_time')
+            .select('id, event_name, contact_name, start_time, end_time, status')
             .eq('hut_id', hutId)
-            .eq('status', 'confirmed')
+            .in('status', ['confirmed', 'pending'])
             .lt('start_time', endDate.toISOString())    // Booking starts before requested end
             .gt('end_time', startDate.toISOString());   // Booking ends after requested start
         
