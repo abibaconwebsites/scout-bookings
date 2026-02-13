@@ -2716,9 +2716,10 @@
 
         showNotification('Booking request declined and removed', 'success');
         
-        // Reload pending bookings and calendar
+        // Reload pending bookings, calendar, and this month's bookings list
         if (currentHutData) {
           await loadPendingBookings(currentHutData.id);
+          await loadBookings(currentHutData.id);
           await loadCalendarEvents(currentHutData.id, currentCalendarDate.getMonth(), currentCalendarDate.getFullYear());
           renderCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
         }
