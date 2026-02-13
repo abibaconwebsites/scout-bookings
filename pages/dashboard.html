@@ -155,7 +155,7 @@
       display: flex;
       gap: var(--space-lg);
       align-items: stretch;
-      height: 70vh;
+      height: 80vh;
     }
 
     .dashboard-top-row > .dashboard-card {
@@ -189,7 +189,7 @@
       }
 
       .dashboard-top-row > .dashboard-card {
-        height: 60vh;
+        height: 70vh;
         flex: none;
       }
     }
@@ -447,18 +447,21 @@
     }
 
     .bookings-toggle {
-      display: flex;
-      background-color: var(--color-gray-100);
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: var(--radius-md);
       padding: 4px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .bookings-toggle-btn {
       padding: 0.5rem 1rem;
       border: none;
-      background: none;
-      border-radius: var(--radius-sm);
+      background: transparent;
+      border-radius: calc(var(--radius-md) - 2px);
       font-size: 0.875rem;
       font-weight: 500;
       color: var(--color-gray-600);
@@ -471,21 +474,28 @@
 
     .bookings-toggle-btn:hover {
       color: var(--color-gray-900);
+      background: rgba(0, 0, 0, 0.04);
     }
 
     .bookings-toggle-btn.active {
-      background-color: var(--color-white);
+      background: rgba(255, 255, 255, 0.9);
       color: var(--color-primary);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .bookings-toggle-btn.active:hover {
+      background: rgba(255, 255, 255, 1);
     }
 
     .bookings-toggle-btn .pending-badge {
       background-color: var(--color-primary);
       color: white;
-      font-size: 0.75rem;
-      padding: 0.125rem 0.5rem;
+      font-size: 0.7rem;
+      padding: 0.125rem 0.4rem;
       border-radius: 9999px;
       font-weight: 600;
+      min-width: 1.25rem;
+      text-align: center;
     }
 
     .bookings-view {
@@ -2847,13 +2857,10 @@
               const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
               const endTime = end.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
               
-              const isPending = booking.status === 'pending';
-              const statusClass = booking.status === 'cancelled' ? 'cancelled' : (isPending ? 'pending' : '');
-              
               return `
-              <div class="booking-item ${statusClass}" data-booking-id="${booking.id}">
+              <div class="booking-item" data-booking-id="${booking.id}">
                 <div class="booking-item-content">
-                  <div class="booking-item-title">${escapeHtml(booking.event_name)}${isPending ? ' <span class="booking-pending-badge">Pending</span>' : ''}</div>
+                  <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
                   <div class="booking-item-details">
                     <div class="booking-item-group">
                       <div class="booking-item-label">Date</div>

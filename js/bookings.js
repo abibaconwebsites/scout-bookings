@@ -74,6 +74,7 @@ async function getUpcomingBookings(hutId, limit = 10) {
             .from('bookings')
             .select('*')
             .eq('hut_id', hutId)
+            .eq('status', 'confirmed')
             .gte('start_time', now.toISOString())
             .lte('start_time', endOfMonth.toISOString())
             .order('start_time', { ascending: true })
