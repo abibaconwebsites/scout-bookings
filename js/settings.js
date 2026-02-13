@@ -22,7 +22,7 @@ let currentUserId = null;
 let autoSyncInterval = null;
 
 /** @type {string} Currently visible panel ID */
-let currentPanel = 'panel-calendar';
+let currentPanel = 'panel-profile';
 
 /** @type {boolean} Whether sync is currently in progress */
 let isSyncing = false;
@@ -69,14 +69,14 @@ function initializeSidebar() {
         }
     }
     
-    // Set Calendar Sync as active by default
-    const defaultNav = document.getElementById('nav-calendar');
+    // Set Profile as active by default (matches HTML default)
+    const defaultNav = document.getElementById('nav-profile');
     if (defaultNav) {
         defaultNav.classList.add('active');
     }
-    showPanel('panel-calendar');
+    showPanel('panel-profile');
     
-    console.log('[Settings] Sidebar initialized with default panel: calendar');
+    console.log('[Settings] Sidebar initialized with default panel: profile');
 }
 
 /**
@@ -119,10 +119,10 @@ function handleNavClick(panelId, clickedNav) {
  */
 function showPanel(panelId) {
     const panels = [
+        'panel-profile',
         'panel-calendar',
         'panel-availability',
         'panel-sessions',
-        'panel-account',
         'panel-subscription',
         'panel-team',
         'panel-notifications'
@@ -158,8 +158,8 @@ async function loadPanelData(panelId) {
         case 'panel-sessions':
             await loadSessionsPanel();
             break;
-        case 'panel-account':
-            await loadAccountPanel();
+        case 'panel-profile':
+            await loadProfilePanel();
             break;
         case 'panel-subscription':
             await loadSubscriptionPanel();
@@ -322,7 +322,7 @@ async function loadCalendarPanel() {
  * Loads the Account panel data.
  * Displays user email, name, phone, and account created date.
  */
-async function loadAccountPanel() {
+async function loadProfilePanel() {
     console.log('[Settings] Loading account panel');
     
     if (!currentUserId) return;
