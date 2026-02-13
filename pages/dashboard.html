@@ -1953,12 +1953,12 @@
       
       try {
         // 2. Load Scout Bookings from bookings table
-        // Only load confirmed bookings within the date range
+        // Load both confirmed and pending bookings within the date range
         const { data: bookingsData, error: bookingsError } = await supabaseClient
           .from('bookings')
           .select('*')
           .eq('hut_id', hutId)
-          .eq('status', 'confirmed')
+          .in('status', ['confirmed', 'pending'])
           .gte('start_time', firstDayISO)
           .lte('start_time', lastDayISO);
         
