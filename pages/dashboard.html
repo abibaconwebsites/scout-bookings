@@ -437,6 +437,15 @@
       flex-direction: column;
     }
 
+    /* Bookings Header */
+    .bookings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-md);
+      flex-shrink: 0;
+    }
+
     /* Bookings Toggle */
     .bookings-toggle {
       display: inline-flex;
@@ -742,15 +751,6 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--space-md);
-      flex-wrap: wrap;
-      gap: var(--space-md);
-    }
-
-    .calendar-header-left {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-      flex-wrap: wrap;
     }
 
     .calendar-header h2 {
@@ -1436,6 +1436,19 @@
 
         <!-- Bookings Card -->
         <div class="dashboard-card bookings-card">
+          <div class="bookings-header">
+            <div class="bookings-toggle">
+              <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
+                This Month
+              </button>
+              <button class="bookings-toggle-btn" id="toggle-pending" onclick="toggleBookingsView('pending')">
+                Pending
+                <span class="pending-badge" id="pending-count" style="display: none;">0</span>
+              </button>
+            </div>
+            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
+          </div>
+          
           <!-- This Month's Bookings View -->
           <div id="this-month-view" class="bookings-view">
             <div id="bookings-empty" class="empty-state">
@@ -1457,19 +1470,7 @@
       <!-- Calendar Card -->
       <div class="dashboard-card calendar-card full-width">
       <div class="calendar-header">
-        <div class="calendar-header-left">
-          <h2>Availability Calendar</h2>
-          <div class="bookings-toggle">
-            <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
-              This Month
-            </button>
-            <button class="bookings-toggle-btn" id="toggle-pending" onclick="toggleBookingsView('pending')">
-              Pending
-              <span class="pending-badge" id="pending-count" style="display: none;">0</span>
-            </button>
-          </div>
-          <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
-        </div>
+        <h2>Availability Calendar</h2>
         <div style="display: flex; align-items: center; gap: var(--space-md);">
           <!-- View Toggle -->
           <div class="view-toggle">
