@@ -3011,13 +3011,20 @@
     // Approve a pending booking
     async function approveBooking(bookingId) {
       try {
-        const { error } = await supabaseClient
+        const { data, error } = await supabaseClient
           .from('bookings')
           .update({ status: 'confirmed' })
-          .eq('id', bookingId);
+          .eq('id', bookingId)
+          .select();
 
         if (error) {
+          console.error('Supabase error:', error);
           throw error;
+        }
+
+        if (!data || data.length === 0) {
+          console.error('No rows updated - booking may not exist or RLS policy blocked update');
+          throw new Error('Booking not found or access denied');
         }
 
         showNotification('Booking approved!', 'success');
@@ -3031,7 +3038,7 @@
         }
       } catch (err) {
         console.error('Error approving booking:', err);
-        showNotification('Failed to approve booking', 'error');
+        showNotification('Failed to approve booking: ' + (err.message || 'Unknown error'), 'error');
       }
     }
 

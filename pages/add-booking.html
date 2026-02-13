@@ -1501,7 +1501,8 @@
       blockedDateDisplay.textContent = dateObj.toLocaleDateString('en-GB', options);
 
       try {
-        const blockedSlots = await getBlockedTimeSlotsForDate(currentHut.id, currentHut, date);
+        // Pass editingBookingId to exclude current booking when editing
+        const blockedSlots = await getBlockedTimeSlotsForDate(currentHut.id, currentHut, date, false, editingBookingId);
         
         if (blockedSlots.length === 0) {
           blockedSlotsList.innerHTML = '<span class="no-blocked-slots">No existing bookings or sessions on this date</span>';

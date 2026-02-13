@@ -991,7 +991,7 @@ async function checkBookingConflicts(hutId, hut, date, startTime, endTime, exclu
  * @param {boolean} isOwner - If true, show actual Google event titles (for owner's view)
  * @returns {Promise<Array>} Array of blocked time slots
  */
-async function getBlockedTimeSlotsForDate(hutId, hut, date, isOwner = false) {
+async function getBlockedTimeSlotsForDate(hutId, hut, date, isOwner = false, excludeBookingId = null) {
     const blockedSlots = [];
     
     // =========================================================================
@@ -1012,6 +1012,10 @@ async function getBlockedTimeSlotsForDate(hutId, hut, date, isOwner = false) {
         
         if (!error && bookings) {
             for (const booking of bookings) {
+                // Skip the booking being edited
+                if (excludeBookingId && booking.id === excludeBookingId) {
+                    continue;
+                }
                 const start = new Date(booking.start_time);
                 const end = new Date(booking.end_time);
                 const isPending = booking.status === 'pending';
