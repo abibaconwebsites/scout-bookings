@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Scout Bookings Settings - Manage your account and preferences">
-  <title>Settings - Scout Bookings</title>
+  <meta name="description" content="Scout Bookings Profile - Manage your account and preferences">
+  <title>Profile - Scout Bookings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -263,6 +263,34 @@
       font-weight: 500;
       margin-bottom: 0.5rem;
       color: var(--color-text);
+    }
+
+    /* Form Input */
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-white);
+      color: var(--color-text);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(116, 19, 220, 0.1);
+    }
+
+    .form-input:disabled {
+      background-color: var(--color-background);
+      color: var(--color-placeholder);
+      cursor: not-allowed;
+    }
+
+    .form-input::placeholder {
+      color: var(--color-placeholder);
     }
 
     /* Radio Group */
@@ -1007,10 +1035,9 @@
     <div class="nav-container">
       <a href="dashboard.html" class="logo" aria-label="Scout Bookings Dashboard">Scout Bookings</a>
       <div class="nav-actions">
-        <a href="settings.html" class="nav-icon-btn" aria-label="Settings">
+        <a href="settings.html" class="nav-icon-btn" aria-label="Profile">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
           </svg>
         </a>
         <button onclick="handleLogout()" class="nav-icon-btn" aria-label="Logout">
@@ -1026,12 +1053,12 @@
   <div class="settings-layout">
     <!-- Left Sidebar -->
     <aside id="settings-sidebar">
-      <div class="sidebar-title">Settings</div>
+      <div class="sidebar-title">Profile</div>
       <nav class="sidebar-nav">
-        <button class="sidebar-nav-item active" id="nav-calendar" data-panel="panel-calendar">Calendar Sync</button>
+        <button class="sidebar-nav-item active" id="nav-profile" data-panel="panel-profile">My Profile</button>
+        <button class="sidebar-nav-item" id="nav-calendar" data-panel="panel-calendar">Calendar Sync</button>
         <button class="sidebar-nav-item" id="nav-availability" data-panel="panel-availability">Hut Availability</button>
         <button class="sidebar-nav-item" id="nav-sessions" data-panel="panel-sessions">Weekly Sessions</button>
-        <button class="sidebar-nav-item" id="nav-account" data-panel="panel-account">Account</button>
         <button class="sidebar-nav-item" id="nav-subscription" data-panel="panel-subscription">Subscription</button>
         <button class="sidebar-nav-item" id="nav-team" data-panel="panel-team">Team</button>
         <button class="sidebar-nav-item" id="nav-notifications" data-panel="panel-notifications">Notifications</button>
@@ -1040,8 +1067,78 @@
 
     <!-- Main Content Area -->
     <main id="settings-content">
+      <!-- Profile Panel -->
+      <section class="settings-panel active" id="panel-profile">
+        <div class="panel-header">
+          <h1>My Profile</h1>
+          <p>Manage your personal information and account details</p>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Personal Information</h2>
+          </div>
+          
+          <form id="profile-form">
+            <div class="form-section">
+              <label class="form-section-label" for="profile-first-name">First Name</label>
+              <input type="text" class="form-input" id="profile-first-name" placeholder="Enter your first name">
+            </div>
+
+            <div class="form-section">
+              <label class="form-section-label" for="profile-last-name">Last Name</label>
+              <input type="text" class="form-input" id="profile-last-name" placeholder="Enter your last name">
+            </div>
+
+            <div class="form-section">
+              <label class="form-section-label" for="profile-email">Email Address</label>
+              <input type="email" class="form-input" id="profile-email" disabled>
+              <p class="help-text">Email cannot be changed. Contact support if you need to update it.</p>
+            </div>
+
+            <div class="form-section">
+              <label class="form-section-label" for="profile-phone">Phone Number</label>
+              <input type="tel" class="form-input" id="profile-phone" placeholder="Enter your phone number">
+            </div>
+
+            <div class="form-section">
+              <label class="form-section-label" for="profile-organisation">Organisation / Scout Group</label>
+              <input type="text" class="form-input" id="profile-organisation" placeholder="e.g. 1st Anytown Scouts">
+            </div>
+
+            <div class="save-button-container">
+              <button type="submit" class="btn btn-primary" id="save-profile-btn">Save Profile</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Account Details</h2>
+          </div>
+          
+          <div class="account-field">
+            <div class="account-field-label">Account Created</div>
+            <div class="account-field-value" id="account-created">Loading...</div>
+          </div>
+          <div class="account-field">
+            <div class="account-field-label">Last Sign In</div>
+            <div class="account-field-value" id="last-sign-in">Loading...</div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Danger Zone</h2>
+          </div>
+          <p class="settings-card-subtitle" style="margin-bottom: 1rem;">Permanent actions that cannot be undone.</p>
+          <button class="btn btn-secondary" id="delete-account-btn" style="color: var(--color-error); border-color: var(--color-error);">Delete Account</button>
+          <p class="help-text">This will permanently delete your account and all associated data.</p>
+        </div>
+      </section>
+
       <!-- Calendar Sync Panel -->
-      <section class="settings-panel active" id="panel-calendar">
+      <section class="settings-panel" id="panel-calendar">
         <div class="panel-header">
           <h1>Google Calendar Sync</h1>
           <p>Connect and sync your bookings with Google Calendar</p>
@@ -1432,37 +1529,6 @@
         </div>
       </section>
 
-      <!-- Account Panel -->
-      <section class="settings-panel" id="panel-account">
-        <div class="panel-header">
-          <h1>Account Information</h1>
-          <p>View and manage your account details</p>
-        </div>
-
-        <div class="settings-card">
-          <div class="account-field">
-            <div class="account-field-label">Email Address</div>
-            <div class="account-field-value" id="user-email">Loading...</div>
-          </div>
-          <div class="account-field">
-            <div class="account-field-label">Full Name</div>
-            <div class="account-field-value" id="user-name">Loading...</div>
-          </div>
-          <div class="account-field">
-            <div class="account-field-label">Phone Number</div>
-            <div class="account-field-value" id="user-phone">Not set</div>
-          </div>
-          <div class="account-field">
-            <div class="account-field-label">Account Created</div>
-            <div class="account-field-value" id="account-created">Loading...</div>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <button class="btn btn-secondary" disabled>Update Profile</button>
-          <p class="help-text">Profile editing coming soon</p>
-        </div>
-      </section>
 
       <!-- Subscription Panel -->
       <section class="settings-panel" id="panel-subscription">
@@ -1654,7 +1720,7 @@
         }
         
         // Fallback initialization only if settings.js failed to load
-        console.log('[Settings HTML] Running fallback initialization');
+        console.log('[Profile HTML] Running fallback initialization');
         checkAuth().then(user => {
           if (!user) {
             window.location.href = 'login.html';
@@ -1725,22 +1791,29 @@
       }
     }
 
-    // Load Account Information
+    // Load Profile Information
     function loadAccountInfo(user) {
-      const emailEl = document.getElementById('user-email');
-      const nameEl = document.getElementById('user-name');
-      const phoneEl = document.getElementById('user-phone');
+      // Profile form fields
+      const firstNameEl = document.getElementById('profile-first-name');
+      const lastNameEl = document.getElementById('profile-last-name');
+      const emailEl = document.getElementById('profile-email');
+      const phoneEl = document.getElementById('profile-phone');
+      const organisationEl = document.getElementById('profile-organisation');
       const createdEl = document.getElementById('account-created');
+      const lastSignInEl = document.getElementById('last-sign-in');
 
-      if (emailEl) emailEl.textContent = user.email || 'Not set';
-      if (nameEl) {
-        const name = user.user_metadata?.full_name || user.user_metadata?.name || 'Not set';
-        nameEl.textContent = name;
-      }
-      if (phoneEl) {
-        const phone = user.user_metadata?.phone || user.phone || 'Not set';
-        phoneEl.textContent = phone;
-      }
+      // Parse full name into first/last
+      const fullName = user.user_metadata?.full_name || user.user_metadata?.name || '';
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      if (firstNameEl) firstNameEl.value = user.user_metadata?.first_name || firstName;
+      if (lastNameEl) lastNameEl.value = user.user_metadata?.last_name || lastName;
+      if (emailEl) emailEl.value = user.email || '';
+      if (phoneEl) phoneEl.value = user.user_metadata?.phone || user.phone || '';
+      if (organisationEl) organisationEl.value = user.user_metadata?.organisation || '';
+
       if (createdEl) {
         const created = new Date(user.created_at);
         createdEl.textContent = created.toLocaleDateString('en-GB', {
@@ -1748,6 +1821,73 @@
           month: 'long',
           year: 'numeric'
         });
+      }
+
+      if (lastSignInEl) {
+        const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
+        lastSignInEl.textContent = lastSignIn 
+          ? lastSignIn.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : 'Never';
+      }
+
+      // Set up profile form submission
+      const profileForm = document.getElementById('profile-form');
+      if (profileForm) {
+        profileForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await saveProfile(user);
+        });
+      }
+
+      // Set up delete account button
+      const deleteBtn = document.getElementById('delete-account-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            showNotification('Account deletion is not yet implemented. Please contact support.', 'info');
+          }
+        });
+      }
+    }
+
+    // Save profile information
+    async function saveProfile(user) {
+      const saveBtn = document.getElementById('save-profile-btn');
+      const originalText = saveBtn.textContent;
+      saveBtn.textContent = 'Saving...';
+      saveBtn.disabled = true;
+
+      try {
+        const firstName = document.getElementById('profile-first-name').value.trim();
+        const lastName = document.getElementById('profile-last-name').value.trim();
+        const phone = document.getElementById('profile-phone').value.trim();
+        const organisation = document.getElementById('profile-organisation').value.trim();
+
+        const { error } = await supabaseClient.auth.updateUser({
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`.trim(),
+            phone: phone,
+            organisation: organisation
+          }
+        });
+
+        if (error) throw error;
+
+        showNotification('Profile updated successfully', 'success');
+      } catch (err) {
+        console.error('Error saving profile:', err);
+        showNotification('Failed to save profile', 'error');
+      } finally {
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
       }
     }
 
