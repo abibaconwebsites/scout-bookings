@@ -319,45 +319,75 @@ async function loadCalendarPanel() {
 }
 
 /**
- * Loads the Account panel data.
- * Displays user email, name, phone, and account created date.
+ * Loads the Profile panel data.
+ * Fetches user data from Supabase auth and user_profiles table,
+ * then populates the profile form fields.
  */
 async function loadProfilePanel() {
-    console.log('[Settings] Loading account panel');
+    console.log('[Settings] Loading profile panel');
     
     if (!currentUserId) return;
     
     try {
         // Get user data from Supabase auth
-        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         
-        if (error || !user) {
-            console.error('[Settings] Error getting user:', error);
+        if (authError || !user) {
+            console.error('[Settings] Error getting user:', authError);
             return;
         }
         
-        // Update UI elements
-        const emailEl = document.getElementById('user-email');
-        const nameEl = document.getElementById('user-name');
-        const phoneEl = document.getElementById('user-phone');
-        const createdEl = document.getElementById('account-created');
+        // Get profile data from user_profiles table
+        const { data: profile, error: profileError } = await supabaseClient
+            .from('user_profiles')
+            .select('full_name, phone')
+            .eq('id', currentUserId)
+            .single();
         
-        if (emailEl) {
-            emailEl.textContent = user.email || 'Not set';
+        if (profileError && profileError.code !== 'PGRST116') {
+            console.error('[Settings] Error loading profile:', profileError);
         }
         
-        if (nameEl) {
-            const name = user.user_metadata?.full_name || 
+        // Get form elements
+        const firstNameEl = document.getElementById('profile-first-name');
+        const lastNameEl = document.getElementById('profile-last-name');
+        const emailEl = document.getElementById('profile-email');
+        const phoneEl = document.getElementById('profile-phone');
+        const organisationEl = document.getElementById('profile-organisation');
+        const createdEl = document.getElementById('account-created');
+        const lastSignInEl = document.getElementById('last-sign-in');
+        
+        // Parse full name into first/last from profile or auth metadata
+        const fullName = profile?.full_name || 
+                        user.user_metadata?.full_name || 
                         user.user_metadata?.name || 
-                        'Not set';
-            nameEl.textContent = name;
+                        '';
+        const nameParts = fullName.split(' ');
+        const firstName = user.user_metadata?.first_name || nameParts[0] || '';
+        const lastName = user.user_metadata?.last_name || nameParts.slice(1).join(' ') || '';
+        
+        // Populate form fields
+        if (firstNameEl) {
+            firstNameEl.value = firstName;
+        }
+        
+        if (lastNameEl) {
+            lastNameEl.value = lastName;
+        }
+        
+        if (emailEl) {
+            emailEl.value = user.email || '';
         }
         
         if (phoneEl) {
-            const phone = user.user_metadata?.phone || user.phone || 'Not set';
-            phoneEl.textContent = phone;
+            phoneEl.value = profile?.phone || user.user_metadata?.phone || user.phone || '';
         }
         
+        if (organisationEl) {
+            organisationEl.value = user.user_metadata?.organisation || '';
+        }
+        
+        // Account details (read-only display)
         if (createdEl) {
             const created = new Date(user.created_at);
             createdEl.textContent = created.toLocaleDateString('en-GB', {
@@ -367,10 +397,100 @@ async function loadProfilePanel() {
             });
         }
         
-        console.log('[Settings] Account panel loaded');
+        if (lastSignInEl) {
+            const lastSignIn = user.last_sign_in_at ? new Date(user.last_sign_in_at) : null;
+            lastSignInEl.textContent = lastSignIn 
+                ? lastSignIn.toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })
+                : 'Never';
+        }
+        
+        console.log('[Settings] Profile panel loaded');
         
     } catch (err) {
-        console.error('[Settings] Error loading account panel:', err);
+        console.error('[Settings] Error loading profile panel:', err);
+    }
+}
+
+/**
+ * Handles profile form submission.
+ * Saves profile data to both Supabase auth metadata and user_profiles table.
+ * 
+ * @param {Event} e - Form submit event
+ */
+async function handleProfileFormSubmit(e) {
+    e.preventDefault();
+    
+    const saveBtn = document.getElementById('save-profile-btn');
+    const originalText = saveBtn?.textContent || 'Save Profile';
+    
+    if (saveBtn) {
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+    }
+    
+    try {
+        const firstName = document.getElementById('profile-first-name')?.value.trim() || '';
+        const lastName = document.getElementById('profile-last-name')?.value.trim() || '';
+        const phone = document.getElementById('profile-phone')?.value.trim() || '';
+        const organisation = document.getElementById('profile-organisation')?.value.trim() || '';
+        const fullName = `${firstName} ${lastName}`.trim();
+        
+        // Update Supabase auth user metadata
+        const { error: authError } = await supabaseClient.auth.updateUser({
+            data: {
+                first_name: firstName,
+                last_name: lastName,
+                full_name: fullName,
+                phone: phone,
+                organisation: organisation
+            }
+        });
+        
+        if (authError) {
+            throw authError;
+        }
+        
+        // Update user_profiles table
+        const { error: profileError } = await supabaseClient
+            .from('user_profiles')
+            .update({
+                full_name: fullName,
+                phone: phone
+            })
+            .eq('id', currentUserId);
+        
+        if (profileError) {
+            console.error('[Settings] Error updating user_profiles:', profileError);
+            // Don't throw - auth update succeeded, profile table may not exist yet
+        }
+        
+        showNotification('Profile updated successfully', 'success');
+        console.log('[Settings] Profile saved successfully');
+        
+    } catch (err) {
+        console.error('[Settings] Error saving profile:', err);
+        showNotification('Failed to save profile', 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.textContent = originalText;
+            saveBtn.disabled = false;
+        }
+    }
+}
+
+/**
+ * Handles delete account button click.
+ * Shows confirmation and placeholder message.
+ */
+function handleDeleteAccount() {
+    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        showNotification('Account deletion is not yet implemented. Please contact support.', 'info');
     }
 }
 
@@ -2733,6 +2853,18 @@ function displaySyncHistory(events) {
  */
 function setupEventListeners() {
     console.log('[Settings] Setting up event listeners');
+    
+    // Profile form submission
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', handleProfileFormSubmit);
+    }
+    
+    // Delete account button
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', handleDeleteAccount);
+    }
     
     // Connect calendar button
     const connectBtn = document.getElementById('connect-calendar-btn');
