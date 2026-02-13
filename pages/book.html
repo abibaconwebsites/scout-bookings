@@ -489,8 +489,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/utils.js"></script>
   <script>
-    // Initialize Supabase client (no auth required for public page)
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // supabaseClient is already initialized in config.js or utils.js
 
     let currentHut = null;
 
@@ -508,13 +507,18 @@
         }
       }
 
+      console.log('[Book] URL:', window.location.href);
+      console.log('[Book] Slug extracted:', slug);
+
       if (!slug) {
+        console.log('[Book] No slug found in URL');
         showError();
         return;
       }
 
       // Load hut by slug
       try {
+        console.log('[Book] Fetching hut with slug:', slug);
         const { data: hut, error } = await supabaseClient
           .from('scout_huts')
           .select('*')
@@ -522,7 +526,10 @@
           .eq('is_active', true)
           .single();
 
+        console.log('[Book] Query result:', { hut, error });
+
         if (error || !hut) {
+          console.log('[Book] Hut not found or error:', error);
           showError();
           return;
         }
