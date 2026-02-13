@@ -222,8 +222,20 @@
       flex-wrap: wrap;
     }
 
+    .dashboard-card.hut-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-card.hut-card h2 {
+      flex-shrink: 0;
+    }
+
     .hut-info {
       padding: var(--space-md) 0;
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0;
     }
 
     .hut-name {
@@ -439,6 +451,7 @@
       background-color: var(--color-gray-100);
       border-radius: var(--radius-md);
       padding: 4px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .bookings-toggle-btn {
@@ -463,7 +476,7 @@
     .bookings-toggle-btn.active {
       background-color: var(--color-white);
       color: var(--color-primary);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
     }
 
     .bookings-toggle-btn .pending-badge {
@@ -1408,7 +1421,7 @@
       <!-- Top Row: Hut Details and Bookings -->
       <div class="dashboard-top-row">
         <!-- My Hut Card -->
-        <div class="dashboard-card">
+        <div class="dashboard-card hut-card">
           <h2>My Scout Hut</h2>
           <div id="hut-details" class="empty-state">
             <p>You haven't set up your scout hut yet.</p>
@@ -2478,10 +2491,7 @@
     }
 
     function openBookingModal(booking) {
-      console.log('openBookingModal called with booking:', booking);
-      console.log('booking.id:', booking.id);
       currentModalBookingId = booking.id;
-      console.log('currentModalBookingId set to:', currentModalBookingId);
       
       // Format date
       const startDate = new Date(booking.start_time);
@@ -2701,15 +2711,17 @@
     // Approve booking from modal
     async function approveBookingFromModal() {
       if (!currentModalBookingId) return;
+      const bookingId = currentModalBookingId;  // Store before closing modal
       closeBookingModal();
-      await approveBooking(currentModalBookingId);
+      await approveBooking(bookingId);
     }
 
     // Decline booking from modal
     async function declineBookingFromModal() {
       if (!currentModalBookingId) return;
+      const bookingId = currentModalBookingId;  // Store before closing modal
       closeBookingModal();
-      await declineBooking(currentModalBookingId);
+      await declineBooking(bookingId);
     }
 
     // Close modal when clicking outside
@@ -3095,10 +3107,7 @@
 
     // View a pending booking in the modal
     function viewPendingBooking(bookingId) {
-      console.log('viewPendingBooking called with:', bookingId);
-      console.log('pendingBookingsData:', pendingBookingsData);
       const booking = pendingBookingsData.find(b => b.id === bookingId);
-      console.log('Found booking:', booking);
       if (booking) {
         openBookingModal(booking);
       } else {
