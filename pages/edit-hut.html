@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Edit your scout hut details - Scout Bookings">
-  <title>Edit Your Hut - Scout Bookings</title>
+  <meta name="description" content="Manage your scout hut details - Scout Bookings">
+  <title>Manage Your Hut - Scout Bookings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -541,8 +541,8 @@
         </svg>
         Back to Dashboard
       </a>
-      <h1>Edit Your Scout Hut</h1>
-      <p>Update your hut details and availability schedule</p>
+      <h1 id="page-title">Edit Your Scout Hut</h1>
+      <p id="page-subtitle">Update your hut details and availability schedule</p>
     </div>
   </section>
 
@@ -938,6 +938,7 @@
     let slugCheckTimeout = null;
     let isSlugValid = false;
     let currentSlug = ''; // Track the original slug
+    let isCreateMode = false; // Track if we're creating or editing
 
     document.addEventListener('DOMContentLoaded', async function() {
       // Check if user is authenticated
@@ -951,14 +952,14 @@
       currentHut = await getUserHut(currentUser.id);
       
       if (!currentHut) {
-        // Redirect to create page if they don't have a hut
-        showNotification('Please set up your scout hut first.', 'info');
-        window.location.href = 'create-hut.html';
-        return;
+        // No hut exists - switch to create mode
+        isCreateMode = true;
+        setupCreateMode();
+      } else {
+        // Hut exists - edit mode
+        isCreateMode = false;
+        populateForm(currentHut);
       }
-
-      // Populate form with existing data
-      populateForm(currentHut);
 
       // Set up day toggle listeners
       setupDayToggles();
@@ -976,6 +977,33 @@
       document.getElementById('loading-state').style.display = 'none';
       document.getElementById('edit-hut-form').style.display = 'block';
     });
+
+    /**
+     * Sets up the page for create mode (new hut)
+     */
+    function setupCreateMode() {
+      // Update page title and subtitle
+      document.getElementById('page-title').textContent = 'Set Up Your Scout Hut';
+      document.getElementById('page-subtitle').textContent = 'Enter your hut details and set when it\'s available for bookings';
+      document.title = 'Set Up Your Hut - Scout Bookings';
+      
+      // Update submit button text
+      document.getElementById('submit-btn').textContent = 'Create Scout Hut';
+      
+      // Enable all days by default for new huts
+      const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+      days.forEach(day => {
+        const checkbox = document.getElementById(`${day}-enabled`);
+        if (checkbox) checkbox.checked = true;
+      });
+      
+      // Disable all group sessions by default
+      const groups = ['squirrels', 'beavers', 'cubs', 'scouts'];
+      groups.forEach(group => {
+        const session = document.querySelector(`[data-group="${group}"]`);
+        if (session) session.classList.add('disabled');
+      });
+    }
 
     // =============================================================================
     // POPULATE FORM WITH EXISTING DATA
@@ -1456,11 +1484,10 @@
 
       // Disable submit button
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Saving...';
+      submitBtn.textContent = isCreateMode ? 'Creating...' : 'Saving...';
 
       try {
-        // Update the hut
-        const updates = {
+        const hutData = {
           name,
           slug,
           address_line1: addressLine1,
@@ -1471,14 +1498,27 @@
           weekly_sessions: weeklySessions
         };
 
-        const result = await updateHut(currentHut.id, currentUser.id, updates);
-
-        if (result.error) {
-          throw new Error(result.error.message || 'Failed to update scout hut');
+        let result;
+        
+        if (isCreateMode) {
+          // Create new hut
+          result = await createHut(currentUser.id, hutData);
+          
+          if (result.error) {
+            throw new Error(result.error.message || 'Failed to create scout hut');
+          }
+          
+          showNotification('Scout hut created successfully!', 'success');
+        } else {
+          // Update existing hut
+          result = await updateHut(currentHut.id, currentUser.id, hutData);
+          
+          if (result.error) {
+            throw new Error(result.error.message || 'Failed to update scout hut');
+          }
+          
+          showNotification('Scout hut updated successfully!', 'success');
         }
-
-        // Success!
-        showNotification('Scout hut updated successfully!', 'success');
         
         // Redirect to dashboard after a short delay
         setTimeout(() => {
@@ -1486,8 +1526,8 @@
         }, 1500);
 
       } catch (err) {
-        console.error('Error updating hut:', err);
-        showNotification(err.message || 'Failed to update scout hut. Please try again.', 'error');
+        console.error('Error saving hut:', err);
+        showNotification(err.message || 'Failed to save scout hut. Please try again.', 'error');
         
         // Re-enable submit button
         submitBtn.disabled = false;

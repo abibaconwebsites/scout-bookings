@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_OUT') {
             // User signed out, redirect to home if on a protected page
-            const protectedPages = ['/dashboard', '/add-booking', '/edit-hut', '/create-hut', '/settings'];
+            const protectedPages = ['/dashboard', '/add-booking', '/edit-hut', '/settings'];
             const isProtectedPage = protectedPages.some(page => 
                 window.location.pathname.includes(page)
             );

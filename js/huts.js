@@ -50,8 +50,12 @@ async function createHut(userId, hutData) {
             return { data: null, error: { message: 'Address details are required' } };
         }
 
-        // Generate a URL-friendly slug from the name
-        const slug = generateSlug(hutData.name);
+        if (!hutData.slug || hutData.slug.trim() === '') {
+            return { data: null, error: { message: 'Booking link URL is required' } };
+        }
+
+        // Use provided slug (already validated) or generate from name as fallback
+        const slug = hutData.slug ? hutData.slug.toLowerCase().trim() : generateSlug(hutData.name);
 
         // Insert the hut record
         const { data, error } = await supabaseClient
