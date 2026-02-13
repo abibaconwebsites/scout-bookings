@@ -34,6 +34,78 @@
       padding: var(--space-xl) 0 var(--space-3xl);
     }
 
+    .booking-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    .booking-main {
+      min-width: 0;
+    }
+
+    .booking-sidebar {
+      position: sticky;
+      top: var(--space-lg);
+    }
+
+    .sidebar-card {
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+
+    .sidebar-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .sidebar-card h3 svg {
+      width: 18px;
+      height: 18px;
+      color: var(--color-primary);
+    }
+
+    .availability-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .availability-day {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.875rem;
+    }
+
+    .availability-day:last-child {
+      border-bottom: none;
+    }
+
+    .availability-day .day-name {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    .availability-day .day-times {
+      color: var(--color-primary);
+    }
+
+    .availability-day.closed .day-times {
+      color: var(--color-placeholder);
+    }
+
+
     .hut-header {
       background-color: var(--color-white);
       border-radius: var(--radius-lg);
@@ -253,6 +325,17 @@
       color: var(--color-placeholder);
     }
 
+    @media (max-width: 900px) {
+      .booking-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .booking-sidebar {
+        position: static;
+        order: -1;
+      }
+    }
+
     @media (max-width: 768px) {
       .booking-page {
         padding: var(--space-lg) 0 var(--space-2xl);
@@ -282,6 +365,10 @@
       .form-actions .btn {
         width: 100%;
       }
+
+      .sidebar-card {
+        padding: var(--space-md);
+      }
     }
   </style>
 </head>
@@ -294,7 +381,7 @@
   </nav>
 
   <!-- Main Content -->
-  <main class="container container-md booking-page">
+  <main class="container booking-page">
     <!-- Loading State -->
     <div id="loading-state" class="loading-state">
       <div class="loading-spinner"></div>
@@ -325,155 +412,173 @@
       <div class="hut-header">
         <h1 id="hut-name"></h1>
         <p class="hut-address" id="hut-address"></p>
-        <div class="availability-summary" id="availability-summary"></div>
       </div>
 
-      <!-- Booking Form -->
-      <form id="booking-form">
-        <div class="form-card">
-          <!-- Date & Time Section -->
-          <div class="form-section">
-            <h2 class="form-section-title">When would you like to book?</h2>
-            
-            <div class="datetime-grid">
-              <div class="form-group">
-                <label for="booking-date" class="form-label required">Date</label>
-                <input 
-                  type="date" 
-                  id="booking-date" 
-                  name="booking_date" 
-                  class="form-input"
-                  required
-                >
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label required">Time</label>
-                <div class="time-grid">
-                  <input 
-                    type="time" 
-                    id="start-time" 
-                    name="start_time" 
-                    class="form-input"
-                    value="09:00"
-                    required
-                  >
-                  <input 
-                    type="time" 
-                    id="end-time" 
-                    name="end_time" 
-                    class="form-input"
-                    value="17:00"
-                    required
-                  >
-                </div>
-                <span class="form-hint">Start and end time</span>
-              </div>
-            </div>
-
-            <!-- Conflict Warning -->
-            <div class="conflict-warning" id="conflict-warning">
-              <span class="conflict-warning-text">This time slot is not available. Please choose a different time.</span>
-            </div>
-
-            <!-- Unavailable Times for Selected Date -->
-            <div class="unavailable-section" id="unavailable-section">
-              <div class="unavailable-title">
-                Unavailable times on <span id="unavailable-date-display">this date</span>
-              </div>
-              <div class="unavailable-list" id="unavailable-list">
-                <span class="no-unavailable">Select a date to see unavailable times</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Event Details Section -->
-          <div class="form-section">
-            <h2 class="form-section-title">Event Details</h2>
-            
-            <div class="form-group">
-              <label for="event-name" class="form-label required">What is the booking for?</label>
-              <input 
-                type="text" 
-                id="event-name" 
-                name="event_name" 
-                class="form-input" 
-                placeholder="e.g. Birthday Party, Community Meeting"
-                required
-                maxlength="200"
-              >
-            </div>
-          </div>
-
-          <!-- Contact Details Section -->
-          <div class="form-section">
-            <h2 class="form-section-title">Your Contact Details</h2>
-            <p class="form-section-description">So the hut owner can get in touch with you about your booking.</p>
-            
-            <div class="contact-grid">
-              <div class="form-group">
-                <label for="contact-name" class="form-label required">Your Name</label>
-                <input 
-                  type="text" 
-                  id="contact-name" 
-                  name="contact_name" 
-                  class="form-input" 
-                  placeholder="Full name"
-                  maxlength="100"
-                  required
-                >
-              </div>
-              
-              <div class="form-group">
-                <label for="contact-phone" class="form-label">Phone</label>
-                <input 
-                  type="tel" 
-                  id="contact-phone" 
-                  name="contact_phone" 
-                  class="form-input" 
-                  placeholder="Phone number"
-                  maxlength="20"
-                >
-              </div>
-
-              <div class="form-group full-width">
-                <label for="contact-email" class="form-label required">Email</label>
-                <input 
-                  type="email" 
-                  id="contact-email" 
-                  name="contact_email" 
-                  class="form-input" 
-                  placeholder="email@example.com"
-                  maxlength="100"
-                  required
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Additional Details Section -->
-          <div class="form-section">
-            <h2 class="form-section-title">Additional Details</h2>
-            
-            <div class="form-group">
-              <label for="notes" class="form-label">Anything else we should know?</label>
-              <textarea 
-                id="notes" 
-                name="notes" 
-                class="form-textarea" 
-                placeholder="Number of attendees, special requirements, etc."
-                rows="3"
-                maxlength="1000"
-              ></textarea>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" id="submit-btn">Submit Booking Request</button>
+      <!-- Two Column Layout -->
+      <div class="booking-layout">
+        <!-- Sidebar (Left) -->
+        <div class="booking-sidebar">
+          <!-- Availability Card -->
+          <div class="sidebar-card">
+            <h3>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Availability
+            </h3>
+            <div class="availability-list" id="availability-list"></div>
           </div>
         </div>
-      </form>
+
+        <!-- Main Form Column (Right) -->
+        <div class="booking-main">
+          <form id="booking-form">
+            <div class="form-card">
+              <!-- Date & Time Section -->
+              <div class="form-section">
+                <h2 class="form-section-title">When would you like to book?</h2>
+                
+                <div class="datetime-grid">
+                  <div class="form-group">
+                    <label for="booking-date" class="form-label required">Date</label>
+                    <input 
+                      type="date" 
+                      id="booking-date" 
+                      name="booking_date" 
+                      class="form-input"
+                      required
+                    >
+                  </div>
+                  
+                  <div class="form-group">
+                    <label class="form-label required">Time</label>
+                    <div class="time-grid">
+                      <input 
+                        type="time" 
+                        id="start-time" 
+                        name="start_time" 
+                        class="form-input"
+                        value="09:00"
+                        required
+                      >
+                      <input 
+                        type="time" 
+                        id="end-time" 
+                        name="end_time" 
+                        class="form-input"
+                        value="17:00"
+                        required
+                      >
+                    </div>
+                    <span class="form-hint">Start and end time</span>
+                  </div>
+                </div>
+
+                <!-- Conflict Warning -->
+                <div class="conflict-warning" id="conflict-warning">
+                  <span class="conflict-warning-text">This time slot is not available. Please choose a different time.</span>
+                </div>
+
+                <!-- Unavailable Times for Selected Date -->
+                <div class="unavailable-section" id="unavailable-section">
+                  <div class="unavailable-title">
+                    Unavailable times on <span id="unavailable-date-display">this date</span>
+                  </div>
+                  <div class="unavailable-list" id="unavailable-list">
+                    <span class="no-unavailable">Select a date to see unavailable times</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Event Details Section -->
+              <div class="form-section">
+                <h2 class="form-section-title">Event Details</h2>
+                
+                <div class="form-group">
+                  <label for="event-name" class="form-label required">What is the booking for?</label>
+                  <input 
+                    type="text" 
+                    id="event-name" 
+                    name="event_name" 
+                    class="form-input" 
+                    placeholder="e.g. Birthday Party, Community Meeting"
+                    required
+                    maxlength="200"
+                  >
+                </div>
+              </div>
+
+              <!-- Contact Details Section -->
+              <div class="form-section">
+                <h2 class="form-section-title">Your Contact Details</h2>
+                <p class="form-section-description">So the hut owner can get in touch with you about your booking.</p>
+                
+                <div class="contact-grid">
+                  <div class="form-group">
+                    <label for="contact-name" class="form-label required">Your Name</label>
+                    <input 
+                      type="text" 
+                      id="contact-name" 
+                      name="contact_name" 
+                      class="form-input" 
+                      placeholder="Full name"
+                      maxlength="100"
+                      required
+                    >
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="contact-phone" class="form-label">Phone</label>
+                    <input 
+                      type="tel" 
+                      id="contact-phone" 
+                      name="contact_phone" 
+                      class="form-input" 
+                      placeholder="Phone number"
+                      maxlength="20"
+                    >
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label for="contact-email" class="form-label required">Email</label>
+                    <input 
+                      type="email" 
+                      id="contact-email" 
+                      name="contact_email" 
+                      class="form-input" 
+                      placeholder="email@example.com"
+                      maxlength="100"
+                      required
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Additional Details Section -->
+              <div class="form-section">
+                <h2 class="form-section-title">Additional Details</h2>
+                
+                <div class="form-group">
+                  <label for="notes" class="form-label">Anything else we should know?</label>
+                  <textarea 
+                    id="notes" 
+                    name="notes" 
+                    class="form-textarea" 
+                    placeholder="Number of attendees, special requirements, etc."
+                    rows="3"
+                    maxlength="1000"
+                  ></textarea>
+                </div>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="submit-btn">Submit Booking Request</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -574,23 +679,28 @@
       ].filter(Boolean);
       document.getElementById('hut-address').textContent = addressParts.join(', ');
       
-      // Display availability summary
-      const availabilitySummary = document.getElementById('availability-summary');
+      // Display availability in sidebar
+      const availabilityList = document.getElementById('availability-list');
       if (hut.availability) {
         const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const dayNames = {
-          monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu',
-          friday: 'Fri', saturday: 'Sat', sunday: 'Sun'
+          monday: 'Monday', tuesday: 'Tuesday', wednesday: 'Wednesday', thursday: 'Thursday',
+          friday: 'Friday', saturday: 'Saturday', sunday: 'Sunday'
         };
         
-        const badges = dayOrder
-          .filter(day => hut.availability[day]?.enabled)
-          .map(day => {
-            const config = hut.availability[day];
-            return `<span class="availability-badge"><span class="day">${dayNames[day]}</span> <span class="times">${formatTimeShort(config.start_time)}-${formatTimeShort(config.end_time)}</span></span>`;
-          });
+        const rows = dayOrder.map(day => {
+          const config = hut.availability[day];
+          const isEnabled = config?.enabled;
+          const times = isEnabled 
+            ? `${formatTimeShort(config.start_time)} - ${formatTimeShort(config.end_time)}`
+            : 'Closed';
+          return `<div class="availability-day ${isEnabled ? '' : 'closed'}">
+            <span class="day-name">${dayNames[day]}</span>
+            <span class="day-times">${times}</span>
+          </div>`;
+        });
         
-        availabilitySummary.innerHTML = badges.join('');
+        availabilityList.innerHTML = rows.join('');
       }
     }
 

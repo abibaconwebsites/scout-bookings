@@ -1599,6 +1599,35 @@ small {
   padding: var(--space-3xl) 0;
 }
 
+.features h2 {
+  margin-bottom: var(--space-xl);
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 1.125rem;
+  color: var(--color-text);
+}
+
+.features-list .check-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
 .features-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

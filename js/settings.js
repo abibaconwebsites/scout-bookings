@@ -15,6 +15,9 @@
 /** @type {string|null} The current user's hut ID */
 let currentHutId = null;
 
+/** @type {Object|null} The current user's hut data */
+let currentHutData = null;
+
 /** @type {string|null} The current user's ID */
 let currentUserId = null;
 
@@ -210,7 +213,8 @@ async function loadSettings() {
         const hut = await getUserHut(currentUserId);
         if (hut) {
             currentHutId = hut.id;
-            console.log('[Settings] User hut loaded:', currentHutId);
+            currentHutData = hut;
+            console.log('[Settings] User hut loaded:', currentHutId, hut.name);
         } else {
             console.log('[Settings] No hut found for user');
         }
@@ -412,7 +416,8 @@ async function loadProfilePanel() {
         }
         
         if (organisationEl) {
-            organisationEl.value = user.user_metadata?.organisation || '';
+            // Use hut name (group name) if available, otherwise fall back to user metadata
+            organisationEl.value = currentHutData?.name || user.user_metadata?.organisation || '';
         }
         
         // Account details (read-only display)
