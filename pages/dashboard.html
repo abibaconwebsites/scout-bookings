@@ -448,13 +448,9 @@
 
     .bookings-toggle {
       display: inline-flex;
-      background: rgba(255, 255, 255, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background-color: var(--color-gray-100);
       border-radius: var(--radius-md);
       padding: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
     .bookings-toggle-btn {
@@ -474,17 +470,12 @@
 
     .bookings-toggle-btn:hover {
       color: var(--color-gray-900);
-      background: rgba(0, 0, 0, 0.04);
     }
 
     .bookings-toggle-btn.active {
-      background: rgba(255, 255, 255, 0.9);
+      background-color: var(--color-white);
       color: var(--color-primary);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .bookings-toggle-btn.active:hover {
-      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .bookings-toggle-btn .pending-badge {
