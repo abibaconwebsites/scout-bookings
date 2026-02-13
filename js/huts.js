@@ -165,7 +165,9 @@ async function updateHut(hutId, userId, updates) {
         
         if (updates.name !== undefined) {
             updateData.name = updates.name.trim();
-            updateData.slug = generateSlug(updates.name);
+        }
+        if (updates.slug !== undefined) {
+            updateData.slug = updates.slug.toLowerCase().trim();
         }
         if (updates.address_line1 !== undefined) {
             updateData.address_line1 = updates.address_line1.trim();
@@ -205,6 +207,59 @@ async function updateHut(hutId, userId, updates) {
     } catch (err) {
         console.error('Unexpected error updating hut:', err);
         return { data: null, error: { message: 'An unexpected error occurred' } };
+    }
+}
+
+// =============================================================================
+// CHECK SLUG AVAILABILITY
+// =============================================================================
+
+/**
+ * Checks if a slug is available (not already in use by another hut).
+ * 
+ * @param {string} slug - The slug to check
+ * @param {string|null} excludeHutId - Optional hut ID to exclude (for updates)
+ * @returns {Promise<{available: boolean, error: Object|null}>}
+ * 
+ * @example
+ * const result = await checkSlugAvailability('my-scout-hut');
+ * if (result.available) {
+ *   console.log('Slug is available!');
+ * }
+ */
+async function checkSlugAvailability(slug, excludeHutId = null) {
+    try {
+        if (!slug || slug.trim() === '') {
+            return { available: false, error: { message: 'Slug is required' } };
+        }
+
+        // Normalize the slug
+        const normalizedSlug = slug.toLowerCase().trim();
+
+        // Check if slug exists
+        let query = supabaseClient
+            .from('scout_huts')
+            .select('id')
+            .eq('slug', normalizedSlug);
+
+        // Exclude current hut if updating
+        if (excludeHutId) {
+            query = query.neq('id', excludeHutId);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error('Error checking slug availability:', error);
+            return { available: false, error };
+        }
+
+        // Slug is available if no results found
+        return { available: data.length === 0, error: null };
+
+    } catch (err) {
+        console.error('Unexpected error checking slug availability:', err);
+        return { available: false, error: { message: 'An unexpected error occurred' } };
     }
 }
 

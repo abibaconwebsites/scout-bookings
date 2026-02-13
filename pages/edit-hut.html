@@ -302,6 +302,91 @@
       cursor: pointer;
     }
 
+    /* Slug Input Styles */
+    .slug-input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-white);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+
+    .slug-input-wrapper:focus-within {
+      border-color: var(--color-text);
+    }
+
+    .slug-input-wrapper.is-valid {
+      border-color: var(--color-success);
+    }
+
+    .slug-input-wrapper.is-invalid {
+      border-color: var(--color-error);
+    }
+
+    .slug-input-wrapper.is-checking {
+      border-color: var(--color-primary);
+    }
+
+    .slug-prefix {
+      padding: 0.75rem 0 0.75rem 0.75rem;
+      color: var(--color-placeholder);
+      font-size: 0.875rem;
+      white-space: nowrap;
+      background-color: var(--color-background);
+      border-right: 1px solid var(--color-border);
+    }
+
+    .slug-input {
+      border: none !important;
+      border-radius: 0 !important;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .slug-input:focus {
+      outline: none;
+      box-shadow: none !important;
+    }
+
+    .slug-status {
+      padding: 0 0.75rem;
+      display: flex;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+
+    .slug-status.checking {
+      color: var(--color-primary);
+    }
+
+    .slug-status.available {
+      color: var(--color-success);
+    }
+
+    .slug-status.unavailable {
+      color: var(--color-error);
+    }
+
+    .slug-status .status-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .slug-status .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     /* Loading State */
     .loading-state {
       text-align: center;
@@ -387,6 +472,33 @@
         grid-template-columns: 1fr;
       }
 
+      .slug-input-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .slug-prefix {
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+      }
+
+      .slug-input {
+        padding: 0.75rem !important;
+      }
+
+      .slug-status {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .slug-input-wrapper {
+        position: relative;
+      }
+
       .form-actions {
         flex-direction: column;
       }
@@ -462,6 +574,25 @@
               maxlength="100"
             >
             <span class="form-hint">This is how your group will appear to people making bookings</span>
+          </div>
+
+          <div class="form-group">
+            <label for="hut-slug" class="form-label required">Booking Link</label>
+            <div class="slug-input-wrapper">
+              <span class="slug-prefix">scoutbookings.com/book/</span>
+              <input 
+                type="text" 
+                id="hut-slug" 
+                name="slug" 
+                class="form-input slug-input" 
+                placeholder="your-group-name"
+                required
+                maxlength="100"
+                pattern="[a-z0-9-]+"
+              >
+              <span class="slug-status" id="slug-status"></span>
+            </div>
+            <span class="form-hint" id="slug-hint">This is the unique URL where people can book your hut. Use lowercase letters, numbers, and hyphens only.</span>
           </div>
         </div>
 
@@ -802,6 +933,9 @@
 
     let currentUser = null;
     let currentHut = null;
+    let slugCheckTimeout = null;
+    let isSlugValid = false;
+    let currentSlug = ''; // Track the original slug
 
     document.addEventListener('DOMContentLoaded', async function() {
       // Check if user is authenticated
@@ -830,6 +964,9 @@
       // Set up group session toggles
       setupGroupToggles();
 
+      // Set up slug input validation
+      setupSlugValidation();
+
       // Set up form submission
       document.getElementById('edit-hut-form').addEventListener('submit', handleFormSubmit);
 
@@ -849,6 +986,15 @@
     function populateForm(hut) {
       // Basic details
       document.getElementById('hut-name').value = hut.name || '';
+      
+      // Slug / Booking Link
+      const slugInput = document.getElementById('hut-slug');
+      if (hut.slug) {
+        slugInput.value = hut.slug;
+        currentSlug = hut.slug; // Store original slug
+        isSlugValid = true; // Current slug is valid by definition
+        updateSlugStatus('available', 'Current URL');
+      }
       
       // Address
       document.getElementById('address-line1').value = hut.address_line1 || '';
@@ -956,6 +1102,142 @@
         }
 
       });
+    }
+
+    // =============================================================================
+    // SLUG VALIDATION
+    // =============================================================================
+
+    /**
+     * Sets up slug input validation with debounced availability checking
+     */
+    function setupSlugValidation() {
+      const slugInput = document.getElementById('hut-slug');
+      
+      if (!slugInput) return;
+
+      // Format slug as user types (only allow valid characters)
+      slugInput.addEventListener('input', function(e) {
+        // Convert to lowercase and replace invalid characters
+        let value = e.target.value.toLowerCase();
+        
+        // Replace spaces with hyphens
+        value = value.replace(/\s+/g, '-');
+        
+        // Remove any characters that aren't lowercase letters, numbers, or hyphens
+        value = value.replace(/[^a-z0-9-]/g, '');
+        
+        // Remove multiple consecutive hyphens
+        value = value.replace(/-+/g, '-');
+        
+        // Update input value
+        e.target.value = value;
+
+        // Clear previous timeout
+        if (slugCheckTimeout) {
+          clearTimeout(slugCheckTimeout);
+        }
+
+        // If empty, show error
+        if (!value) {
+          updateSlugStatus('unavailable', 'Required');
+          isSlugValid = false;
+          return;
+        }
+
+        // If same as current slug, it's valid
+        if (value === currentSlug) {
+          updateSlugStatus('available', 'Current URL');
+          isSlugValid = true;
+          return;
+        }
+
+        // Show checking status
+        updateSlugStatus('checking', '');
+        isSlugValid = false;
+
+        // Debounce the availability check
+        slugCheckTimeout = setTimeout(async () => {
+          await checkAndUpdateSlugStatus(value);
+        }, 500);
+      });
+
+      // Also handle paste events
+      slugInput.addEventListener('paste', function(e) {
+        // Let the input event handle the formatting
+        setTimeout(() => {
+          slugInput.dispatchEvent(new Event('input'));
+        }, 0);
+      });
+    }
+
+    /**
+     * Checks slug availability and updates the UI
+     * @param {string} slug - The slug to check
+     */
+    async function checkAndUpdateSlugStatus(slug) {
+      try {
+        const result = await checkSlugAvailability(slug, currentHut?.id);
+        
+        if (result.available) {
+          updateSlugStatus('available', 'Available');
+          isSlugValid = true;
+        } else {
+          updateSlugStatus('unavailable', 'Already taken');
+          isSlugValid = false;
+        }
+      } catch (err) {
+        console.error('Error checking slug:', err);
+        updateSlugStatus('unavailable', 'Error checking');
+        isSlugValid = false;
+      }
+    }
+
+    /**
+     * Updates the slug status indicator UI
+     * @param {string} status - 'checking', 'available', or 'unavailable'
+     * @param {string} message - Optional message to display
+     */
+    function updateSlugStatus(status, message) {
+      const wrapper = document.querySelector('.slug-input-wrapper');
+      const statusEl = document.getElementById('slug-status');
+      const hintEl = document.getElementById('slug-hint');
+      
+      if (!wrapper || !statusEl) return;
+
+      // Remove all status classes
+      wrapper.classList.remove('is-valid', 'is-invalid', 'is-checking');
+      statusEl.classList.remove('checking', 'available', 'unavailable');
+
+      // Add appropriate class and content
+      switch (status) {
+        case 'checking':
+          wrapper.classList.add('is-checking');
+          statusEl.classList.add('checking');
+          statusEl.innerHTML = '<div class="spinner"></div>';
+          if (hintEl) hintEl.textContent = 'Checking availability...';
+          break;
+        case 'available':
+          wrapper.classList.add('is-valid');
+          statusEl.classList.add('available');
+          statusEl.innerHTML = `
+            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          `;
+          if (hintEl) hintEl.textContent = message || 'This URL is available';
+          break;
+        case 'unavailable':
+          wrapper.classList.add('is-invalid');
+          statusEl.classList.add('unavailable');
+          statusEl.innerHTML = `
+            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          `;
+          if (hintEl) hintEl.textContent = message || 'This URL is not available';
+          break;
+      }
     }
 
     /**
@@ -1113,6 +1395,7 @@
 
       // Collect form data
       const name = document.getElementById('hut-name').value.trim();
+      const slug = document.getElementById('hut-slug').value.trim().toLowerCase();
       const addressLine1 = document.getElementById('address-line1').value.trim();
       const addressLine2 = document.getElementById('address-line2').value.trim();
       const city = document.getElementById('city').value.trim();
@@ -1122,6 +1405,27 @@
       if (!name) {
         showNotification('Please enter a name for your scout hut.', 'error');
         document.getElementById('hut-name').focus();
+        return;
+      }
+
+      // Validate slug
+      if (!slug) {
+        showNotification('Please enter a booking link URL.', 'error');
+        document.getElementById('hut-slug').focus();
+        return;
+      }
+
+      // Check if slug is valid (either unchanged or confirmed available)
+      if (!isSlugValid) {
+        showNotification('Please choose an available booking link URL.', 'error');
+        document.getElementById('hut-slug').focus();
+        return;
+      }
+
+      // Validate slug format
+      if (!/^[a-z0-9-]+$/.test(slug)) {
+        showNotification('Booking link can only contain lowercase letters, numbers, and hyphens.', 'error');
+        document.getElementById('hut-slug').focus();
         return;
       }
 
@@ -1156,6 +1460,7 @@
         // Update the hut
         const updates = {
           name,
+          slug,
           address_line1: addressLine1,
           address_line2: addressLine2 || null,
           city,
