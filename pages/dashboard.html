@@ -966,6 +966,12 @@
       max-height: 60vh;
       overflow-y: auto;
     }
+    
+    .day-bookings-empty {
+      text-align: center;
+      padding: var(--space-lg);
+      color: var(--color-placeholder);
+    }
 
     .day-booking-item {
       display: flex;
@@ -1619,6 +1625,12 @@
       </div>
       <div class="modal-body" style="padding: var(--space-md);">
         <div id="day-bookings-list" class="day-bookings-list"></div>
+        <div id="day-bookings-empty" class="day-bookings-empty" style="display: none;">
+          <p>No bookings or events on this day.</p>
+        </div>
+      </div>
+      <div class="modal-footer" id="day-bookings-footer" style="display: none;">
+        <button class="btn btn-primary" onclick="addBookingForDay()">Add Booking</button>
       </div>
     </div>
   </div>
@@ -2208,15 +2220,16 @@
         
         if (isAvailable) {
           dayEl.classList.add('available');
-          // Click on empty space to add booking
-          dayEl.addEventListener('click', (e) => {
-            if (e.target === dayEl || e.target === dayNumber || e.target === eventsContainer) {
-              goToAddBooking(date);
-            }
-          });
         } else {
           dayEl.classList.add('unavailable');
         }
+        
+        // Click on day to show day's bookings popup
+        dayEl.addEventListener('click', (e) => {
+          if (e.target === dayEl || e.target === dayNumber || e.target === eventsContainer) {
+            showDayBookings(date);
+          }
+        });
         
         calendarDays.appendChild(dayEl);
       }
@@ -2601,9 +2614,35 @@
       // Store events for click handlers
       window.currentDayBookingsEvents = allEvents;
       
+      // Show/hide empty state
+      const emptyState = document.getElementById('day-bookings-empty');
+      if (allEvents.length === 0) {
+        emptyState.style.display = 'block';
+        listContainer.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        listContainer.style.display = 'block';
+      }
+      
+      // Show "Add Booking" button if day is available
+      const isAvailable = isDayAvailable(dayName);
+      const footer = document.getElementById('day-bookings-footer');
+      footer.style.display = isAvailable ? 'flex' : 'none';
+      
       // Show the modal
       document.getElementById('day-bookings-modal').classList.add('active');
       document.body.style.overflow = 'hidden';
+    }
+    
+    /**
+     * Add a booking for the currently selected day in the day bookings modal.
+     */
+    function addBookingForDay() {
+      const date = window.currentDayBookingsDate;
+      if (date) {
+        closeDayBookingsModal();
+        goToAddBooking(date);
+      }
     }
 
     /**

@@ -3062,11 +3062,6 @@ function setupEventListeners() {
         syncNowBtn.addEventListener('click', handleSyncNow);
     }
     
-    // Manage subscription button
-    const manageSubBtn = document.getElementById('manage-subscription-btn');
-    if (manageSubBtn) {
-        manageSubBtn.addEventListener('click', handleManageSubscription);
-    }
     
     // Notification toggles
     const notifyToggles = [
@@ -3096,17 +3091,6 @@ function setupEventListeners() {
     console.log('[Settings] Event listeners set up');
 }
 
-/**
- * Handles the Manage Subscription button click.
- * Opens Stripe billing portal.
- */
-async function handleManageSubscription() {
-    console.log('[Settings] Manage subscription clicked');
-    
-    // In production, this would redirect to Stripe billing portal
-    // For now, show a placeholder message
-    showNotification('Billing portal coming soon', 'info');
-}
 
 /**
  * Saves notification settings to the database.
