@@ -70,128 +70,16 @@
       max-width: 500px;
     }
 
-    /* Illustration */
-    .illustration {
-      margin-bottom: 2rem;
-      position: relative;
-    }
-
-    .tent {
-      width: 200px;
-      height: 160px;
-      margin: 0 auto;
-      position: relative;
-    }
-
-    .tent-body {
-      width: 0;
-      height: 0;
-      border-left: 100px solid transparent;
-      border-right: 100px solid transparent;
-      border-bottom: 140px solid var(--color-primary);
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .tent-door {
-      width: 0;
-      height: 0;
-      border-left: 30px solid transparent;
-      border-right: 30px solid transparent;
-      border-bottom: 70px solid var(--color-background);
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .tent-pole {
-      width: 4px;
-      height: 20px;
-      background-color: #92400E;
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 2px;
-    }
-
-    .tent-flag {
-      width: 20px;
-      height: 14px;
-      background-color: #FBBF24;
-      position: absolute;
-      top: -18px;
-      left: calc(50% + 2px);
-      clip-path: polygon(0 0, 100% 50%, 0 100%);
-    }
-
-    /* Ground */
-    .ground {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: -10px;
-    }
-
-    .grass {
-      width: 3px;
-      height: 12px;
-      background-color: #22C55E;
-      border-radius: 2px 2px 0 0;
-      transform-origin: bottom;
-    }
-
-    .grass:nth-child(odd) {
-      transform: rotate(-10deg);
-      height: 10px;
-    }
-
-    .grass:nth-child(even) {
-      transform: rotate(8deg);
-      height: 14px;
-    }
-
-    /* Stars */
-    .stars {
-      position: absolute;
-      top: -30px;
-      left: 0;
-      right: 0;
-    }
-
-    .star {
-      position: absolute;
-      color: #FBBF24;
-      font-size: 1rem;
-      animation: twinkle 2s ease-in-out infinite;
-    }
-
-    .star:nth-child(1) { left: 20%; top: 0; animation-delay: 0s; }
-    .star:nth-child(2) { left: 75%; top: 10px; animation-delay: 0.5s; }
-    .star:nth-child(3) { left: 10%; top: 25px; animation-delay: 1s; }
-    .star:nth-child(4) { left: 85%; top: 5px; animation-delay: 1.5s; }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.8); }
-    }
-
-    /* 404 Text */
+    /* 404 Number */
     .error-code {
-      font-size: 8rem;
+      font-size: 10rem;
       font-weight: 800;
-      color: var(--color-primary);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
-      margin-bottom: 0.5rem;
-      opacity: 0.15;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: -1;
+      margin-bottom: 1.5rem;
     }
 
     /* Content */
@@ -270,7 +158,7 @@
     /* Responsive */
     @media (max-width: 480px) {
       .error-code {
-        font-size: 5rem;
+        font-size: 6rem;
       }
 
       h1 {
@@ -288,10 +176,6 @@
       .btn {
         width: 100%;
       }
-
-      .tent {
-        transform: scale(0.8);
-      }
     }
   </style>
 </head>
@@ -304,40 +188,10 @@
 
   <main class="main">
     <div class="container">
-      <!-- Scout tent illustration -->
-      <div class="illustration">
-        <div class="stars">
-          <span class="star">★</span>
-          <span class="star">★</span>
-          <span class="star">★</span>
-          <span class="star">★</span>
-        </div>
-        <div class="tent">
-          <div class="tent-pole"></div>
-          <div class="tent-flag"></div>
-          <div class="tent-body"></div>
-          <div class="tent-door"></div>
-        </div>
-        <div class="ground">
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-          <div class="grass"></div>
-        </div>
-        <div class="error-code">404</div>
-      </div>
+      <div class="error-code">404</div>
 
-      <h1>Looks like you've wandered off the trail</h1>
-      <p class="subtitle">The page you're looking for doesn't exist or has been moved. Let's get you back to camp.</p>
+      <h1>Page not found</h1>
+      <p class="subtitle">The page you're looking for doesn't exist or has been moved.</p>
 
       <div class="buttons">
         <a href="/" class="btn btn-primary">

@@ -22,7 +22,7 @@ async function signInWithGoogle() {
             provider: 'google',
             options: {
                 // Redirect to dashboard after successful authentication
-                redirectTo: window.location.origin + '/dashboard',
+                redirectTo: window.location.origin + '/pages/dashboard.html',
                 // Only request basic profile scopes - calendar access is granted later in Settings
                 scopes: 'email profile'
             }
@@ -118,7 +118,7 @@ async function handleMagicLink(event) {
             email: email,
             options: {
                 // Redirect to dashboard after clicking the magic link
-                emailRedirectTo: window.location.origin + '/dashboard'
+                emailRedirectTo: window.location.origin + '/pages/dashboard.html'
             }
         });
 
@@ -280,7 +280,7 @@ async function checkAuth() {
 
         if (error) {
             console.error('Auth check error:', error);
-            window.location.href = '/login';
+            window.location.href = '/pages/login.html';
             return null;
         }
 
@@ -314,7 +314,7 @@ async function checkAuth() {
 
         // If still no session, redirect to login
         if (!session) {
-            window.location.href = '/login';
+            window.location.href = '/pages/login.html';
             return null;
         }
 
@@ -332,7 +332,7 @@ async function checkAuth() {
                 if (refreshError) {
                     console.error('Session refresh error:', refreshError);
                     // If refresh fails, redirect to login
-                    window.location.href = '/login';
+                    window.location.href = '/pages/login.html';
                     return null;
                 }
                 
@@ -348,7 +348,7 @@ async function checkAuth() {
 
     } catch (err) {
         console.error('Unexpected error checking auth:', err);
-        window.location.href = '/login';
+        window.location.href = '/pages/login.html';
         return null;
     }
 }
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (session && session.user) {
             // User is already logged in, redirect to dashboard
             console.log('User already authenticated, redirecting to dashboard');
-            window.location.href = '/dashboard';
+            window.location.href = '/pages/dashboard.html';
             return;
         }
     }

@@ -33,6 +33,22 @@
       margin: 0;
     }
 
+    .user-pro-badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 700;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
+
     .dashboard-grid {
       display: flex;
       flex-direction: column;
@@ -1430,7 +1446,7 @@
     <div class="container">
       <div class="dashboard-header-content">
         <div class="welcome-text">
-          <h1>Welcome back, <span id="user-name">there</span>!</h1>
+          <h1>Welcome back, <span id="user-name">there</span><span class="user-pro-badge" id="user-pro-badge" style="display: none;">PRO</span>!</h1>
           <p>Here's what's happening with your bookings</p>
         </div>
         <div class="quick-actions">
@@ -3240,18 +3256,28 @@
     }
 
 
-    // Check and display trial status
+    // Check and display subscription/trial status
     async function checkTrialStatus(userId) {
       try {
         const { data: profile, error } = await supabaseClient
           .from('user_profiles')
-          .select('subscription_status, trial_ends_at')
+          .select('subscription_status, subscription_plan, trial_ends_at')
           .eq('id', userId)
           .single();
 
         if (error) {
           console.error('Error fetching profile:', error);
           return;
+        }
+
+        // Check if user is Pro and show badge
+        if (profile) {
+          const isPro = profile.subscription_status === 'pro' || profile.subscription_plan === 'pro';
+          const proBadge = document.getElementById('user-pro-badge');
+          
+          if (proBadge && isPro) {
+            proBadge.style.display = 'inline-block';
+          }
         }
 
       } catch (err) {
