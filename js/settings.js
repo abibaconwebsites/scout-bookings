@@ -551,6 +551,8 @@ async function loadSubscriptionPanel() {
         
         if (error && error.code !== 'PGRST116') {
             console.error('[Settings] Error loading subscription:', error);
+            // Still set up the form even if profile loading fails
+            setupUpgradeCodeForm();
             return;
         }
         
@@ -630,14 +632,27 @@ async function loadSubscriptionPanel() {
  */
 function setupUpgradeCodeForm() {
     const form = document.getElementById('upgrade-code-form');
+    const redeemBtn = document.getElementById('redeem-code-btn');
+    
     if (!form || form.dataset.listenerAttached) return;
     
     form.dataset.listenerAttached = 'true';
     
+    // Form submit handler
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         await handleUpgradeCodeSubmit();
     });
+    
+    // Also add click handler on button as fallback
+    if (redeemBtn) {
+        redeemBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await handleUpgradeCodeSubmit();
+        });
+    }
+    
+    console.log('[Settings] Upgrade code form handler attached');
 }
 
 /**
@@ -3238,6 +3253,9 @@ async function getUserHut(userId) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('[Settings] DOM loaded, initializing settings page');
     loadSettings();
+    
+    // Also set up upgrade code form immediately in case panel is already visible
+    setupUpgradeCodeForm();
 });
 
 // =============================================================================
