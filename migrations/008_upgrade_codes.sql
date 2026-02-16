@@ -19,9 +19,34 @@ CREATE TABLE IF NOT EXISTS upgrade_codes (
 CREATE INDEX IF NOT EXISTS idx_upgrade_codes_code ON upgrade_codes(code);
 CREATE INDEX IF NOT EXISTS idx_upgrade_codes_active ON upgrade_codes(is_active) WHERE is_active = true;
 
--- Add upgrade tracking columns to user_profiles if they don't exist
+-- Add subscription and upgrade tracking columns to user_profiles if they don't exist
 DO $$ 
 BEGIN
+  -- Subscription status column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'user_profiles' AND column_name = 'subscription_status') THEN
+    ALTER TABLE user_profiles ADD COLUMN subscription_status TEXT DEFAULT 'trial';
+  END IF;
+  
+  -- Subscription plan column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'user_profiles' AND column_name = 'subscription_plan') THEN
+    ALTER TABLE user_profiles ADD COLUMN subscription_plan TEXT;
+  END IF;
+  
+  -- Subscription end date column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'user_profiles' AND column_name = 'subscription_ends_at') THEN
+    ALTER TABLE user_profiles ADD COLUMN subscription_ends_at TIMESTAMPTZ;
+  END IF;
+  
+  -- Trial end date column
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                 WHERE table_name = 'user_profiles' AND column_name = 'trial_ends_at') THEN
+    ALTER TABLE user_profiles ADD COLUMN trial_ends_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '14 days');
+  END IF;
+  
+  -- Upgrade tracking columns
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                  WHERE table_name = 'user_profiles' AND column_name = 'upgraded_at') THEN
     ALTER TABLE user_profiles ADD COLUMN upgraded_at TIMESTAMPTZ;
@@ -35,6 +60,10 @@ END $$;
 
 -- RLS Policies for upgrade_codes table
 ALTER TABLE upgrade_codes ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can validate upgrade codes" ON upgrade_codes;
+DROP POLICY IF EXISTS "Users can redeem upgrade codes" ON upgrade_codes;
 
 -- Users can only read active, unused codes (for validation)
 CREATE POLICY "Users can validate upgrade codes"
@@ -54,9 +83,10 @@ CREATE POLICY "Users can redeem upgrade codes"
 -- Grant necessary permissions
 GRANT SELECT, UPDATE ON upgrade_codes TO authenticated;
 
--- Insert test upgrade code
+-- Insert test upgrade code (skip if already exists)
 INSERT INTO upgrade_codes (code, description) VALUES
-  ('TESTING', 'Test upgrade code');
+  ('TESTING', 'Test upgrade code')
+ON CONFLICT (code) DO NOTHING;
 
 COMMENT ON TABLE upgrade_codes IS 'Stores upgrade codes that users can redeem to get Pro subscription';
 COMMENT ON COLUMN upgrade_codes.code IS 'The unique upgrade code (case-insensitive, stored uppercase)';
