@@ -1578,6 +1578,27 @@
           <button class="btn btn-primary" id="manage-subscription-btn">Manage Subscription</button>
           <p class="help-text">Opens Stripe billing portal</p>
         </div>
+
+        <!-- Upgrade Code Section -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <h2 class="settings-card-title">Upgrade Code</h2>
+          </div>
+          <p class="settings-card-subtitle" style="margin-bottom: 1rem;">Have an upgrade code? Enter it below to unlock Pro features.</p>
+          
+          <form id="upgrade-code-form">
+            <div class="form-section">
+              <label class="form-section-label" for="upgrade-code-input">Enter your code</label>
+              <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                <input type="text" class="form-input" id="upgrade-code-input" placeholder="e.g. SCOUT-PRO-XXXX" style="flex: 1; text-transform: uppercase;">
+                <button type="submit" class="btn btn-primary" id="apply-upgrade-code-btn">Apply</button>
+              </div>
+              <p class="help-text">Upgrade codes are case-insensitive</p>
+            </div>
+          </form>
+          
+          <div id="upgrade-code-result" style="display: none; margin-top: 1rem;"></div>
+        </div>
       </section>
 
       <!-- Team Panel -->
@@ -2065,6 +2086,118 @@
     document.getElementById('manage-subscription-btn')?.addEventListener('click', async () => {
       // This would typically open Stripe billing portal
       showNotification('Billing portal coming soon', 'info');
+    });
+
+    // Upgrade code form submission
+    document.getElementById('upgrade-code-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const codeInput = document.getElementById('upgrade-code-input');
+      const applyBtn = document.getElementById('apply-upgrade-code-btn');
+      const resultDiv = document.getElementById('upgrade-code-result');
+      const code = codeInput.value.trim().toUpperCase();
+      
+      if (!code) {
+        showNotification('Please enter an upgrade code', 'error');
+        return;
+      }
+      
+      // Disable button and show loading state
+      const originalText = applyBtn.textContent;
+      applyBtn.textContent = 'Applying...';
+      applyBtn.disabled = true;
+      
+      try {
+        // Get current user
+        const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+        if (userError || !user) throw new Error('Not authenticated');
+        
+        // Verify the upgrade code against the database
+        const { data: codeData, error: codeError } = await supabaseClient
+          .from('upgrade_codes')
+          .select('*')
+          .eq('code', code)
+          .eq('is_active', true)
+          .is('used_by', null)
+          .single();
+        
+        if (codeError || !codeData) {
+          // Show error result
+          resultDiv.innerHTML = `
+            <div style="padding: 1rem; background-color: var(--color-error-bg); border: 1px solid var(--color-error-border); border-radius: var(--radius-md); color: var(--color-error);">
+              <strong>Invalid code</strong><br>
+              <span style="font-size: 0.875rem;">This code is invalid, expired, or has already been used.</span>
+            </div>
+          `;
+          resultDiv.style.display = 'block';
+          return;
+        }
+        
+        // Mark the code as used
+        const { error: updateCodeError } = await supabaseClient
+          .from('upgrade_codes')
+          .update({
+            used_by: user.id,
+            used_at: new Date().toISOString()
+          })
+          .eq('id', codeData.id);
+        
+        if (updateCodeError) throw updateCodeError;
+        
+        // Update user's subscription status to pro
+        const { error: updateProfileError } = await supabaseClient
+          .from('user_profiles')
+          .update({
+            subscription_status: 'pro',
+            upgraded_at: new Date().toISOString(),
+            upgrade_code_used: code
+          })
+          .eq('id', user.id);
+        
+        if (updateProfileError) throw updateProfileError;
+        
+        // Show success result
+        resultDiv.innerHTML = `
+          <div style="padding: 1rem; background-color: var(--color-success-bg); border: 1px solid var(--color-success-border); border-radius: var(--radius-md); color: var(--color-success);">
+            <strong>Upgrade successful!</strong><br>
+            <span style="font-size: 0.875rem;">You now have access to all Pro features. Refreshing page...</span>
+          </div>
+        `;
+        resultDiv.style.display = 'block';
+        
+        // Update the plan badge immediately
+        const planBadge = document.getElementById('user-plan');
+        if (planBadge) {
+          planBadge.textContent = 'Pro';
+        }
+        
+        // Hide trial status if shown
+        const trialStatus = document.getElementById('trial-status');
+        if (trialStatus) {
+          trialStatus.style.display = 'none';
+        }
+        
+        // Clear the input
+        codeInput.value = '';
+        
+        // Refresh the page after a short delay to show updated status
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+        
+      } catch (err) {
+        console.error('Error applying upgrade code:', err);
+        resultDiv.innerHTML = `
+          <div style="padding: 1rem; background-color: var(--color-error-bg); border: 1px solid var(--color-error-border); border-radius: var(--radius-md); color: var(--color-error);">
+            <strong>Error</strong><br>
+            <span style="font-size: 0.875rem;">Failed to apply upgrade code. Please try again or contact support.</span>
+          </div>
+        `;
+        resultDiv.style.display = 'block';
+      } finally {
+        applyBtn.textContent = originalText;
+        applyBtn.disabled = false;
+      }
     });
 
     // Initialize direction info boxes on load

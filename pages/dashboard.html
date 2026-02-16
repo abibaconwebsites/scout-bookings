@@ -258,13 +258,6 @@
       gap: var(--space-md);
     }
 
-    .pending-item-content {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-    }
-
     .pending-item-title {
       font-weight: 600;
       color: var(--color-text);
@@ -442,13 +435,6 @@
       vertical-align: middle;
     }
 
-    .booking-item-content {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      align-items: center;
-    }
-
     .booking-item-title {
       font-weight: 600;
       font-size: 1rem;
@@ -468,11 +454,6 @@
       font-size: 0.875rem;
       color: var(--color-gray-600);
       white-space: nowrap;
-    }
-
-    .booking-item-value {
-      font-size: 0.875rem;
-      color: var(--color-text);
     }
 
     .booking-item-actions {
@@ -3006,13 +2987,11 @@
               
               return `
               <div class="booking-item" data-booking-id="${booking.id}">
-                <div class="booking-item-content">
-                  <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
-                  <div class="booking-item-right">
-                    <div class="booking-item-datetime">${dateStr}, ${startTime} - ${endTime}</div>
-                    <div class="booking-item-actions">
-                      <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>
-                    </div>
+                <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
+                <div class="booking-item-right">
+                  <div class="booking-item-datetime">${dateStr}, ${startTime} - ${endTime}</div>
+                  <div class="booking-item-actions">
+                    <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>
                   </div>
                 </div>
               </div>
@@ -3149,13 +3128,11 @@
 
             return `
               <div class="pending-item" data-booking-id="${booking.id}">
-                <div class="pending-item-content">
-                  <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
-                  <div class="pending-item-right">
-                    <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
-                    <div class="pending-item-actions">
-                      <button class="btn btn-primary btn-small" onclick="viewPendingBooking('${booking.id}')">View</button>
-                    </div>
+                <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
+                <div class="pending-item-right">
+                  <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
+                  <div class="pending-item-actions">
+                    <button class="btn btn-primary btn-small" onclick="viewPendingBooking('${booking.id}')">View</button>
                   </div>
                 </div>
               </div>
