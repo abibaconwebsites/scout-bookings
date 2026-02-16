@@ -545,7 +545,7 @@ async function loadSubscriptionPanel() {
         // Get user profile with subscription info
         const { data: profile, error } = await supabaseClient
             .from('user_profiles')
-            .select('subscription_status, trial_ends_at, subscription_plan, subscription_ends_at, upgrade_code_used')
+            .select('subscription_status, subscription_plan, subscription_ends_at, upgrade_code_used')
             .eq('id', currentUserId)
             .single();
         
@@ -562,12 +562,16 @@ async function loadSubscriptionPanel() {
         const renewalDate = document.getElementById('renewal-date');
         const upgradeCodeSection = document.getElementById('upgrade-code-section');
         
+        console.log('[Settings] Profile data:', profile);
+        
         if (profile) {
             const isPro = profile.subscription_status === 'pro' || profile.subscription_plan === 'pro';
+            console.log('[Settings] isPro:', isPro, 'status:', profile.subscription_status, 'plan:', profile.subscription_plan);
             
             // Set plan badge
             if (planBadge) {
                 const status = profile.subscription_plan || profile.subscription_status || 'Free';
+                console.log('[Settings] Setting plan badge to:', status);
                 planBadge.textContent = capitalizeFirst(status);
                 
                 // Update badge color for Pro
@@ -577,19 +581,8 @@ async function loadSubscriptionPanel() {
                 }
             }
             
-            // Show trial status if applicable
-            if (profile.subscription_status === 'trial' && profile.trial_ends_at) {
-                const trialEnd = new Date(profile.trial_ends_at);
-                const now = new Date();
-                const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
-                
-                if (trialStatus && trialStatusText && daysLeft > 0) {
-                    trialStatus.style.display = 'block';
-                    trialStatusText.textContent = `Your trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-                } else if (trialStatus) {
-                    trialStatus.style.display = 'none';
-                }
-            } else if (trialStatus) {
+            // Hide trial status (trials disabled)
+            if (trialStatus) {
                 trialStatus.style.display = 'none';
             }
             

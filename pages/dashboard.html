@@ -3261,7 +3261,7 @@
       try {
         const { data: profile, error } = await supabaseClient
           .from('user_profiles')
-          .select('subscription_status, subscription_plan, trial_ends_at')
+          .select('subscription_status, subscription_plan')
           .eq('id', userId)
           .single();
 
@@ -3271,12 +3271,16 @@
         }
 
         // Check if user is Pro and show badge
+        console.log('[Dashboard] Profile data:', profile);
         if (profile) {
           const isPro = profile.subscription_status === 'pro' || profile.subscription_plan === 'pro';
+          console.log('[Dashboard] isPro:', isPro, 'status:', profile.subscription_status, 'plan:', profile.subscription_plan);
           const proBadge = document.getElementById('user-pro-badge');
+          console.log('[Dashboard] Pro badge element:', proBadge);
           
           if (proBadge && isPro) {
             proBadge.style.display = 'inline-block';
+            console.log('[Dashboard] Pro badge shown');
           }
         }
 

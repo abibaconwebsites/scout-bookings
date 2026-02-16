@@ -199,18 +199,14 @@ async function handleAuthCallback() {
                     || user.user_metadata?.name 
                     || user.email.split('@')[0];
 
-                // Calculate trial end date (14 days from now)
-                const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
-
-                // Create the user profile with trial subscription
+                // Create the user profile with free plan
                 const { error: insertError } = await supabaseClient
                     .from('user_profiles')
                     .insert({
                         id: user.id,
                         full_name: fullName,
-                        subscription_status: 'trial',
-                        subscription_plan: 'basic',
-                        trial_ends_at: trialEndsAt
+                        subscription_status: 'free',
+                        subscription_plan: 'free'
                     });
 
                 if (insertError) {

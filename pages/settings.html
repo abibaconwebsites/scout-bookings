@@ -1964,7 +1964,7 @@
       try {
         const { data: profile, error } = await supabaseClient
           .from('user_profiles')
-          .select('subscription_status, trial_ends_at')
+          .select('subscription_status, subscription_plan')
           .eq('id', user.id)
           .single();
 
@@ -1984,16 +1984,9 @@
             planBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
           }
 
-          // Show trial status if applicable
-          if (profile.subscription_status === 'trial' && profile.trial_ends_at) {
-            const trialEnd = new Date(profile.trial_ends_at);
-            const now = new Date();
-            const daysLeft = Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24));
-
-            if (trialStatus && trialStatusText && daysLeft > 0) {
-              trialStatus.style.display = 'block';
-              trialStatusText.textContent = `Your trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-            }
+          // Hide trial status (trials disabled)
+          if (trialStatus) {
+            trialStatus.style.display = 'none';
           }
         }
       } catch (err) {
