@@ -128,24 +128,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .logo-icon {
-      width: 56px;
-      height: 56px;
-      background: var(--color-primary);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
-    }
-
-    .logo-icon svg {
-      width: 32px;
-      height: 32px;
-      color: var(--color-white);
+      margin-bottom: 3rem;
     }
 
     .logo-text {
@@ -171,14 +154,15 @@
 
     /* Heading */
     h1 {
-      font-size: 3rem;
+      font-size: 3.5rem;
       font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 1rem;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
       color: var(--color-text);
     }
 
     h1 span {
+      display: block;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -188,7 +172,7 @@
     .subtitle {
       font-size: 1.25rem;
       color: var(--color-text-light);
-      margin-bottom: 2.5rem;
+      margin-bottom: 3rem;
       line-height: 1.6;
     }
 
@@ -197,7 +181,6 @@
       display: flex;
       justify-content: center;
       gap: 2rem;
-      margin-bottom: 2.5rem;
       flex-wrap: wrap;
     }
 
@@ -215,98 +198,6 @@
       color: var(--color-primary);
     }
 
-    /* Email form */
-    .notify-form {
-      background: var(--color-white);
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-    }
-
-    .notify-form h3 {
-      font-size: 1.125rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .notify-form p {
-      color: var(--color-text-light);
-      font-size: 0.875rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .form-input {
-      flex: 1;
-      padding: 0.875rem 1rem;
-      border: 2px solid var(--color-border);
-      border-radius: 10px;
-      font-size: 1rem;
-      font-family: inherit;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-    }
-
-    .form-input::placeholder {
-      color: #9CA3AF;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.875rem 1.5rem;
-      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-      color: var(--color-white);
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      white-space: nowrap;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    .btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    /* Success message */
-    .success-message {
-      display: none;
-      background: #ECFDF5;
-      border: 1px solid #A7F3D0;
-      color: #065F46;
-      padding: 1rem;
-      border-radius: 10px;
-      font-weight: 500;
-    }
-
-    .success-message.show {
-      display: block;
-    }
-
     /* Footer */
     .footer {
       padding: 1.5rem 2rem;
@@ -320,7 +211,7 @@
     /* Responsive */
     @media (max-width: 640px) {
       h1 {
-        font-size: 2.25rem;
+        font-size: 2.5rem;
       }
 
       .subtitle {
@@ -333,26 +224,8 @@
         align-items: center;
       }
 
-      .form-row {
-        flex-direction: column;
-      }
-
-      .notify-form {
-        padding: 1.5rem;
-      }
-
       .logo-text {
         font-size: 1.5rem;
-      }
-
-      .logo-icon {
-        width: 48px;
-        height: 48px;
-      }
-
-      .logo-icon svg {
-        width: 28px;
-        height: 28px;
       }
     }
   </style>
@@ -370,17 +243,12 @@
     <div class="container">
       <!-- Logo with badge -->
       <div class="logo">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-          </svg>
-        </div>
         <span class="logo-text">Scout Bookings</span>
         <span class="coming-soon-badge">Coming Soon</span>
       </div>
 
       <!-- Heading -->
-      <h1>Bookings <span>Just Got Simpler</span></h1>
+      <h1>Bookings<span>Just Got Simpler</span></h1>
       <p class="subtitle">The easiest way to manage your scout hut bookings. Calendar sync, team access, and public booking pages - all in one place.</p>
 
       <!-- Features -->
@@ -402,21 +270,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
           </svg>
           Public Booking Pages
-        </div>
-      </div>
-
-      <!-- Email signup form -->
-      <div class="notify-form">
-        <h3>Get notified when we launch</h3>
-        <p>Be the first to know when Scout Bookings is ready.</p>
-        
-        <form id="notify-form" class="form-row">
-          <input type="email" class="form-input" id="email-input" placeholder="Enter your email" required>
-          <button type="submit" class="btn" id="submit-btn">Notify Me</button>
-        </form>
-        
-        <div class="success-message" id="success-message">
-          Thanks! We'll let you know when we launch.
         </div>
       </div>
     </div>
@@ -453,35 +306,6 @@
         return;
       }
     })();
-
-    // Simple form handling for notify form
-    document.getElementById('notify-form').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const email = document.getElementById('email-input').value;
-      const submitBtn = document.getElementById('submit-btn');
-      const form = document.getElementById('notify-form');
-      const successMessage = document.getElementById('success-message');
-      
-      // Disable button and show loading state
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Submitting...';
-      
-      // Simulate a brief delay (in production, this would send to your backend)
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Store email in localStorage for demo purposes
-      // In production, you'd send this to your backend/email service
-      const emails = JSON.parse(localStorage.getItem('notify_emails') || '[]');
-      if (!emails.includes(email)) {
-        emails.push(email);
-        localStorage.setItem('notify_emails', JSON.stringify(emails));
-      }
-      
-      // Show success message
-      form.style.display = 'none';
-      successMessage.classList.add('show');
-    });
   </script>
 </body>
 </html>
