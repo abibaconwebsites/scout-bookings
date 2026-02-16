@@ -261,38 +261,34 @@
     .pending-item-content {
       flex: 1;
       min-width: 0;
-    }
-
-    .pending-item-actions {
-      flex-shrink: 0;
-    }
-
-    .pending-item-header {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-sm);
+      align-items: center;
     }
 
     .pending-item-title {
       font-weight: 600;
       color: var(--color-text);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pending-item-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-shrink: 0;
     }
 
     .pending-item-date {
       font-size: 0.8125rem;
       color: var(--color-placeholder);
-    }
-
-    .pending-item-contact {
-      font-size: 0.8125rem;
-      color: var(--color-text);
-      margin-bottom: var(--space-sm);
+      white-space: nowrap;
     }
 
     .pending-item-actions {
       display: flex;
       gap: var(--space-sm);
+      flex-shrink: 0;
     }
 
     .pending-item-actions .btn {
@@ -305,18 +301,16 @@
         padding: var(--space-sm) var(--space-md);
       }
 
-      .pending-item-header {
-        align-items: flex-start;
-        margin-bottom: 0;
-        gap: var(--space-sm);
-      }
-
       .pending-item-title {
         font-size: 0.875rem;
       }
 
       .pending-item-date {
         font-size: 0.75rem;
+      }
+
+      .pending-item-right {
+        gap: var(--space-sm);
       }
     }
 
@@ -424,7 +418,7 @@
     .booking-item {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       padding: var(--space-md);
       background-color: var(--color-background);
       border-radius: var(--radius-md);
@@ -451,18 +445,29 @@
     .booking-item-content {
       flex: 1;
       min-width: 0;
+      display: flex;
+      align-items: center;
     }
 
     .booking-item-title {
       font-weight: 600;
       font-size: 1rem;
       color: #000000;
-      margin-bottom: var(--space-sm);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .booking-item-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-shrink: 0;
     }
 
     .booking-item-datetime {
       font-size: 0.875rem;
       color: var(--color-gray-600);
+      white-space: nowrap;
     }
 
     .booking-item-value {
@@ -472,7 +477,6 @@
 
     .booking-item-actions {
       flex-shrink: 0;
-      margin-left: var(--space-md);
       display: flex;
       justify-content: flex-end;
     }
@@ -510,16 +514,14 @@
 
       .booking-item-title {
         font-size: 0.875rem;
-        margin-bottom: var(--space-xs);
       }
 
       .booking-item-datetime {
         font-size: 0.75rem;
       }
 
-      .booking-item-actions {
-        margin-left: var(--space-sm);
-        margin-top: 0;
+      .booking-item-right {
+        gap: var(--space-sm);
       }
 
       .booking-item .btn-view {
@@ -3006,10 +3008,12 @@
               <div class="booking-item" data-booking-id="${booking.id}">
                 <div class="booking-item-content">
                   <div class="booking-item-title">${escapeHtml(booking.event_name)}</div>
-                  <div class="booking-item-datetime">${dateStr}, ${startTime} - ${endTime}</div>
-                </div>
-                <div class="booking-item-actions">
-                  <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>
+                  <div class="booking-item-right">
+                    <div class="booking-item-datetime">${dateStr}, ${startTime} - ${endTime}</div>
+                    <div class="booking-item-actions">
+                      <button class="btn-view" onclick="viewBooking('${booking.id}')">View Booking</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             `;
@@ -3146,13 +3150,13 @@
             return `
               <div class="pending-item" data-booking-id="${booking.id}">
                 <div class="pending-item-content">
-                  <div class="pending-item-header">
-                    <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
+                  <div class="pending-item-title">${escapeHtml(booking.event_name)}</div>
+                  <div class="pending-item-right">
                     <div class="pending-item-date">${dateStr}, ${startTime} - ${endTime}</div>
+                    <div class="pending-item-actions">
+                      <button class="btn btn-primary btn-small" onclick="viewPendingBooking('${booking.id}')">View</button>
+                    </div>
                   </div>
-                </div>
-                <div class="pending-item-actions">
-                  <button class="btn btn-primary btn-small" onclick="viewPendingBooking('${booking.id}')">View</button>
                 </div>
               </div>
             `;

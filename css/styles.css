@@ -1406,6 +1406,7 @@ small {
   .form-group {
     min-width: 0;
     overflow: hidden;
+    width: 100%;
   }
 
   .form-input,
@@ -1418,10 +1419,21 @@ small {
     max-width: 100% !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  /* Date input specific - limit width on mobile */
+  input[type="date"] {
+    width: 80% !important;
   }
 
   /* Date/time grid narrower on mobile */
-  .datetime-grid,
+  .datetime-grid {
+    width: 100%;
+  }
+
   .time-grid {
     width: 80%;
   }

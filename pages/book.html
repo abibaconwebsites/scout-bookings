@@ -385,12 +385,14 @@
       .datetime-grid,
       .contact-grid {
         grid-template-columns: 1fr;
+        width: 100%;
       }
 
       /* Prevent date/time inputs from overflowing */
       .form-group {
         min-width: 0;
         overflow: hidden;
+        width: 100%;
       }
 
       .form-input,
@@ -401,6 +403,14 @@
         max-width: 100% !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+      }
+
+      /* Date input specific - limit width */
+      input[type="date"] {
+        width: 80% !important;
       }
 
       .time-grid {
@@ -412,8 +422,10 @@
         min-width: 0;
       }
 
-      .time-grid .form-input {
+      .time-grid .form-input,
+      .time-grid input[type="time"] {
         min-width: 0 !important;
+        width: 100% !important;
       }
 
       .form-actions {
