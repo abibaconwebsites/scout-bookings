@@ -335,6 +335,53 @@
       color: var(--color-text);
     }
 
+    /* Pro Badge for recurring events */
+    .pro-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 700;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 0.5rem;
+    }
+
+    .pro-badge.hidden {
+      display: none;
+    }
+
+    .pro-upgrade-hint {
+      margin-top: 0.5rem;
+      padding: 0.75rem 1rem;
+      background-color: #F5F3FF;
+      border: 1px solid #DDD6FE;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .pro-upgrade-hint a {
+      color: var(--color-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .pro-upgrade-hint a:hover {
+      text-decoration: underline;
+    }
+
+    .recurrence-toggle.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .recurrence-toggle.disabled input[type="checkbox"] {
+      cursor: not-allowed;
+    }
+
     .recurrence-options {
       display: none;
       margin-top: var(--space-md);
@@ -654,10 +701,14 @@
 
           <!-- Recurring Event Section -->
           <div class="recurrence-section" id="recurrence-section">
-            <label class="recurrence-toggle">
+            <label class="recurrence-toggle" id="recurrence-toggle-label">
               <input type="checkbox" id="is-recurring" name="is_recurring">
               <span class="recurrence-toggle-label">Make this a recurring event</span>
+              <span class="pro-badge" id="recurrence-pro-badge">PRO</span>
             </label>
+            <div class="pro-upgrade-hint" id="recurrence-upgrade-hint" style="display: none;">
+              <a href="settings.html#subscription">Upgrade to Pro</a> to create recurring events
+            </div>
 
             <div class="recurrence-options" id="recurrence-options">
               <!-- Frequency Selection -->
@@ -873,6 +924,7 @@
     let currentHut = null;
     let editingBookingId = null;
     let editingBookingStatus = null;
+    let isProUser = false;
 
     // Recurrence state
     const recurrenceState = {
@@ -907,6 +959,14 @@
         window.location.href = 'edit-hut.html';
         return;
       }
+
+      // Load pending bookings for notification badge
+      if (typeof loadPendingBookingsNotifications === 'function') {
+        loadPendingBookingsNotifications(currentHut.id);
+      }
+
+      // Check user's subscription status for Pro features
+      await checkProSubscription();
 
       // Check for edit mode or date in URL params
       const urlParams = new URLSearchParams(window.location.search);
@@ -948,6 +1008,69 @@
     });
 
     // =============================================================================
+    // PRO SUBSCRIPTION CHECK
+    // =============================================================================
+
+    /**
+     * Checks if the current user has a Pro subscription.
+     * Enables/disables Pro features like recurring events accordingly.
+     */
+    async function checkProSubscription() {
+      try {
+        const { data: profile, error } = await supabaseClient
+          .from('user_profiles')
+          .select('subscription_status, subscription_plan')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking subscription:', error);
+          return;
+        }
+
+        // Check if user has Pro status
+        isProUser = profile && (
+          profile.subscription_status === 'pro' || 
+          profile.subscription_plan === 'pro'
+        );
+
+        // Update UI based on Pro status
+        updateProFeatures();
+        
+        console.log('[Add Booking] Pro user:', isProUser);
+      } catch (err) {
+        console.error('Error checking Pro subscription:', err);
+      }
+    }
+
+    /**
+     * Updates the UI to enable/disable Pro features based on subscription status.
+     */
+    function updateProFeatures() {
+      const recurrenceToggle = document.getElementById('recurrence-toggle-label');
+      const recurrenceCheckbox = document.getElementById('is-recurring');
+      const proBadge = document.getElementById('recurrence-pro-badge');
+      const upgradeHint = document.getElementById('recurrence-upgrade-hint');
+
+      if (isProUser) {
+        // Pro user - enable recurring events
+        if (recurrenceToggle) recurrenceToggle.classList.remove('disabled');
+        if (recurrenceCheckbox) recurrenceCheckbox.disabled = false;
+        if (proBadge) proBadge.classList.add('hidden');
+        if (upgradeHint) upgradeHint.style.display = 'none';
+      } else {
+        // Free user - disable recurring events
+        if (recurrenceToggle) recurrenceToggle.classList.add('disabled');
+        if (recurrenceCheckbox) {
+          recurrenceCheckbox.disabled = true;
+          recurrenceCheckbox.checked = false;
+        }
+        if (proBadge) proBadge.classList.remove('hidden');
+        if (upgradeHint) upgradeHint.style.display = 'block';
+      }
+    }
+
+    // =============================================================================
     // RECURRENCE CONTROLS
     // =============================================================================
 
@@ -972,6 +1095,13 @@
 
       // Toggle recurrence options visibility
       isRecurringCheckbox.addEventListener('change', function() {
+        // Prevent non-Pro users from enabling recurring events
+        if (!isProUser && this.checked) {
+          this.checked = false;
+          showNotification('Recurring events are a Pro feature. Upgrade to Pro to use this feature.', 'info');
+          return;
+        }
+        
         recurrenceState.isRecurring = this.checked;
         recurrenceOptions.classList.toggle('visible', this.checked);
         if (this.checked) {

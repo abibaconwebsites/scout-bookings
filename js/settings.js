@@ -215,6 +215,11 @@ async function loadSettings() {
             currentHutId = hut.id;
             currentHutData = hut;
             console.log('[Settings] User hut loaded:', currentHutId, hut.name);
+            
+            // Load pending bookings for notification badge
+            if (typeof loadPendingBookingsNotifications === 'function') {
+                loadPendingBookingsNotifications(currentHutId);
+            }
         } else {
             console.log('[Settings] No hut found for user');
         }
@@ -529,7 +534,7 @@ function handleDeleteAccount() {
 
 /**
  * Loads the Subscription panel data.
- * Displays current plan, trial status, and renewal information.
+ * Displays current plan, trial status, renewal information, and upgrade code form.
  */
 async function loadSubscriptionPanel() {
     console.log('[Settings] Loading subscription panel');
@@ -540,7 +545,7 @@ async function loadSubscriptionPanel() {
         // Get user profile with subscription info
         const { data: profile, error } = await supabaseClient
             .from('user_profiles')
-            .select('subscription_status, trial_ends_at, subscription_plan, subscription_ends_at')
+            .select('subscription_status, trial_ends_at, subscription_plan, subscription_ends_at, upgrade_code_used')
             .eq('id', currentUserId)
             .single();
         
@@ -553,12 +558,21 @@ async function loadSubscriptionPanel() {
         const trialStatus = document.getElementById('trial-status');
         const trialStatusText = document.getElementById('trial-status-text');
         const renewalDate = document.getElementById('renewal-date');
+        const upgradeCodeSection = document.getElementById('upgrade-code-section');
         
         if (profile) {
+            const isPro = profile.subscription_status === 'pro' || profile.subscription_plan === 'pro';
+            
             // Set plan badge
             if (planBadge) {
-                const status = profile.subscription_plan || profile.subscription_status || 'Trial';
+                const status = profile.subscription_plan || profile.subscription_status || 'Free';
                 planBadge.textContent = capitalizeFirst(status);
+                
+                // Update badge color for Pro
+                if (isPro) {
+                    planBadge.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+                    planBadge.style.color = '#059669';
+                }
             }
             
             // Show trial status if applicable
@@ -590,12 +604,111 @@ async function loadSubscriptionPanel() {
                     renewalDate.textContent = 'N/A';
                 }
             }
+            
+            // Hide upgrade code section if user already has Pro
+            if (upgradeCodeSection) {
+                if (isPro) {
+                    upgradeCodeSection.style.display = 'none';
+                } else {
+                    upgradeCodeSection.style.display = 'block';
+                }
+            }
         }
+        
+        // Set up upgrade code form handler
+        setupUpgradeCodeForm();
         
         console.log('[Settings] Subscription panel loaded');
         
     } catch (err) {
         console.error('[Settings] Error loading subscription panel:', err);
+    }
+}
+
+/**
+ * Sets up the upgrade code form event listener.
+ */
+function setupUpgradeCodeForm() {
+    const form = document.getElementById('upgrade-code-form');
+    if (!form || form.dataset.listenerAttached) return;
+    
+    form.dataset.listenerAttached = 'true';
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await handleUpgradeCodeSubmit();
+    });
+}
+
+/**
+ * Handles upgrade code form submission.
+ * Validates and redeems the upgrade code.
+ */
+async function handleUpgradeCodeSubmit() {
+    const input = document.getElementById('upgrade-code-input');
+    const submitBtn = document.getElementById('redeem-code-btn');
+    const errorDiv = document.getElementById('upgrade-code-error');
+    const successDiv = document.getElementById('upgrade-code-success');
+    
+    const code = input.value.trim().toUpperCase();
+    
+    // Reset messages
+    errorDiv.style.display = 'none';
+    successDiv.style.display = 'none';
+    
+    if (!code) {
+        errorDiv.textContent = 'Please enter an upgrade code';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Disable button and show loading
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Redeeming...';
+    
+    try {
+        // Call the redeem function
+        const { data, error } = await supabaseClient.rpc('redeem_upgrade_code', {
+            p_code: code
+        });
+        
+        if (error) {
+            console.error('[Settings] Error redeeming code:', error);
+            errorDiv.textContent = error.message || 'Failed to redeem code. Please try again.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        // Check the result
+        if (data && data.success) {
+            // Success!
+            successDiv.innerHTML = `
+                <strong>Success!</strong> Your account has been upgraded to <strong>${capitalizeFirst(data.plan)}</strong>.
+                ${data.expires_at ? `<br>Your subscription is valid until ${new Date(data.expires_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}.` : ''}
+            `;
+            successDiv.style.display = 'block';
+            input.value = '';
+            
+            // Reload the subscription panel to reflect changes
+            setTimeout(() => {
+                loadSubscriptionPanel();
+            }, 2000);
+            
+            showNotification('Upgrade successful! Welcome to Pro.', 'success');
+        } else {
+            // Error from the function
+            errorDiv.textContent = data?.error || 'Failed to redeem code. Please check the code and try again.';
+            errorDiv.style.display = 'block';
+        }
+        
+    } catch (err) {
+        console.error('[Settings] Exception redeeming code:', err);
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
     }
 }
 
@@ -3186,6 +3299,10 @@ if (typeof window !== 'undefined') {
         closeEditRoleModal,
         saveRoleChange,
         removeTeamMember,
+        
+        // Subscription & Upgrade Codes
+        loadSubscriptionPanel,
+        handleUpgradeCodeSubmit,
         
         // Utilities
         getTimeAgo,

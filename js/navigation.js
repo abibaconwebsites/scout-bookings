@@ -121,3 +121,132 @@ document.addEventListener('keydown', function(event) {
         closeNotificationsDropdown();
     }
 });
+
+// =============================================================================
+// PENDING BOOKINGS NOTIFICATIONS
+// =============================================================================
+
+/**
+ * Loads pending bookings and updates the notification badge in the navbar.
+ * This function can be called from any page that uses the shared navigation.
+ * 
+ * @param {string} hutId - The hut ID to load pending bookings for
+ * @returns {Promise<Array>} The array of pending bookings
+ */
+async function loadPendingBookingsNotifications(hutId) {
+    if (!hutId) {
+        console.log('[Navigation] No hut ID provided, skipping pending bookings load');
+        return [];
+    }
+    
+    try {
+        // Check if supabaseClient is available
+        if (typeof supabaseClient === 'undefined') {
+            console.warn('[Navigation] supabaseClient not available');
+            return [];
+        }
+        
+        const { data: pendingBookings, error } = await supabaseClient
+            .from('bookings')
+            .select('*')
+            .eq('hut_id', hutId)
+            .eq('status', 'pending')
+            .order('start_time', { ascending: true });
+        
+        if (error) {
+            console.error('[Navigation] Error loading pending bookings:', error);
+            return [];
+        }
+        
+        const bookings = pendingBookings || [];
+        
+        // Update notification badge in navbar
+        updateNotificationBadge(bookings.length);
+        
+        // Update notifications dropdown content
+        updateNotificationsDropdownContent(bookings);
+        
+        console.log('[Navigation] Loaded', bookings.length, 'pending bookings');
+        return bookings;
+        
+    } catch (err) {
+        console.error('[Navigation] Error loading pending bookings:', err);
+        return [];
+    }
+}
+
+/**
+ * Updates the notification badge count in the navbar.
+ * 
+ * @param {number} count - The number of pending bookings
+ */
+function updateNotificationBadge(count) {
+    const notificationBadge = document.getElementById('notification-badge');
+    if (notificationBadge) {
+        if (count > 0) {
+            notificationBadge.textContent = count;
+            notificationBadge.style.display = 'flex';
+        } else {
+            notificationBadge.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * Updates the notifications dropdown content with pending bookings.
+ * 
+ * @param {Array} bookings - Array of pending booking objects
+ */
+function updateNotificationsDropdownContent(bookings) {
+    const dropdownList = document.getElementById('notifications-dropdown-list');
+    if (!dropdownList) return;
+    
+    if (!bookings || bookings.length === 0) {
+        dropdownList.innerHTML = '<div class="notifications-empty">No pending bookings</div>';
+        return;
+    }
+    
+    // Helper function to escape HTML (use global if available, otherwise define locally)
+    const escape = typeof escapeHtml === 'function' ? escapeHtml : function(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
+    
+    dropdownList.innerHTML = bookings.map(booking => {
+        const start = new Date(booking.start_time);
+        const dateOptions = { weekday: 'short', day: 'numeric', month: 'short' };
+        const dateStr = start.toLocaleDateString('en-GB', dateOptions);
+        const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+        const startTime = start.toLocaleTimeString('en-GB', timeOptions).toLowerCase();
+        
+        return `
+            <div class="notification-item">
+                <div class="notification-item-content">
+                    <div class="notification-item-title">${escape(booking.event_name)}</div>
+                    <div class="notification-item-date">${dateStr} at ${startTime}</div>
+                </div>
+                <button class="btn btn-primary btn-small" onclick="viewPendingBookingFromNav('${booking.id}')">View</button>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Handles clicking "View" on a pending booking from the navigation dropdown.
+ * Redirects to dashboard with the booking ID to view.
+ * 
+ * @param {string} bookingId - The booking ID to view
+ */
+function viewPendingBookingFromNav(bookingId) {
+    // Close the dropdown
+    closeNotificationsDropdown();
+    
+    // If we're already on the dashboard, try to use the existing viewPendingBooking function
+    if (typeof viewPendingBooking === 'function') {
+        viewPendingBooking(bookingId);
+    } else {
+        // Otherwise, redirect to dashboard with the booking ID
+        window.location.href = `dashboard.html?viewBooking=${bookingId}`;
+    }
+}

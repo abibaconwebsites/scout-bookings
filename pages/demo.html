@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Scout Bookings Demo - Simple, free booking management for scout huts. Includes Google Calendar sync and team access.">
+  <title>Demo - Scout Bookings</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="../index.html" class="logo">Scout Bookings</a>
+      <div class="nav-links">
+        <a href="login.html">Login</a>
+        <a href="signup.html" class="btn btn-primary btn-small">Sign Up</a>
+      </div>
+      <div class="nav-mobile-auth">
+        <a href="login.html" class="btn btn-outline btn-small">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>Bookings Just Got Simpler</h1>
+        <div class="hero-buttons">
+          <a href="signup.html" class="btn btn-primary btn-large">Get Started Free</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing">
+    <div class="container">
+      <h2 class="text-center">Select Your Plan</h2>
+      <div class="pricing-grid">
+        <!-- Basic Plan -->
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <div class="pricing-price">Free</div>
+          <p class="pricing-note">Forever free for small teams</p>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> 1 scout hut</li>
+            <li><span class="check">✓</span> 2 team members</li>
+            <li><span class="check">✓</span> Unlimited bookings</li>
+            <li><span class="check">✓</span> Google Calendar sync</li>
+            <li><span class="check">✓</span> Export to CSV</li>
+          </ul>
+          <a href="signup.html" class="btn btn-primary btn-block">Get Started Free</a>
+        </div>
+
+        <!-- Pro Plan (Highlighted) -->
+        <div class="pricing-card pricing-card-featured">
+          <div class="pricing-badge">POPULAR</div>
+          <h3>Pro</h3>
+          <div class="pricing-price">£40<span>/year</span></div>
+          <ul class="pricing-features">
+            <li><span class="check">✓</span> Everything in Basic</li>
+            <li><span class="check">✓</span> Unlimited scout huts</li>
+            <li><span class="check">✓</span> Public booking pages</li>
+            <li><span class="check">✓</span> Accept online payments</li>
+            <li><span class="check">✓</span> Email notifications</li>
+            <li><span class="check">✓</span> Up to 5 team members</li>
+          </ul>
+          <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p class="text-center text-muted">© 2026 Scout Bookings. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Handle OAuth callback redirect -->
+  <script src="../js/config.js"></script>
+  <script>
+    // If we have OAuth tokens in the URL hash, redirect to dashboard
+    // This handles the case where Supabase redirects to root instead of dashboard
+    (async function() {
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        // Initialize Supabase to process the tokens
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Let Supabase process the hash and establish the session
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+          // Redirect to dashboard with the hash intact so dashboard can process tokens
+          window.location.href = 'dashboard.html' + hash;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

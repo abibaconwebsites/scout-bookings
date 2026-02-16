@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Page not found - Scout Bookings">
+  <title>404 - Page Not Found | Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #7C3AED;
+      --color-primary-dark: #6D28D9;
+      --color-text: #1F2937;
+      --color-text-light: #6B7280;
+      --color-white: #FFFFFF;
+      --color-background: #F9FAFB;
+      --font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-background);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--color-text);
+    }
+
+    /* Navigation */
+    .navbar {
+      background-color: var(--color-white);
+      border-bottom: 1px solid #E5E7EB;
+      padding: 1rem 2rem;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--color-text);
+      text-decoration: none;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 500px;
+    }
+
+    /* Illustration */
+    .illustration {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .tent {
+      width: 200px;
+      height: 160px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .tent-body {
+      width: 0;
+      height: 0;
+      border-left: 100px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 140px solid var(--color-primary);
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .tent-door {
+      width: 0;
+      height: 0;
+      border-left: 30px solid transparent;
+      border-right: 30px solid transparent;
+      border-bottom: 70px solid var(--color-background);
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .tent-pole {
+      width: 4px;
+      height: 20px;
+      background-color: #92400E;
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    .tent-flag {
+      width: 20px;
+      height: 14px;
+      background-color: #FBBF24;
+      position: absolute;
+      top: -18px;
+      left: calc(50% + 2px);
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+
+    /* Ground */
+    .ground {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: -10px;
+    }
+
+    .grass {
+      width: 3px;
+      height: 12px;
+      background-color: #22C55E;
+      border-radius: 2px 2px 0 0;
+      transform-origin: bottom;
+    }
+
+    .grass:nth-child(odd) {
+      transform: rotate(-10deg);
+      height: 10px;
+    }
+
+    .grass:nth-child(even) {
+      transform: rotate(8deg);
+      height: 14px;
+    }
+
+    /* Stars */
+    .stars {
+      position: absolute;
+      top: -30px;
+      left: 0;
+      right: 0;
+    }
+
+    .star {
+      position: absolute;
+      color: #FBBF24;
+      font-size: 1rem;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    .star:nth-child(1) { left: 20%; top: 0; animation-delay: 0s; }
+    .star:nth-child(2) { left: 75%; top: 10px; animation-delay: 0.5s; }
+    .star:nth-child(3) { left: 10%; top: 25px; animation-delay: 1s; }
+    .star:nth-child(4) { left: 85%; top: 5px; animation-delay: 1.5s; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* 404 Text */
+    .error-code {
+      font-size: 8rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+      opacity: 0.15;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+
+    /* Content */
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      color: var(--color-text);
+    }
+
+    .subtitle {
+      font-size: 1.125rem;
+      color: var(--color-text-light);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: var(--color-white);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.35);
+    }
+
+    .btn-secondary {
+      background: var(--color-white);
+      color: var(--color-text);
+      border: 2px solid #E5E7EB;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Footer */
+    .footer {
+      padding: 1.5rem 2rem;
+      text-align: center;
+      color: var(--color-text-light);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .error-code {
+        font-size: 5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .tent {
+        transform: scale(0.8);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Scout Bookings</a>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="container">
+      <!-- Scout tent illustration -->
+      <div class="illustration">
+        <div class="stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <div class="tent">
+          <div class="tent-pole"></div>
+          <div class="tent-flag"></div>
+          <div class="tent-body"></div>
+          <div class="tent-door"></div>
+        </div>
+        <div class="ground">
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+          <div class="grass"></div>
+        </div>
+        <div class="error-code">404</div>
+      </div>
+
+      <h1>Looks like you've wandered off the trail</h1>
+      <p class="subtitle">The page you're looking for doesn't exist or has been moved. Let's get you back to camp.</p>
+
+      <div class="buttons">
+        <a href="/" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+          </svg>
+          Back to Home
+        </a>
+        <button onclick="history.back()" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+          </svg>
+          Go Back
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Scout Bookings. All rights reserved.</p>
+  </footer>
+</body>
+</html>

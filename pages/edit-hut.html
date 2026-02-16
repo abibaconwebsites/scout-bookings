@@ -900,6 +900,11 @@
         // Hut exists - edit mode
         isCreateMode = false;
         populateForm(currentHut);
+        
+        // Load pending bookings for notification badge
+        if (typeof loadPendingBookingsNotifications === 'function') {
+          loadPendingBookingsNotifications(currentHut.id);
+        }
       }
 
       // Set up day toggle listeners

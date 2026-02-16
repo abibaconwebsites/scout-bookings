@@ -440,6 +440,49 @@
       color: #b45309;
     }
 
+    /* Upgrade Code Form */
+    .upgrade-code-form {
+      margin-top: 1rem;
+    }
+
+    .form-row-inline {
+      display: flex;
+      gap: 0.75rem;
+      align-items: stretch;
+    }
+
+    .form-row-inline .form-control {
+      flex: 1;
+    }
+
+    .form-row-inline .btn {
+      flex-shrink: 0;
+    }
+
+    .form-error {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      background-color: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: var(--radius-md);
+      color: #DC2626;
+      font-size: 0.875rem;
+    }
+
+    .form-success {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      background-color: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      border-radius: var(--radius-md);
+      color: #065F46;
+      font-size: 0.875rem;
+    }
+
+    #upgrade-code-section.hidden {
+      display: none;
+    }
+
     /* Team Members */
     .team-member {
       display: flex;
@@ -1577,6 +1620,33 @@
         <div class="settings-card">
           <button class="btn btn-primary" id="manage-subscription-btn">Manage Subscription</button>
           <p class="help-text">Opens Stripe billing portal</p>
+        </div>
+
+        <!-- Upgrade Code Section -->
+        <div class="settings-card" id="upgrade-code-section">
+          <div class="settings-card-header">
+            <div>
+              <h2 class="settings-card-title">Have an Upgrade Code?</h2>
+              <p class="settings-card-subtitle">Enter your code below to unlock Pro features</p>
+            </div>
+          </div>
+          
+          <form id="upgrade-code-form" class="upgrade-code-form">
+            <div class="form-row-inline">
+              <input 
+                type="text" 
+                id="upgrade-code-input" 
+                class="form-control" 
+                placeholder="Enter upgrade code"
+                autocomplete="off"
+                spellcheck="false"
+                style="text-transform: uppercase;"
+              >
+              <button type="submit" class="btn btn-primary" id="redeem-code-btn">Redeem</button>
+            </div>
+            <div id="upgrade-code-error" class="form-error" style="display: none;"></div>
+            <div id="upgrade-code-success" class="form-success" style="display: none;"></div>
+          </form>
         </div>
       </section>
 
