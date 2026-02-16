@@ -10,6 +10,252 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    /* Demo Page Specific Styles */
+    .demo-hero {
+      padding: 5rem 0 4rem;
+      background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(116, 19, 220, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .demo-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(147, 51, 234, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .demo-hero-content {
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(116, 19, 220, 0.08);
+      color: var(--color-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 100px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(116, 19, 220, 0.15);
+    }
+
+    .demo-badge svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .demo-hero h1 {
+      font-size: 3.25rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      color: var(--color-text);
+    }
+
+    .demo-hero h1 span {
+      display: block;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #6D28D9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .demo-hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--color-placeholder);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .demo-hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .demo-hero-buttons .btn {
+      min-width: 180px;
+    }
+
+    /* Features Strip */
+    .features-strip {
+      padding: 3rem 0;
+      background: var(--color-white);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .features-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.75rem;
+    }
+
+    .feature-item-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-white);
+    }
+
+    .feature-item-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .feature-item-text {
+      font-weight: 600;
+      color: var(--color-text);
+      font-size: 0.9375rem;
+    }
+
+    /* Pricing Section Enhanced */
+    .demo-pricing {
+      padding: 5rem 0;
+      background: var(--color-background);
+    }
+
+    .demo-pricing-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .demo-pricing-header h2 {
+      font-size: 2.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-pricing-header p {
+      color: var(--color-placeholder);
+      font-size: 1.125rem;
+    }
+
+    /* CTA Section */
+    .demo-cta {
+      padding: 5rem 0;
+      background: linear-gradient(135deg, var(--color-primary) 0%, #6D28D9 100%);
+      text-align: center;
+    }
+
+    .demo-cta h2 {
+      color: var(--color-white);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-cta p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 1.125rem;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .demo-cta .btn {
+      background: var(--color-white);
+      color: var(--color-primary);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .demo-cta .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .demo-hero {
+        padding: 3rem 0;
+      }
+
+      .demo-hero h1 {
+        font-size: 2.25rem;
+      }
+
+      .demo-hero-subtitle {
+        font-size: 1.0625rem;
+      }
+
+      .features-strip-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+
+      .demo-pricing {
+        padding: 3rem 0;
+      }
+
+      .demo-cta {
+        padding: 3rem 0;
+      }
+
+      .demo-cta h2 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .features-strip-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .feature-item-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .feature-item-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .feature-item-text {
+        font-size: 0.8125rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- Navigation -->
@@ -27,21 +273,72 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="demo-hero">
     <div class="container">
-      <div class="hero-content">
-        <h1>Bookings Just Got Simpler</h1>
-        <div class="hero-buttons">
+      <div class="demo-hero-content">
+        <div class="demo-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+          </svg>
+          Free Forever Plan Available
+        </div>
+        <h1>Bookings Just<span>Got Simpler</span></h1>
+        <p class="demo-hero-subtitle">The easiest way to manage your scout hut bookings. Calendar sync, team access, and public booking pages - all in one place.</p>
+        <div class="demo-hero-buttons">
           <a href="signup.html" class="btn btn-primary btn-large">Get Started Free</a>
+          <a href="#pricing" class="btn btn-outline btn-large">View Plans</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Strip -->
+  <section class="features-strip">
+    <div class="container">
+      <div class="features-strip-grid">
+        <div class="feature-item">
+          <div class="feature-item-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+            </svg>
+          </div>
+          <span class="feature-item-text">Calendar Sync</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+            </svg>
+          </div>
+          <span class="feature-item-text">Team Access</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </div>
+          <span class="feature-item-text">CSV Export</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-item-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+            </svg>
+          </div>
+          <span class="feature-item-text">Secure & Private</span>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Pricing Section -->
-  <section class="pricing">
+  <section class="demo-pricing" id="pricing">
     <div class="container">
-      <h2 class="text-center">Select Your Plan</h2>
+      <div class="demo-pricing-header">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Start free, upgrade when you need more</p>
+      </div>
       <div class="pricing-grid">
         <!-- Basic Plan -->
         <div class="pricing-card">
@@ -73,8 +370,16 @@
           </ul>
           <button class="btn btn-secondary btn-block" disabled>Coming Soon</button>
         </div>
-
       </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="demo-cta">
+    <div class="container">
+      <h2>Ready to simplify your bookings?</h2>
+      <p>Join scout groups already using Scout Bookings to manage their hut reservations.</p>
+      <a href="signup.html" class="btn btn-large">Start Free Today</a>
     </div>
   </section>
 
