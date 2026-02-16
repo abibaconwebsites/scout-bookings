@@ -2112,14 +2112,18 @@
         const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
         if (userError || !user) throw new Error('Not authenticated');
         
-        // Verify the upgrade code against the database
+        console.log('[Upgrade] Checking code:', code, 'for user:', user.id);
+        
+        // Verify the upgrade code against the database (case-insensitive using ilike)
         const { data: codeData, error: codeError } = await supabaseClient
           .from('upgrade_codes')
           .select('*')
-          .eq('code', code)
+          .ilike('code', code)
           .eq('is_active', true)
           .is('used_by', null)
           .single();
+        
+        console.log('[Upgrade] Code lookup result:', codeData, 'error:', codeError);
         
         if (codeError || !codeData) {
           // Show error result
@@ -2142,6 +2146,7 @@
           })
           .eq('id', codeData.id);
         
+        console.log('[Upgrade] Update code result, error:', updateCodeError);
         if (updateCodeError) throw updateCodeError;
         
         // Update user's subscription status to pro
@@ -2154,6 +2159,7 @@
           })
           .eq('id', user.id);
         
+        console.log('[Upgrade] Update profile result, error:', updateProfileError);
         if (updateProfileError) throw updateProfileError;
         
         // Show success result
