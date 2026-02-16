@@ -576,6 +576,7 @@
     .modal-header h3 {
       margin: 0;
       font-size: 1.125rem;
+      flex: 1;
     }
 
     .modal-close {
@@ -589,6 +590,22 @@
     }
 
     .modal-close:hover {
+      color: var(--color-text);
+    }
+
+    .modal-back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-placeholder);
+      padding: 0;
+      margin-right: var(--space-sm);
+    }
+
+    .modal-back:hover {
       color: var(--color-text);
     }
 
@@ -1620,17 +1637,69 @@
   <div class="modal-overlay" id="day-bookings-modal">
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
+        <button class="modal-back" id="day-bookings-back-btn" onclick="showDayBookingsList()" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
         <h3 id="day-bookings-modal-title">Bookings</h3>
         <button class="modal-close" onclick="closeDayBookingsModal()">&times;</button>
       </div>
-      <div class="modal-body" style="padding: var(--space-md);">
+      <!-- List View -->
+      <div class="modal-body" id="day-bookings-list-view" style="padding: var(--space-md);">
         <div id="day-bookings-list" class="day-bookings-list"></div>
         <div id="day-bookings-empty" class="day-bookings-empty" style="display: none;">
           <p>No bookings or events on this day.</p>
         </div>
       </div>
+      <!-- Detail View (shown when viewing a specific booking) -->
+      <div class="modal-body" id="day-bookings-detail-view" style="display: none;">
+        <div class="modal-detail">
+          <div class="modal-detail-label">Event</div>
+          <div class="modal-detail-value" id="day-detail-event-name"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-type-section" style="display: none;">
+          <div class="modal-detail-label">Type</div>
+          <div class="modal-detail-value" id="day-detail-type"></div>
+        </div>
+        <div class="modal-detail">
+          <div class="modal-detail-label">Time</div>
+          <div class="modal-detail-value" id="day-detail-time"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-contact-section">
+          <div class="modal-detail-label">Contact</div>
+          <div class="modal-detail-value" id="day-detail-contact"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-email-section">
+          <div class="modal-detail-label">Email</div>
+          <div class="modal-detail-value" id="day-detail-email"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-phone-section">
+          <div class="modal-detail-label">Phone</div>
+          <div class="modal-detail-value" id="day-detail-phone"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-notes-section">
+          <div class="modal-detail-label">Notes</div>
+          <div class="modal-detail-value" id="day-detail-notes"></div>
+        </div>
+        <div class="modal-detail" id="day-detail-description-section" style="display: none;">
+          <div class="modal-detail-label">Description</div>
+          <div class="modal-detail-value" id="day-detail-description"></div>
+        </div>
+      </div>
       <div class="modal-footer" id="day-bookings-footer" style="display: none;">
         <button class="btn btn-primary" onclick="addBookingForDay()">Add Booking</button>
+      </div>
+      <!-- Detail View Footer for bookings -->
+      <div class="modal-footer" id="day-detail-footer" style="display: none;">
+        <button class="btn btn-primary" onclick="amendDayBookingFromModal()">Amend</button>
+        <button class="btn btn-danger" onclick="cancelDayBookingFromModal()">Cancel</button>
+      </div>
+      <!-- Detail View Footer for pending bookings -->
+      <div class="modal-footer" id="day-detail-pending-footer" style="display: none;">
+        <button class="btn btn-secondary" onclick="editPendingDayBookingFromModal()">Edit</button>
+        <button class="btn btn-approve" onclick="approveDayBookingFromModal()">Approve</button>
+        <button class="btn btn-decline" onclick="declineDayBookingFromModal()">Decline</button>
       </div>
     </div>
   </div>
@@ -2646,7 +2715,7 @@
     }
 
     /**
-     * View a specific event from the day bookings modal.
+     * View a specific event from the day bookings modal (inline).
      */
     function viewDayBookingItem(index) {
       const event = window.currentDayBookingsEvents[index];
@@ -2654,16 +2723,236 @@
       
       if (!event) return;
       
-      // Close the day bookings modal first
-      closeDayBookingsModal();
+      // Store the current event index for action buttons
+      window.currentDayBookingIndex = index;
       
-      // Open the appropriate detail modal
+      // Hide list view, show detail view
+      document.getElementById('day-bookings-list-view').style.display = 'none';
+      document.getElementById('day-bookings-detail-view').style.display = 'block';
+      document.getElementById('day-bookings-back-btn').style.display = 'flex';
+      document.getElementById('day-bookings-footer').style.display = 'none';
+      
+      // Hide all footers first
+      document.getElementById('day-detail-footer').style.display = 'none';
+      document.getElementById('day-detail-pending-footer').style.display = 'none';
+      
       if (event.type === 'booking') {
-        openBookingModal(event.data);
+        showDayBookingDetail(event.data);
       } else if (event.type === 'session') {
-        openSessionModal(event.data, date);
+        showDaySessionDetail(event.data, date);
       } else if (event.type === 'synced-event') {
-        openGoogleEventModal(event.data);
+        showDayGoogleEventDetail(event.data);
+      }
+    }
+    
+    /**
+     * Show booking details inline in the day bookings modal.
+     */
+    function showDayBookingDetail(booking) {
+      const isPending = booking.status === 'pending';
+      
+      // Update title
+      document.getElementById('day-bookings-modal-title').textContent = isPending ? 'Pending Booking Request' : 'Booking Details';
+      
+      // Format time
+      const startDate = new Date(booking.start_time);
+      const endDate = new Date(booking.end_time);
+      const timeOptions = { hour: '2-digit', minute: '2-digit' };
+      const formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
+      
+      // Populate details
+      document.getElementById('day-detail-event-name').textContent = booking.event_name || 'Untitled Booking';
+      document.getElementById('day-detail-type-section').style.display = 'none';
+      document.getElementById('day-detail-time').textContent = formattedTime;
+      
+      // Contact info
+      const contactSection = document.getElementById('day-detail-contact-section');
+      if (booking.contact_name) {
+        contactSection.style.display = 'block';
+        document.getElementById('day-detail-contact').textContent = booking.contact_name;
+      } else {
+        contactSection.style.display = 'none';
+      }
+      
+      // Email
+      const emailSection = document.getElementById('day-detail-email-section');
+      if (booking.contact_email) {
+        emailSection.style.display = 'block';
+        document.getElementById('day-detail-email').textContent = booking.contact_email;
+      } else {
+        emailSection.style.display = 'none';
+      }
+      
+      // Phone
+      const phoneSection = document.getElementById('day-detail-phone-section');
+      if (booking.contact_phone) {
+        phoneSection.style.display = 'block';
+        document.getElementById('day-detail-phone').textContent = booking.contact_phone;
+      } else {
+        phoneSection.style.display = 'none';
+      }
+      
+      // Notes
+      const notesSection = document.getElementById('day-detail-notes-section');
+      if (booking.notes) {
+        notesSection.style.display = 'block';
+        document.getElementById('day-detail-notes').textContent = booking.notes;
+      } else {
+        notesSection.style.display = 'none';
+      }
+      
+      // Hide description (not used for bookings)
+      document.getElementById('day-detail-description-section').style.display = 'none';
+      
+      // Show appropriate footer
+      if (isPending) {
+        document.getElementById('day-detail-pending-footer').style.display = 'flex';
+      } else {
+        document.getElementById('day-detail-footer').style.display = 'flex';
+      }
+    }
+    
+    /**
+     * Show session details inline in the day bookings modal.
+     */
+    function showDaySessionDetail(session, date) {
+      // Update title
+      document.getElementById('day-bookings-modal-title').textContent = 'Weekly Session';
+      
+      // Format time
+      const formattedTime = `${formatTimeShort(session.start_time)} - ${formatTimeShort(session.end_time)}`;
+      
+      // Populate details
+      document.getElementById('day-detail-event-name').textContent = session.name || 'Weekly Session';
+      document.getElementById('day-detail-type-section').style.display = 'block';
+      document.getElementById('day-detail-type').textContent = 'Weekly Session (recurring)';
+      document.getElementById('day-detail-time').textContent = formattedTime;
+      
+      // Hide contact/email/phone for sessions
+      document.getElementById('day-detail-contact-section').style.display = 'none';
+      document.getElementById('day-detail-email-section').style.display = 'none';
+      document.getElementById('day-detail-phone-section').style.display = 'none';
+      
+      // Show a note about editing sessions
+      document.getElementById('day-detail-notes-section').style.display = 'block';
+      document.getElementById('day-detail-notes').innerHTML = '<em>Weekly sessions can be edited in Settings → Weekly Sessions</em>';
+      
+      // Hide description
+      document.getElementById('day-detail-description-section').style.display = 'none';
+      
+      // No footer buttons for sessions
+    }
+    
+    /**
+     * Show Google event details inline in the day bookings modal.
+     */
+    function showDayGoogleEventDetail(event) {
+      // Update title
+      document.getElementById('day-bookings-modal-title').textContent = 'Google Calendar Event';
+      
+      // Format time
+      const startDate = new Date(event.start.dateTime || event.start.date);
+      const endDate = new Date(event.end.dateTime || event.end.date);
+      const timeOptions = { hour: '2-digit', minute: '2-digit' };
+      
+      let formattedTime;
+      if (event.start.date && !event.start.dateTime) {
+        formattedTime = 'All day';
+      } else {
+        formattedTime = `${startDate.toLocaleTimeString('en-GB', timeOptions)} - ${endDate.toLocaleTimeString('en-GB', timeOptions)}`;
+      }
+      
+      // Populate details
+      document.getElementById('day-detail-event-name').textContent = event.summary || 'Untitled Event';
+      document.getElementById('day-detail-type-section').style.display = 'block';
+      document.getElementById('day-detail-type').textContent = 'Synced from Google Calendar';
+      document.getElementById('day-detail-time').textContent = formattedTime;
+      
+      // Hide contact/email/phone for Google events
+      document.getElementById('day-detail-contact-section').style.display = 'none';
+      document.getElementById('day-detail-email-section').style.display = 'none';
+      document.getElementById('day-detail-phone-section').style.display = 'none';
+      
+      // Show description if available
+      if (event.description) {
+        document.getElementById('day-detail-notes-section').style.display = 'block';
+        document.getElementById('day-detail-notes').textContent = event.description;
+      } else {
+        document.getElementById('day-detail-notes-section').style.display = 'none';
+      }
+      
+      // Hide description section (using notes instead)
+      document.getElementById('day-detail-description-section').style.display = 'none';
+      
+      // No footer buttons for Google events
+    }
+    
+    /**
+     * Go back to the day bookings list view.
+     */
+    function showDayBookingsList() {
+      // Restore the date title
+      const date = window.currentDayBookingsDate;
+      if (date) {
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+        document.getElementById('day-bookings-modal-title').textContent = date.toLocaleDateString('en-GB', dateOptions);
+      }
+      
+      // Show list view, hide detail view
+      document.getElementById('day-bookings-list-view').style.display = 'block';
+      document.getElementById('day-bookings-detail-view').style.display = 'none';
+      document.getElementById('day-bookings-back-btn').style.display = 'none';
+      
+      // Hide detail footers
+      document.getElementById('day-detail-footer').style.display = 'none';
+      document.getElementById('day-detail-pending-footer').style.display = 'none';
+      
+      // Show list footer if there are events
+      if (window.currentDayBookingsEvents && window.currentDayBookingsEvents.length > 0) {
+        document.getElementById('day-bookings-footer').style.display = 'flex';
+      }
+    }
+    
+    /**
+     * Action handlers for day booking detail view.
+     */
+    function amendDayBookingFromModal() {
+      const event = window.currentDayBookingsEvents[window.currentDayBookingIndex];
+      if (event && event.type === 'booking') {
+        closeDayBookingsModal();
+        goToAmendBooking(event.data.id);
+      }
+    }
+    
+    function cancelDayBookingFromModal() {
+      const event = window.currentDayBookingsEvents[window.currentDayBookingIndex];
+      if (event && event.type === 'booking') {
+        currentModalBookingId = event.data.id;
+        cancelBookingFromModal();
+      }
+    }
+    
+    function editPendingDayBookingFromModal() {
+      const event = window.currentDayBookingsEvents[window.currentDayBookingIndex];
+      if (event && event.type === 'booking') {
+        closeDayBookingsModal();
+        goToAmendBooking(event.data.id);
+      }
+    }
+    
+    function approveDayBookingFromModal() {
+      const event = window.currentDayBookingsEvents[window.currentDayBookingIndex];
+      if (event && event.type === 'booking') {
+        currentModalBookingId = event.data.id;
+        approveBookingFromModal();
+      }
+    }
+    
+    function declineDayBookingFromModal() {
+      const event = window.currentDayBookingsEvents[window.currentDayBookingIndex];
+      if (event && event.type === 'booking') {
+        currentModalBookingId = event.data.id;
+        declineBookingFromModal();
       }
     }
 
@@ -2673,6 +2962,13 @@
     function closeDayBookingsModal() {
       document.getElementById('day-bookings-modal').classList.remove('active');
       document.body.style.overflow = '';
+      
+      // Reset to list view for next open
+      document.getElementById('day-bookings-list-view').style.display = 'block';
+      document.getElementById('day-bookings-detail-view').style.display = 'none';
+      document.getElementById('day-bookings-back-btn').style.display = 'none';
+      document.getElementById('day-detail-footer').style.display = 'none';
+      document.getElementById('day-detail-pending-footer').style.display = 'none';
     }
 
     function openBookingModal(booking) {
