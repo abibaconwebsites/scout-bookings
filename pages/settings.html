@@ -440,6 +440,16 @@
       color: #b45309;
     }
 
+    /* Upgrade Code Section */
+    #upgrade-code-section {
+      background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+      border: 1px solid #DDD6FE;
+    }
+
+    #upgrade-code-section .settings-card-title {
+      color: var(--color-primary);
+    }
+
     /* Upgrade Code Form */
     .upgrade-code-form {
       margin-top: 1rem;
@@ -453,10 +463,29 @@
 
     .form-row-inline .form-control {
       flex: 1;
+      font-size: 1rem;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+      text-align: center;
+      background: var(--color-white);
+      border: 2px solid #DDD6FE;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-row-inline .form-control:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    .form-row-inline .form-control::placeholder {
+      letter-spacing: normal;
+      font-weight: 400;
     }
 
     .form-row-inline .btn {
       flex-shrink: 0;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
 
     .form-error {
@@ -1625,9 +1654,16 @@
         <!-- Upgrade Code Section -->
         <div class="settings-card" id="upgrade-code-section">
           <div class="settings-card-header">
-            <div>
-              <h2 class="settings-card-title">Have an Upgrade Code?</h2>
-              <p class="settings-card-subtitle">Enter your code below to unlock Pro features</p>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="width: 40px; height: 40px; background: var(--color-primary); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+                </svg>
+              </div>
+              <div>
+                <h2 class="settings-card-title">Have an Upgrade Code?</h2>
+                <p class="settings-card-subtitle">Enter your code below to unlock Pro features</p>
+              </div>
             </div>
           </div>
           
@@ -1637,7 +1673,7 @@
                 type="text" 
                 id="upgrade-code-input" 
                 class="form-control" 
-                placeholder="Enter upgrade code"
+                placeholder=""
                 autocomplete="off"
                 spellcheck="false"
                 style="text-transform: uppercase;"
