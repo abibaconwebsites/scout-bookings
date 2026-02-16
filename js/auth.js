@@ -269,6 +269,7 @@ async function handleLogout() {
  * Checks if user is authenticated. Redirects to login if not.
  * Use this function to protect pages that require authentication.
  * Waits for session to be restored from storage before checking.
+ * Also refreshes the session if it's close to expiring.
  * 
  * @returns {Object|null} The user object if logged in, null otherwise
  */
@@ -286,30 +287,60 @@ async function checkAuth() {
         // If no session found immediately, wait a moment for auth state to initialize
         // This handles the case where the page loads before session is restored
         if (!session) {
-            // Wait for potential auth state change
-            const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
-                (event, newSession) => {
-                    if (newSession) {
-                        session = newSession;
+            // Wait for potential auth state change with a promise that resolves on session
+            session = await new Promise((resolve) => {
+                const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+                    (event, newSession) => {
+                        if (newSession) {
+                            subscription.unsubscribe();
+                            resolve(newSession);
+                        }
                     }
-                }
-            );
+                );
+                
+                // Timeout after 500ms if no session arrives
+                setTimeout(() => {
+                    subscription.unsubscribe();
+                    resolve(null);
+                }, 500);
+            });
             
-            // Give it a brief moment to restore session from storage
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Clean up the listener
-            subscription.unsubscribe();
-            
-            // Try getting session again
-            const result = await supabaseClient.auth.getSession();
-            session = result.data.session;
+            // If still no session from listener, try one more time
+            if (!session) {
+                const result = await supabaseClient.auth.getSession();
+                session = result.data.session;
+            }
         }
 
         // If still no session, redirect to login
         if (!session) {
             window.location.href = '/login';
             return null;
+        }
+
+        // Check if session is close to expiring (within 5 minutes) and refresh it
+        // This prevents RLS errors from expired tokens
+        if (session.expires_at) {
+            const expiresAt = session.expires_at * 1000; // Convert to milliseconds
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+            
+            if (expiresAt - now < fiveMinutes) {
+                console.log('Session expiring soon, refreshing...');
+                const { data: refreshData, error: refreshError } = await supabaseClient.auth.refreshSession();
+                
+                if (refreshError) {
+                    console.error('Session refresh error:', refreshError);
+                    // If refresh fails, redirect to login
+                    window.location.href = '/login';
+                    return null;
+                }
+                
+                if (refreshData.session) {
+                    session = refreshData.session;
+                    console.log('Session refreshed successfully');
+                }
+            }
         }
 
         // Return the user object

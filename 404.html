@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Page not found - Scout Bookings">
+  <title>404 - Page Not Found | Scout Bookings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .error-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      background: linear-gradient(135deg, var(--color-background) 0%, #f0e6fa 100%);
+    }
+
+    .error-content {
+      text-align: center;
+      max-width: 500px;
+    }
+
+    .error-illustration {
+      margin-bottom: var(--space-xl);
+    }
+
+    .tent-svg {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
+
+    .error-code {
+      font-size: 6rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: var(--space-md);
+      opacity: 0.9;
+    }
+
+    .error-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-md);
+    }
+
+    .error-message {
+      font-size: 1.125rem;
+      color: var(--color-placeholder);
+      margin-bottom: var(--space-xl);
+      line-height: 1.6;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: var(--space-md);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .error-actions .btn {
+      min-width: 140px;
+    }
+
+    .error-links {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .error-links p {
+      font-size: 0.875rem;
+      color: var(--color-placeholder);
+      margin-bottom: var(--space-sm);
+    }
+
+    .error-links a {
+      color: var(--color-primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .error-links a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      .error-code {
+        font-size: 4rem;
+      }
+
+      .error-title {
+        font-size: 1.5rem;
+      }
+
+      .error-message {
+        font-size: 1rem;
+      }
+
+      .tent-svg {
+        width: 150px;
+        height: 150px;
+      }
+
+      .error-actions {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .error-actions .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">Scout Bookings</a>
+      <div class="nav-links" id="nav-links">
+        <a href="/login">Login</a>
+        <a href="/signup" class="btn btn-primary btn-small">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Error Content -->
+  <main class="error-page">
+    <div class="error-content">
+      <!-- Scout Tent Illustration -->
+      <div class="error-illustration">
+        <svg class="tent-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ground -->
+          <ellipse cx="100" cy="170" rx="80" ry="10" fill="#e5e5e5"/>
+          
+          <!-- Tent body -->
+          <path d="M100 40 L160 160 L40 160 Z" fill="#7413dc" opacity="0.9"/>
+          <path d="M100 40 L100 160 L40 160 Z" fill="#9333ea" opacity="0.8"/>
+          
+          <!-- Tent opening -->
+          <path d="M85 160 L100 100 L115 160 Z" fill="#404040" opacity="0.3"/>
+          
+          <!-- Tent pole top -->
+          <circle cx="100" cy="38" r="4" fill="#404040"/>
+          
+          <!-- Flag -->
+          <rect x="100" y="20" width="2" height="22" fill="#404040"/>
+          <path d="M102 20 L120 28 L102 36 Z" fill="#f59e0b"/>
+          
+          <!-- Stars -->
+          <circle cx="45" cy="60" r="2" fill="#7413dc" opacity="0.4"/>
+          <circle cx="155" cy="50" r="2" fill="#7413dc" opacity="0.4"/>
+          <circle cx="170" cy="80" r="1.5" fill="#7413dc" opacity="0.3"/>
+          <circle cx="30" cy="90" r="1.5" fill="#7413dc" opacity="0.3"/>
+          <circle cx="60" cy="45" r="1" fill="#7413dc" opacity="0.2"/>
+          <circle cx="140" cy="70" r="1" fill="#7413dc" opacity="0.2"/>
+          
+          <!-- Question mark on tent -->
+          <text x="100" y="130" text-anchor="middle" font-size="40" font-weight="800" fill="white" opacity="0.6">?</text>
+        </svg>
+      </div>
+
+      <div class="error-code">404</div>
+      <h1 class="error-title">Lost in the woods?</h1>
+      <p class="error-message">
+        The page you're looking for seems to have wandered off the trail. 
+        Let's get you back to camp.
+      </p>
+
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Go Home</a>
+        <a href="/dashboard" class="btn btn-outline">Dashboard</a>
+      </div>
+
+      <div class="error-links">
+        <p>Or try one of these:</p>
+        <a href="/login">Login</a> · 
+        <a href="/signup">Sign Up</a> · 
+        <a href="mailto:support@scoutbookings.com">Contact Support</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Update nav based on auth state
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const navLinks = document.getElementById('nav-links');
+        
+        if (session && session.user) {
+          navLinks.innerHTML = `
+            <a href="/dashboard">Dashboard</a>
+            <button onclick="handleLogout()" class="btn btn-outline btn-small">Logout</button>
+          `;
+        }
+      } catch (err) {
+        console.error('Error checking auth:', err);
+      }
+    });
+  </script>
+</body>
+</html>

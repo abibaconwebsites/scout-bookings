@@ -4,6 +4,51 @@
  */
 
 // =============================================================================
+// SESSION REFRESH HELPER
+// =============================================================================
+
+/**
+ * Ensures the user's session is valid and refreshes it if needed.
+ * Call this before any database write operation to prevent RLS errors
+ * from expired tokens.
+ * 
+ * @returns {Promise<boolean>} True if session is valid, false otherwise
+ */
+async function ensureValidSession() {
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (error || !session) {
+            console.warn('No valid session found');
+            return false;
+        }
+        
+        // Check if session is close to expiring (within 5 minutes)
+        if (session.expires_at) {
+            const expiresAt = session.expires_at * 1000;
+            const now = Date.now();
+            const fiveMinutes = 5 * 60 * 1000;
+            
+            if (expiresAt - now < fiveMinutes) {
+                console.log('Session expiring soon, refreshing before operation...');
+                const { error: refreshError } = await supabaseClient.auth.refreshSession();
+                
+                if (refreshError) {
+                    console.error('Failed to refresh session:', refreshError);
+                    return false;
+                }
+                console.log('Session refreshed successfully');
+            }
+        }
+        
+        return true;
+    } catch (err) {
+        console.error('Error checking session:', err);
+        return false;
+    }
+}
+
+// =============================================================================
 // GET BOOKINGS FOR USER'S HUT
 // =============================================================================
 
@@ -169,6 +214,14 @@ async function createBooking(bookingData) {
         const end = new Date(bookingData.end_time);
         if (end <= start) {
             return { data: null, error: { message: 'End time must be after start time' } };
+        }
+
+        // =========================================================================
+        // STEP 0: Ensure session is valid (prevents RLS errors from expired tokens)
+        // =========================================================================
+        const sessionValid = await ensureValidSession();
+        if (!sessionValid) {
+            return { data: null, error: { message: 'Your session has expired. Please refresh the page and try again.' } };
         }
 
         // =========================================================================
@@ -340,6 +393,12 @@ async function updateBooking(bookingId, updates) {
     try {
         if (!bookingId) {
             return { data: null, error: { message: 'Booking ID is required' } };
+        }
+
+        // Ensure session is valid before update
+        const sessionValid = await ensureValidSession();
+        if (!sessionValid) {
+            return { data: null, error: { message: 'Your session has expired. Please refresh the page and try again.' } };
         }
 
         const updateData = {};
@@ -567,6 +626,12 @@ async function deleteBooking(bookingId) {
     try {
         if (!bookingId) {
             return { success: false, error: { message: 'Booking ID is required' } };
+        }
+
+        // Ensure session is valid before delete
+        const sessionValid = await ensureValidSession();
+        if (!sessionValid) {
+            return { success: false, error: { message: 'Your session has expired. Please refresh the page and try again.' } };
         }
 
         // =========================================================================
