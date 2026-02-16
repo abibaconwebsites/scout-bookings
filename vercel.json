@@ -11,6 +11,7 @@
     { "source": "/add-booking", "destination": "/pages/add-booking" },
     { "source": "/edit-booking", "destination": "/pages/edit-booking" },
     { "source": "/edit-hut", "destination": "/pages/edit-hut" },
-    { "source": "/settings", "destination": "/pages/settings" }
+    { "source": "/settings", "destination": "/pages/settings" },
+    { "source": "/demo", "destination": "/pages/demo" }
   ]
 }
