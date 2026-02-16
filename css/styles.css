@@ -1419,6 +1419,12 @@ small {
     min-width: 0 !important;
     box-sizing: border-box !important;
   }
+
+  /* Date/time grid narrower on mobile */
+  .datetime-grid,
+  .time-grid {
+    width: 80%;
+  }
   
   /* Navigation */
   .navbar {
