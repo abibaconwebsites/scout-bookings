@@ -187,7 +187,7 @@
 
     .slug-input {
       border: none !important;
-      background-color: var(--color-white) !important;
+      background-color: var(--color-background) !important;
       border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
       flex: 1;
     }
@@ -435,6 +435,17 @@
 
       .group-time-inputs .time-input {
         width: 75px;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Prevent time inputs from overflowing */
+      .time-input,
+      input[type="time"] {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       .address-grid {

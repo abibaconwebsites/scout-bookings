@@ -137,6 +137,24 @@
         grid-template-columns: 1fr;
       }
 
+      /* Prevent date/time inputs from overflowing */
+      .form-input,
+      input[type="date"],
+      input[type="time"] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .time-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .time-grid .form-input {
+        min-width: 0;
+      }
+
       .form-actions {
         flex-direction: column;
         gap: var(--space-md);

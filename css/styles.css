@@ -118,6 +118,7 @@ body {
   line-height: 1.6;
   color: var(--color-text);
   background-color: var(--color-background);
+  letter-spacing: -0.02em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -130,7 +131,6 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.3;
   color: var(--color-text);
   margin-bottom: var(--space-md);
-  letter-spacing: 0.02em;
 }
 
 h1 {
@@ -294,7 +294,6 @@ small {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  letter-spacing: 0.02em;
 }
 
 .logo:hover {
@@ -1044,12 +1043,6 @@ small {
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
-}
-
-.hut-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
 }
 
 .hut-card-image {
@@ -1407,6 +1400,19 @@ small {
   /* Container */
   .container {
     padding: 0 var(--space-md);
+  }
+  
+  /* Prevent date/time inputs from overflowing on mobile */
+  .form-input,
+  .form-select,
+  .form-textarea,
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
   
   /* Navigation */

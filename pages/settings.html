@@ -1025,6 +1025,17 @@
 
       .group-time-inputs .time-input {
         width: 75px;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Prevent time inputs from overflowing */
+      .time-input,
+      input[type="time"] {
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
       }
     }
   </style>
