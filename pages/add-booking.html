@@ -40,10 +40,12 @@
       box-shadow: var(--shadow-md);
       padding: var(--space-xl);
       margin-bottom: var(--space-lg);
+      overflow: hidden;
     }
 
     .form-section {
       margin-bottom: var(--space-xl);
+      min-width: 0;
     }
 
     .form-section:last-child {
@@ -79,6 +81,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--space-sm);
+      min-width: 0;
+    }
+
+    .time-grid .form-input {
+      min-width: 0;
     }
 
     .contact-grid {
@@ -138,21 +145,29 @@
       }
 
       /* Prevent date/time inputs from overflowing */
+      .form-group {
+        min-width: 0;
+        overflow: hidden;
+      }
+
       .form-input,
       input[type="date"],
       input[type="time"] {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
       }
 
       .time-grid {
         grid-template-columns: 1fr 1fr;
+        width: 100%;
+        min-width: 0;
       }
 
       .time-grid .form-input {
-        min-width: 0;
+        min-width: 0 !important;
+        flex: 1;
       }
 
       .form-actions {

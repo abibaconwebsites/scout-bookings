@@ -188,9 +188,14 @@
       grid-template-columns: 1fr 1fr;
       gap: var(--space-sm);
       min-width: 0;
+      width: 100%;
     }
 
     .time-grid .form-group {
+      min-width: 0;
+    }
+
+    .time-grid .form-input {
       min-width: 0;
     }
 
@@ -383,22 +388,32 @@
       }
 
       /* Prevent date/time inputs from overflowing */
+      .form-group {
+        min-width: 0;
+        overflow: hidden;
+      }
+
       .form-input,
       .form-select,
       input[type="date"],
       input[type="time"] {
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
       }
 
       .time-grid {
         grid-template-columns: 1fr 1fr;
+        width: 100%;
       }
 
       .time-grid .form-group {
         min-width: 0;
+      }
+
+      .time-grid .form-input {
+        min-width: 0 !important;
       }
 
       .form-actions {
