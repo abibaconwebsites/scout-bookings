@@ -10,116 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/styles.css">
   <style>
-    /* Notifications Dropdown */
-    .nav-notifications-wrapper {
-      position: relative;
-    }
-
-    .nav-notifications {
-      position: relative;
-    }
-
-    .notification-badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      background-color: var(--color-primary);
-      color: white;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .notifications-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      width: 320px;
-      max-height: 400px;
-      background-color: var(--color-white);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--color-border);
-      z-index: 1000;
-      display: none;
-      overflow: hidden;
-    }
-
-    .notifications-dropdown.active {
-      display: block;
-    }
-
-    @media (max-width: 768px) {
-      .notifications-dropdown {
-        position: fixed;
-        top: 60px;
-        right: var(--space-md);
-        left: var(--space-md);
-        width: auto;
-        max-height: calc(100vh - 120px);
-      }
-    }
-
-    .notifications-dropdown-header {
-      padding: var(--space-md);
-      border-bottom: 1px solid var(--color-border);
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--color-text);
-    }
-
-    .notifications-dropdown-list {
-      max-height: 320px;
-      overflow-y: auto;
-    }
-
-    .notifications-empty {
-      padding: var(--space-xl);
-      text-align: center;
-      color: var(--color-placeholder);
-      font-size: 0.875rem;
-    }
-
-    .notification-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-md);
-      padding: var(--space-md);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .notification-item:last-child {
-      border-bottom: none;
-    }
-
-    .notification-item-content {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .notification-item-title {
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--color-text);
-      margin-bottom: 2px;
-    }
-
-    .notification-item-date {
-      font-size: 0.75rem;
-      color: var(--color-placeholder);
-    }
-
-    .notification-item .btn {
-      flex-shrink: 0;
-    }
-
     .dashboard-header {
       background-color: var(--color-white);
       border-bottom: 1px solid var(--color-border);
@@ -540,6 +430,7 @@
 
     .booking-item-content {
       flex: 1;
+      min-width: 0;
     }
 
     .booking-item-title {
@@ -579,6 +470,7 @@
       color: white;
       cursor: pointer;
       transition: all var(--transition-fast);
+      white-space: nowrap;
     }
 
     .booking-item .btn-view:hover {
@@ -592,6 +484,32 @@
 
     .booking-item.cancelled .booking-item-actions {
       display: none;
+    }
+
+    @media (max-width: 480px) {
+      .booking-item {
+        align-items: center;
+        padding: var(--space-sm) var(--space-md);
+      }
+
+      .booking-item-title {
+        font-size: 0.875rem;
+        margin-bottom: var(--space-xs);
+      }
+
+      .booking-item-datetime {
+        font-size: 0.75rem;
+      }
+
+      .booking-item-actions {
+        margin-left: var(--space-sm);
+        margin-top: 0;
+      }
+
+      .booking-item .btn-view {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+      }
     }
 
     /* Booking Modal */
@@ -899,6 +817,10 @@
       overflow: hidden;
       cursor: pointer;
       transition: all var(--transition-fast);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 2px;
     }
 
     .booking-event:hover {
@@ -919,9 +841,16 @@
       color: #ffffff !important;
     }
 
+    .booking-event-name {
+      overflow: hidden;
+      flex: 1;
+      min-width: 0;
+    }
+
     .booking-event-time {
       font-weight: 600;
       margin-left: 3px;
+      flex-shrink: 0;
     }
 
   
@@ -937,6 +866,10 @@
       cursor: pointer;
       transition: all var(--transition-fast);
       opacity: 0.9;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 2px;
     }
 
     .google-event:hover {
@@ -948,9 +881,16 @@
       color: #ffffff !important;
     }
 
+    .google-event-name {
+      overflow: hidden;
+      flex: 1;
+      min-width: 0;
+    }
+
     .google-event-time {
       font-weight: 600;
       margin-left: 3px;
+      flex-shrink: 0;
     }
 
    
@@ -1001,6 +941,138 @@
 
     .more-events:hover {
       text-decoration: underline;
+    }
+
+    /* Day Bookings Modal List */
+    .day-bookings-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .day-booking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md);
+      background-color: var(--color-background);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-primary);
+      gap: var(--space-sm);
+      flex-wrap: nowrap;
+    }
+
+    .day-booking-item.session {
+      border-left-color: #003982;
+    }
+
+    .day-booking-item.google-event {
+      border-left-color: #4285F4;
+    }
+
+    .day-booking-item.pending {
+      border-left-color: #9ca3af;
+    }
+
+    .day-booking-item-content {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .day-booking-item-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--color-text);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .day-booking-item-time {
+      font-size: 0.8125rem;
+      color: var(--color-placeholder);
+      white-space: nowrap;
+    }
+
+    .day-booking-item-type {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: var(--space-xs);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .day-booking-item-type.booking {
+      background-color: #7413dc;
+      color: white;
+    }
+
+    .day-booking-item-type.pending {
+      background-color: #9ca3af;
+      color: white;
+    }
+
+    .day-booking-item-type.session {
+      background-color: #003982;
+      color: white;
+    }
+
+    .day-booking-item-type.google {
+      background-color: #4285F4;
+      color: white;
+    }
+
+    .day-booking-item-actions {
+      flex-shrink: 0;
+    }
+
+    .day-booking-item .btn-view {
+      font-size: 0.8125rem;
+      padding: 0.5rem 0.875rem;
+      background-color: var(--color-primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .day-booking-item .btn-view:hover {
+      background-color: var(--color-primary-dark, #5a0db8);
+    }
+
+    @media (max-width: 480px) {
+      .day-booking-item {
+        padding: var(--space-sm);
+        gap: var(--space-xs);
+      }
+
+      .day-booking-item-name {
+        font-size: 0.8125rem;
+      }
+
+      .day-booking-item-time {
+        font-size: 0.75rem;
+      }
+
+      .day-booking-item-type {
+        font-size: 0.5625rem;
+        padding: 2px 4px;
+        margin-left: 4px;
+      }
+
+      .day-booking-item .btn-view {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.625rem;
+      }
     }
 
     /* View Toggle */
@@ -1245,15 +1317,26 @@
       cursor: pointer;
       position: relative;
       transition: all var(--transition-fast);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 2px;
     }
 
     .session-event:hover {
       background-color: #002a5c;
     }
 
+    .session-event-name {
+      overflow: hidden;
+      flex: 1;
+      min-width: 0;
+    }
+
     .session-event-time {
       font-weight: 600;
       margin-left: 3px;
+      flex-shrink: 0;
     }
 
    
@@ -1340,41 +1423,8 @@
   </style>
 </head>
 <body>
-  <!-- Navigation -->
-  <nav class="navbar" role="navigation" aria-label="Main navigation">
-    <div class="nav-container">
-      <a href="dashboard.html" class="logo" aria-label="Scout Bookings Dashboard">Scout Bookings</a>
-      <div class="nav-actions">
-        <div class="nav-notifications-wrapper">
-          <button class="nav-icon-btn nav-notifications" id="notifications-btn" aria-label="Notifications" onclick="toggleNotificationsDropdown(event)">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-            </svg>
-            <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
-          </button>
-          <div class="notifications-dropdown" id="notifications-dropdown">
-            <div class="notifications-dropdown-header">
-              <span>Pending Bookings</span>
-            </div>
-            <div class="notifications-dropdown-list" id="notifications-dropdown-list">
-              <div class="notifications-empty">No pending bookings</div>
-            </div>
-          </div>
-        </div>
-        <a href="settings.html" class="nav-icon-btn" aria-label="Settings">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-          </svg>
-        </a>
-        <button onclick="handleLogout()" class="nav-icon-btn" aria-label="Logout">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  </nav>
+  <!-- Navigation (injected by navigation.js) -->
+  <div id="dashboard-nav"></div>
 
   <!-- Dashboard Header -->
   <header class="dashboard-header">
@@ -1436,6 +1486,7 @@
 
         <!-- Bookings Card -->
         <div class="dashboard-card bookings-card">
+          <h2>Upcoming Bookings</h2>
           <div class="bookings-header">
             <div class="bookings-toggle">
               <button class="bookings-toggle-btn active" id="toggle-this-month" onclick="toggleBookingsView('this-month')">
@@ -1446,7 +1497,6 @@
                 <span class="pending-badge" id="pending-count" style="display: none;">0</span>
               </button>
             </div>
-            <a href="add-booking.html" class="btn btn-primary btn-small">+ Add</a>
           </div>
           
           <!-- This Month's Bookings View -->
@@ -1545,8 +1595,20 @@
     </div>
   </main>
 
+  <!-- Day Bookings Modal (shows all bookings for a day) -->
+  <div class="modal-overlay" id="day-bookings-modal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 id="day-bookings-modal-title">Bookings</h3>
+        <button class="modal-close" onclick="closeDayBookingsModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: var(--space-md);">
+        <div id="day-bookings-list" class="day-bookings-list"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Booking Details Modal -->
-  <div class="modal-overlay" id="booking-modal">
     <div class="modal">
       <div class="modal-header">
         <h3 id="modal-title">Booking Details</h3>
@@ -1609,12 +1671,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/config.js"></script>
   <script src="../js/utils.js"></script>
+  <script src="../js/navigation.js"></script>
   <!-- calendar.js must load before auth.js - auth.js calls saveCalendarTokens() during OAuth callback -->
   <script src="../js/calendar.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/huts.js"></script>
   <script src="../js/bookings.js"></script>
   <script>
+    // Initialize navigation
+    initDashboardNavigation();
     // Dashboard initialization
     document.addEventListener('DOMContentLoaded', async function() {
       // Check if user is authenticated
@@ -2395,8 +2460,8 @@
     let currentModalBookingId = null;
 
     /**
-     * Shows bookings for a specific day when clicking "+X more".
-     * All event types now show in popups (bookings, sessions, Google events).
+     * Shows all bookings for a specific day when clicking "+X more".
+     * Opens a modal with a list of all events and "View Booking" buttons.
      */
     function showDayBookings(date) {
       // Format date as YYYY-MM-DD in local time
@@ -2429,24 +2494,33 @@
         allEvents.push({
           type: 'session',
           start_time: session.start_time,
+          end_time: session.end_time,
+          name: session.name,
           data: session
         });
       });
       
       dayBookings.forEach(booking => {
         const startDate = new Date(booking.start_time);
+        const endDate = new Date(booking.end_time);
         allEvents.push({
           type: 'booking',
           start_time: startDate.toTimeString().slice(0, 5),
+          end_time: endDate.toTimeString().slice(0, 5),
+          name: booking.event_name || 'Booking',
+          status: booking.status,
           data: booking
         });
       });
       
       daySyncedEvents.forEach(syncedEvent => {
         const startDate = new Date(syncedEvent.start_time);
+        const endDate = new Date(syncedEvent.end_time);
         allEvents.push({
           type: 'synced-event',
           start_time: startDate.toTimeString().slice(0, 5),
+          end_time: endDate.toTimeString().slice(0, 5),
+          name: syncedEvent.title || 'Google Event',
           data: syncedEvent
         });
       });
@@ -2454,17 +2528,96 @@
       // Sort by start time
       allEvents.sort((a, b) => a.start_time.localeCompare(b.start_time));
       
-      // Open the first event's modal
-      if (allEvents.length > 0) {
-        const firstEvent = allEvents[0];
-        if (firstEvent.type === 'booking') {
-          openBookingModal(firstEvent.data);
-        } else if (firstEvent.type === 'session') {
-          openSessionModal(firstEvent.data, date);
-        } else if (firstEvent.type === 'synced-event') {
-          openGoogleEventModal(firstEvent.data);
+      // Format the date for the modal title
+      const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+      const formattedDate = date.toLocaleDateString('en-GB', dateOptions);
+      
+      // Update modal title
+      document.getElementById('day-bookings-modal-title').textContent = formattedDate;
+      
+      // Build the list HTML
+      const listContainer = document.getElementById('day-bookings-list');
+      
+      // Store date for use in click handlers
+      window.currentDayBookingsDate = date;
+      
+      listContainer.innerHTML = allEvents.map((event, index) => {
+        const isPending = event.type === 'booking' && event.status === 'pending';
+        let itemClass = 'day-booking-item';
+        let typeClass = '';
+        let typeLabel = '';
+        
+        if (event.type === 'session') {
+          itemClass += ' session';
+          typeClass = 'session';
+          typeLabel = 'Session';
+        } else if (event.type === 'booking') {
+          if (isPending) {
+            itemClass += ' pending';
+            typeClass = 'pending';
+            typeLabel = 'Pending';
+          } else {
+            typeClass = 'booking';
+            typeLabel = 'Booking';
+          }
+        } else if (event.type === 'synced-event') {
+          itemClass += ' google-event';
+          typeClass = 'google';
+          typeLabel = 'Google';
         }
+        
+        return `
+          <div class="${itemClass}" data-event-index="${index}">
+            <div class="day-booking-item-content">
+              <div class="day-booking-item-name">
+                ${escapeHtml(event.name)}
+                <span class="day-booking-item-type ${typeClass}">${typeLabel}</span>
+              </div>
+              <div class="day-booking-item-time">${formatTimeShort(event.start_time)} - ${formatTimeShort(event.end_time)}</div>
+            </div>
+            <div class="day-booking-item-actions">
+              <button class="btn-view" onclick="viewDayBookingItem(${index})">View</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      // Store events for click handlers
+      window.currentDayBookingsEvents = allEvents;
+      
+      // Show the modal
+      document.getElementById('day-bookings-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    /**
+     * View a specific event from the day bookings modal.
+     */
+    function viewDayBookingItem(index) {
+      const event = window.currentDayBookingsEvents[index];
+      const date = window.currentDayBookingsDate;
+      
+      if (!event) return;
+      
+      // Close the day bookings modal first
+      closeDayBookingsModal();
+      
+      // Open the appropriate detail modal
+      if (event.type === 'booking') {
+        openBookingModal(event.data);
+      } else if (event.type === 'session') {
+        openSessionModal(event.data, date);
+      } else if (event.type === 'synced-event') {
+        openGoogleEventModal(event.data);
       }
+    }
+
+    /**
+     * Close the day bookings modal.
+     */
+    function closeDayBookingsModal() {
+      document.getElementById('day-bookings-modal').classList.remove('active');
+      document.body.style.overflow = '';
     }
 
     function openBookingModal(booking) {
@@ -2708,10 +2861,18 @@
       }
     });
 
-    // Close modal with Escape key
+    // Close day bookings modal when clicking outside
+    document.getElementById('day-bookings-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeDayBookingsModal();
+      }
+    });
+
+    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         closeBookingModal();
+        closeDayBookingsModal();
       }
     });
 

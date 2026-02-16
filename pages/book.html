@@ -22,7 +22,7 @@
 
     .public-navbar .nav-container {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
     }
 
@@ -153,10 +153,12 @@
       box-shadow: var(--shadow-md);
       padding: var(--space-xl);
       margin-bottom: var(--space-lg);
+      overflow: hidden;
     }
 
     .form-section {
       margin-bottom: var(--space-xl);
+      min-width: 0;
     }
 
     .form-section:last-child {
@@ -185,6 +187,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: var(--space-sm);
+      min-width: 0;
+    }
+
+    .time-grid .form-group {
+      min-width: 0;
     }
 
     .contact-grid {
@@ -373,6 +380,25 @@
       .datetime-grid,
       .contact-grid {
         grid-template-columns: 1fr;
+      }
+
+      /* Prevent date/time inputs from overflowing */
+      .form-input,
+      .form-select,
+      input[type="date"],
+      input[type="time"] {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+      }
+
+      .time-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .time-grid .form-group {
+        min-width: 0;
       }
 
       .form-actions {
