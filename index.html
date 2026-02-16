@@ -426,8 +426,35 @@
     <p>© 2026 Scout Bookings. All rights reserved.</p>
   </footer>
 
+  <!-- Handle OAuth callback redirect -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
   <script>
-    // Simple form handling
+    // Check for OAuth callback or existing session and redirect to dashboard
+    (async function() {
+      const hash = window.location.hash;
+      
+      // If we have OAuth tokens in the URL hash, redirect to dashboard
+      if (hash && hash.includes('access_token')) {
+        // Let Supabase process the hash and establish the session
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        
+        if (session) {
+          // Redirect to dashboard
+          window.location.href = '/pages/dashboard.html';
+          return;
+        }
+      }
+      
+      // Also check if user is already logged in and redirect them
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session && session.user) {
+        window.location.href = '/pages/dashboard.html';
+        return;
+      }
+    })();
+
+    // Simple form handling for notify form
     document.getElementById('notify-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       
