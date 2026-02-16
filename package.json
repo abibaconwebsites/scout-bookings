@@ -1,0 +1,12 @@
+{
+  "name": "scout-bookings",
+  "version": "1.0.0",
+  "description": "Scout Bookings - Hut booking management system",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "resend": "^4.0.0"
+  }
+}
