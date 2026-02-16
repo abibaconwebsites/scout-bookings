@@ -1606,6 +1606,15 @@ small {
   font-size: 3rem;
   margin-bottom: var(--space-lg);
   color: var(--color-text);
+  line-height: 1.15;
+}
+
+.hero h1 span {
+  display: block;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #6D28D9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .hero-subtitle {
